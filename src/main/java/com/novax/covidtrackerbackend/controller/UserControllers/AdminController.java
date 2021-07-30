@@ -4,14 +4,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "management/api/V1/MOH/admin")
+@RequestMapping(path = "management/api/V1/admin")
 @PreAuthorize("hasAnyRole('ROLE_MOH_ADMIN,ROLE_HOSPITAL_ADMIN')")
 public class AdminController {
 
-    /**
-     * {}
-     * @return
-     */
 
     // dashboard related data returned by this method
     @GetMapping("/dashboard")
@@ -38,7 +34,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/user/delete")
-    @PreAuthorize("hasAuthority('moh_admin:write)")
+    @PreAuthorize("hasAuthority('moh_admin:write')")
     public String deleteUser(){
         // deleting a user
         // business logic

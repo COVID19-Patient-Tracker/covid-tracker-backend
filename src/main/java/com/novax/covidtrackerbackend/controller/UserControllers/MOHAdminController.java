@@ -32,7 +32,7 @@ public class MOHAdminController {
     }
 
     @DeleteMapping("/user/delete")
-    @PreAuthorize("hasAuthority('moh_admin:write)")
+    @PreAuthorize("hasAuthority('moh_admin:write')")
     public String deleteUser(){
         // deleting a user
         // business logic
