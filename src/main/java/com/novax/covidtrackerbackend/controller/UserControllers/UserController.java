@@ -1,5 +1,6 @@
 package com.novax.covidtrackerbackend.controller.UserControllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.novax.covidtrackerbackend.model.User;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(path = "app/V1/user")
 public class UserController {
+
+    List<User> cacheAllUsers = null;
     
     @Autowired
     private UserService userService;
@@ -25,7 +28,9 @@ public class UserController {
 
     @GetMapping(path = "/AllUsers")
     public List<User> getAllUsers(){
-        System.out.println(userService.getAllUsers());
-        return userService.getAllUsers();
+        if(!((cacheAllUsers) == null)){
+            return cacheAllUsers;
+        }
+        return cacheAllUsers = userService.getAllUsers();
     }
 }

@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import io.jsonwebtoken.security.Keys;
@@ -21,7 +20,7 @@ import io.jsonwebtoken.security.Keys;
 public class JwtConfig {
 
     private String secret;
-    private String tokenprefix;
+    private String tokenPrefix;
     private Integer tokenExpirationAfterWeeks;
 
     public String getSecret() {
@@ -32,12 +31,12 @@ public class JwtConfig {
         this.secret = secret;
     }
 
-    public String getTokenprefix() {
-        return tokenprefix;
+    public String getTokenPrefix() {
+        return tokenPrefix;
     }
 
-    public void setTokenprefix(String tokenprefix) {
-        this.tokenprefix = tokenprefix;
+    public void setTokenPrefix(String tokenPrefix) {
+        this.tokenPrefix = tokenPrefix;
     }
 
     public Integer getTokenexpirationafterweeks() {

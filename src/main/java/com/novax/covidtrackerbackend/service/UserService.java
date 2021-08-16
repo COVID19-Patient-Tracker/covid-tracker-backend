@@ -11,15 +11,18 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
-
     @Autowired
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     private UserRepository userRepository;
     
     public List<User> getAllUsers(){
         return (List<User>) userRepository.findAll();
     }
 
-    public Integer isUserExist(String email) {
+    public boolean isUserExist(String email) {
         return userRepository.isUserExist(email);
     }
 

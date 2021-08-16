@@ -5,11 +5,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * This controller provides resources to the MOH user
+ *
+ * @return
+ */
+
 @RestController
 @RequestMapping(path = "management/api/V1/MOH/user")
 @PreAuthorize("hasRole('ROLE_MOH_USER')")
 public class MOHUserController {
-    
+
+
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('hospital_admin:read')")
     public String getAllMOHUsers(){

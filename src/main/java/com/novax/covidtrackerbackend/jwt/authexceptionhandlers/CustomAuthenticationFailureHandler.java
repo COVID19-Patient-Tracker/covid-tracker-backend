@@ -15,11 +15,10 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 
 @Component
-public class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler {
+public class CustomAuthenticationFailureHandler{
 
-	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException exception) throws IOException, ServletException {
+			Exception exception) throws IOException, ServletException {
 
         HashMap<String, String> map = new HashMap<>(4);
 
@@ -27,7 +26,6 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
         map.put("msg", String.format("Authentication failed : [%s]", exception.getMessage()));
         map.put("exception", String.format(exception.getMessage()));
         map.put("status", String.valueOf(HttpServletResponse.SC_UNAUTHORIZED));
-
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setCharacterEncoding("utf-8");
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

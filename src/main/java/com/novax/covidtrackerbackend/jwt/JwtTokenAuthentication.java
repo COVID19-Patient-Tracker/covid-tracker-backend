@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.base.Strings;
 import java.util.stream.*;
+
+import com.novax.covidtrackerbackend.jwt.authexceptionhandlers.CustomAuthenticationFailureHandler;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -27,6 +29,7 @@ public class JwtTokenAuthentication extends OncePerRequestFilter{
 
     private final SecretKey jwtSecretKey;
     private final JwtConfig jwtConfig;
+    private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
     
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -35,55 +38,51 @@ public class JwtTokenAuthentication extends OncePerRequestFilter{
         String authorizationHdr = request.getHeader(jwtConfig.getAuthorizationHeader());
 
         if(Strings.isNullOrEmpty(authorizationHdr) || !authorizationHdr.startsWith("Bearer")){
-
             filterChain.doFilter(request, response);
             return;
-
         }
 
-        String token = authorizationHdr.replace(jwtConfig.getTokenprefix(), "");
+        String token = authorizationHdr.replace(jwtConfig.getTokenPrefix(), "");
         
         try {
             
-
             Jws<Claims> claimJws = Jwts.parserBuilder()
                     .setSigningKey(jwtSecretKey)
                     .build()
                     .parseClaimsJws(token);
 
-                    Claims Body = claimJws.getBody();
+            Claims Body = claimJws.getBody();
 
-                    String usrname = Body.getSubject();
+            String usrName = Body.getSubject();
 
-                    var authorities = (List<Map<String, String>>) Body.get("authorities");
+            var authorities = (List<Map<String, String>>) Body.get("authorities");
 
-                    Set<SimpleGrantedAuthority> 
+            Set<SimpleGrantedAuthority>
                         simpleGrantedAuthorities = 
                             authorities.stream()
                                             .map(m -> new SimpleGrantedAuthority(m.get("authority")))
                                             .collect(Collectors.toSet());
 
-                    Authentication authentication = new UsernamePasswordAuthenticationToken(
-                        usrname, 
-                        null,
-                        simpleGrantedAuthorities
+            Authentication authentication = new UsernamePasswordAuthenticationToken(
+                            usrName,
+                            null,
+                            simpleGrantedAuthorities
                         );
 
-                    SecurityContextHolder.getContext()
-                                            .setAuthentication(authentication);
-
+            SecurityContextHolder.getContext()
+                    .setAuthentication(authentication);
+            filterChain.doFilter(request, response);
         } catch (Exception e) {
-
-            throw new IllegalStateException(String.format("Token %s not valid", token));
-
+            customAuthenticationFailureHandler.onAuthenticationFailure(request,response,e);
+//            throw new IllegalStateException(String.format("Token %s not valid", token));
         }
 
-        filterChain.doFilter(request, response);
     }
 
-    public JwtTokenAuthentication(SecretKey jwtSecretKey, JwtConfig jwtConfig) {
+    public JwtTokenAuthentication(SecretKey jwtSecretKey, JwtConfig jwtConfig, CustomAuthenticationFailureHandler customAuthenticationFailureHandler) {
         this.jwtSecretKey = jwtSecretKey;
         this.jwtConfig = jwtConfig;
+        this.customAuthenticationFailureHandler = customAuthenticationFailureHandler;
     }
     
 }

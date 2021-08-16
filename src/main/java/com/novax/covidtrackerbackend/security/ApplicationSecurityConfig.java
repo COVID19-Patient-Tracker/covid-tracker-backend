@@ -52,7 +52,7 @@ public class ApplicationSecurityConfig  extends WebSecurityConfigurerAdapter{
                 .antMatchers("/login","index","/css/*","/js/*","/index","/app/V1/user")
                 .permitAll().and()
                 .addFilter(new JwtAuthenticationAndPasswordFilter(authenticationManager(), jwtConfig, jwtSecretKey, new CustomAuthenticationFailureHandler())).exceptionHandling().and()
-                .addFilterAfter(new JwtTokenAuthentication(jwtSecretKey, jwtConfig),JwtAuthenticationAndPasswordFilter.class);
+                .addFilterAfter(new JwtTokenAuthentication(jwtSecretKey, jwtConfig, simpleAuthenticationFailureHandler),JwtAuthenticationAndPasswordFilter.class).exceptionHandling();
 
                 
     }

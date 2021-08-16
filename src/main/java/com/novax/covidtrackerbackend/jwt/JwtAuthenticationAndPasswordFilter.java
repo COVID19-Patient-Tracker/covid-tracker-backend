@@ -3,7 +3,6 @@ package com.novax.covidtrackerbackend.jwt;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Date;
-import java.util.HashMap;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -17,7 +16,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.novax.covidtrackerbackend.auth.ApplicationUser;
 import com.novax.covidtrackerbackend.jwt.authexceptionhandlers.CustomAuthenticationFailureHandler;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -43,7 +41,7 @@ public class JwtAuthenticationAndPasswordFilter extends UsernamePasswordAuthenti
         this.customAuthenticationFailureHandler = customAuthenticationFailureHandler;
     }
 
-
+    // This method calls when first time login fails
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                               AuthenticationException failed) throws IOException, ServletException {
@@ -57,8 +55,9 @@ public class JwtAuthenticationAndPasswordFilter extends UsernamePasswordAuthenti
     protected void successfulAuthentication(HttpServletRequest request, @NotNull HttpServletResponse response, FilterChain chain,
                                             Authentication authResult) throws IOException, ServletException {
 
-        ApplicationUser userDetails = ((ApplicationUser) authResult.getPrincipal()); // get the principla (logged-in user) object
+        ApplicationUser userDetails = ((ApplicationUser) authResult.getPrincipal()); // get the principal (logged-in user) object
 
+        // TODO : need to encode userdetails into jwt and send
         // create JWT
                 String token = Jwts.builder()
                         .setSubject(authResult.getName())
@@ -68,21 +67,15 @@ public class JwtAuthenticationAndPasswordFilter extends UsernamePasswordAuthenti
                         .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusWeeks(4)))
                         .signWith(jwtSecretKey)
                         .compact();
-        HashMap<String, String> map = new HashMap<>(4);
 
-        // custom response for Authentication success
-        map.put("uri", request.getRequestURI());
-        map.put("msg", String.format("Authentication success : [%s]",userDetails.getUsername()));
-        map.put("status", String.valueOf(HttpServletResponse.SC_OK));
+        // create custom authentication success response
+        CustomAuthenticationSuccessResponse customAuthenticationSuccessResponse
+                = new CustomAuthenticationSuccessResponse();
+        String resBody = customAuthenticationSuccessResponse.getResponse(response,userDetails,request);
 
-        response.setStatus(HttpServletResponse.SC_OK); // 200 OK
-        response.setCharacterEncoding("utf-8");
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        String resBody = objectMapper.writeValueAsString(userDetails);
-
-        response.addHeader(jwtConfig.getAuthorizationHeader(), jwtConfig.getTokenprefix() + token);
+        // sending JWT in the hdr
+        response.addHeader(jwtConfig.getAuthorizationHeader(), jwtConfig.getTokenPrefix() + token);
+        // adding body to response
         response.getWriter().write(resBody);
     }
     
