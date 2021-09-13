@@ -13,38 +13,38 @@ import com.google.common.collect.Sets;
 
 public enum ApplicationUserRole {
     ADMIN(Sets.newHashSet(
-            ApplicatioUserPermission.MOH_ADMIN_WRITE,
-            ApplicatioUserPermission.MOH_ADMIN_READ)),
+            ApplicationUserPermission.MOH_ADMIN_WRITE,
+            ApplicationUserPermission.MOH_ADMIN_READ)),
 
     MOH_ADMIN(Sets.newHashSet(
-            ApplicatioUserPermission.MOH_ADMIN_WRITE,
-            ApplicatioUserPermission.HOSPITAL_ADMIN_READ,
-            ApplicatioUserPermission.HOSPITAL_ADMIN_WRITE)),
+            ApplicationUserPermission.MOH_ADMIN_WRITE,
+            ApplicationUserPermission.HOSPITAL_ADMIN_READ,
+            ApplicationUserPermission.HOSPITAL_ADMIN_WRITE)),
 
     MOH_USER(Sets.newHashSet(
-            ApplicatioUserPermission.HOSPITAL_ADMIN_READ)),
+            ApplicationUserPermission.HOSPITAL_ADMIN_READ)),
 
     HOSPITAL_ADMIN(Sets.newHashSet(
-            ApplicatioUserPermission.HOSPITAL_USER_READ,
-            ApplicatioUserPermission.HOSPITAL_USER_WRITE,
-            ApplicatioUserPermission.PATIENT_READ,
-            ApplicatioUserPermission.PATIENT_WRITE)),
+            ApplicationUserPermission.HOSPITAL_USER_READ,
+            ApplicationUserPermission.HOSPITAL_USER_WRITE,
+            ApplicationUserPermission.PATIENT_READ,
+            ApplicationUserPermission.PATIENT_WRITE)),
 
     PATIENT(Sets.newHashSet(
-            ApplicatioUserPermission.PATIENT_WRITE)),
+            ApplicationUserPermission.PATIENT_WRITE)),
 
     HOSPITAL_USER(Sets.newHashSet(
-            ApplicatioUserPermission.PATIENT_READ, 
-            ApplicatioUserPermission.PATIENT_WRITE));
+            ApplicationUserPermission.PATIENT_READ,
+            ApplicationUserPermission.PATIENT_WRITE));
 
 
-    private final Set<ApplicatioUserPermission> permissions;
+    private final Set<ApplicationUserPermission> permissions;
 
-    ApplicationUserRole(Set<ApplicatioUserPermission> permissions) {
+    ApplicationUserRole(Set<ApplicationUserPermission> permissions) {
 		this.permissions = permissions;
 	}
 
-	public Set<ApplicatioUserPermission> getPermissions() {
+	public Set<ApplicationUserPermission> getPermissions() {
 		return permissions;
 	}
 

@@ -1,7 +1,7 @@
 package com.novax.covidtrackerbackend.security;
 
 
-public enum ApplicatioUserPermission {
+public enum ApplicationUserPermission {
     
     MOH_ADMIN_READ("moh_admin:read"),
     MOH_ADMIN_WRITE("moh_admin:write"), 
@@ -16,7 +16,7 @@ public enum ApplicatioUserPermission {
 
     private final String permission;
 
-    ApplicatioUserPermission(String permission) {
+    ApplicationUserPermission(String permission) {
 		this.permission = permission;
 	}
     

@@ -57,8 +57,4 @@ public class AdminController {
         return "hospital deleted";
     }
 
-
-
-
-
 }

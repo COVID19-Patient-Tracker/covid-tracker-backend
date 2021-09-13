@@ -57,7 +57,7 @@ public class JwtAuthenticationAndPasswordFilter extends UsernamePasswordAuthenti
 
         ApplicationUser userDetails = ((ApplicationUser) authResult.getPrincipal()); // get the principal (logged-in user) object
 
-        // TODO : need to encode userdetails into jwt and send
+        // TODO : need to encode user details into jwt and send
         // create JWT
                 String token = Jwts.builder()
                         .setSubject(authResult.getName())
