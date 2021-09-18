@@ -1,5 +1,6 @@
 package com.novax.covidtrackerbackend.service;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,4 +32,16 @@ public class UserService {
         return user;
     }
 
+    public Optional<User> addUser(User user){
+        Optional<User> u = userRepository.addUser(
+                user.getEmail(),
+                user.getRole(),
+                user.getNic(),
+                user.getPassword(),
+                user.getFirst_name(),
+                user.getLast_name(),
+                user.getHospital_id()
+        );
+        return u;
+    }
 }
