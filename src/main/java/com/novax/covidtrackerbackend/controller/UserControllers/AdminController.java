@@ -25,36 +25,8 @@ public class AdminController {
         return "user added to the database";
     }
 
-    @PostMapping("/user/update")
-    @PreAuthorize("hasAuthority('moh_admin:write')")
-    public String updateUser() {
-        // updating details of a user
-        // business logic
-        return "user details updated";
-    }
 
-    @DeleteMapping("/user/delete")
-    @PreAuthorize("hasAuthority('moh_admin:write')")
-    public String deleteUser(){
-        // deleting a user
-        // business logic
-        return "user deleted";
-    }
 
-    @PutMapping("/hospital/add")
-    @PreAuthorize("hasAnyAuthority('moh_admin:write')")
-    public String addHospital(){
-        // adding a hospital
-        // business logic
-        return "hospital added";
-    }
 
-    @DeleteMapping("/hospital/delete")
-    @PreAuthorize("hasAnyAuthority('moh_admin:write')")
-    public String deleteHospital(){
-        // deleting a hospital
-        // business logic
-        return "hospital deleted";
-    }
 
 }
