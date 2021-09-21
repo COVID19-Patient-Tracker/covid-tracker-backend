@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -16,8 +17,14 @@ import java.util.Optional;
 @PreAuthorize("hasAnyRole('ROLE_MOH_ADMIN,ROLE_HOSPITAL_ADMIN')")
 public class MOHAdminController {
 
+    private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
-    UserService userService;
+    public MOHAdminController(UserService userService, PasswordEncoder passwordEncoder) {
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     /**
      * DASHBOARD RELATED DATA
@@ -41,13 +48,15 @@ public class MOHAdminController {
 
     @PutMapping("/user/add")
     @PreAuthorize("hasAuthority('moh_admin:write')")
-    public ResponseEntity<Optional<User>> addUser(@Valid @RequestBody User user) {
+    public ResponseEntity<Optional<User>> addUser(@Valid @RequestBody User user) throws Exception {
+        // TODO: sends an error if try to add different user type excep MOH_USER/HOSPITAL_ADMIN
+        // TODO: Auto generate a password
+        user.setPassword(passwordEncoder.encode("password")); // temporarily set password
 
         // TODO: send an email with password for newly saved user
-        // TODO: validation
 
         Optional<User> u = userService.addUser(user);
-        ResponseEntity<Optional<User>> userResponseEntity = new ResponseEntity<Optional<User>>(u, HttpStatus.OK);
+        ResponseEntity<Optional<User>> userResponseEntity = new ResponseEntity<>(u, HttpStatus.OK);
         return userResponseEntity;
 
     }
@@ -74,13 +83,22 @@ public class MOHAdminController {
 
     @DeleteMapping("/user/delete")
     @PreAuthorize("hasAuthority('moh_admin:write')")
-    public String deleteUser(){
+    public String deleteMOHUser(@RequestBody String nic){
 
         // deleting a user
         // business logic
 
         return "user deleted";
     }
+
+    @PostMapping("/user/update/details")
+    @PreAuthorize("hasAuthority('moh_admin:write')")
+    public String updateMOHUser() {
+        // updating details of a user
+        // business logic
+        return "user details updated";
+    }
+
 
     // @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_NEWROLE')")
     // @PreAuthorize("hasAuthority('moh_user:read')")
