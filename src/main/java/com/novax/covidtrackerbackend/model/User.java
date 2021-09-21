@@ -1,5 +1,6 @@
 package com.novax.covidtrackerbackend.model;
 
+import javax.annotation.Nullable;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
@@ -24,14 +25,14 @@ public class User {
     @NotEmpty(message = "role cannot be null")
     private String role;
 
-    @NotEmpty(message = "password cannot be null")
+    @Size(min = 8,max = 100,message = "size does not match")
     private String password;
 
     @NotEmpty(message = "email cannot be null")
     @Email
     private String email;
 
-    @NotEmpty(message = "email cannot be null")
+    @NotEmpty(message = "first name cannot be null")
     @Size(min = 5,max = 100,message = "size does not match")
     private String first_name;
 
@@ -40,9 +41,10 @@ public class User {
 
     @NotEmpty(message = "nic cannot be null")
     @Size(min = 10,max = 10,message = "size does not match")
-    @Pattern(regexp = "^[0-9]{9}v$")
+    @Pattern(regexp = "^[0-9]{9}v$",message = "format should be 99999999v {10 digits followed by \"v\"}")
     private String nic;
 
     @Transient
+    @Nullable
     private int hospital_id;
 }
