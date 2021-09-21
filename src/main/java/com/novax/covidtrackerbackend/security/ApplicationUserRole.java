@@ -1,16 +1,11 @@
 package com.novax.covidtrackerbackend.security;
 
 
-
-
-
-
 import java.util.Set;
 import java.util.stream.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import com.google.common.collect.Sets;
-
 public enum ApplicationUserRole {
     ADMIN(Sets.newHashSet(
             ApplicationUserPermission.MOH_ADMIN_WRITE,
@@ -18,11 +13,13 @@ public enum ApplicationUserRole {
 
     MOH_ADMIN(Sets.newHashSet(
             ApplicationUserPermission.MOH_ADMIN_WRITE,
-            ApplicationUserPermission.HOSPITAL_ADMIN_READ,
-            ApplicationUserPermission.HOSPITAL_ADMIN_WRITE)),
+            ApplicationUserPermission.MOH_ADMIN_READ,
+            ApplicationUserPermission.MOH_USER_READ,
+            ApplicationUserPermission.MOH_USER_WRITE)),
 
     MOH_USER(Sets.newHashSet(
-            ApplicationUserPermission.HOSPITAL_ADMIN_READ)),
+            ApplicationUserPermission.HOSPITAL_ADMIN_READ,
+            ApplicationUserPermission.HOSPITAL_ADMIN_WRITE)),
 
     HOSPITAL_ADMIN(Sets.newHashSet(
             ApplicationUserPermission.HOSPITAL_USER_READ,
@@ -54,8 +51,8 @@ public enum ApplicationUserRole {
                 .collect(Collectors.toSet());
 
         permissions.add(new SimpleGrantedAuthority("ROLE_" + this.name()));
-        return   permissions;      
+        return   permissions;
     }
 
-    
+
 }
