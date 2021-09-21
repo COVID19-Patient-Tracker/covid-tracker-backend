@@ -35,8 +35,6 @@ public class CustomAuthenticationFailureHandler{
         PrintWriter printWriter = response.getWriter();
 
         printWriter.print(resBody);
-        printWriter.flush();
-        printWriter.close();
 
 	}
 }
