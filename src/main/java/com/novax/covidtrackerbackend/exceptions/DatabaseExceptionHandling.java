@@ -1,4 +1,5 @@
 package com.novax.covidtrackerbackend.exceptions;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -9,9 +10,25 @@ import javax.servlet.http.HttpServletResponse;
 import java.sql.SQLException;
 import java.util.HashMap;
 
-
 @ControllerAdvice
 public class DatabaseExceptionHandling {
+
+    // Handle empty result data access exceptions
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    public ResponseEntity<HashMap> databaseError(EmptyResultDataAccessException ex,HttpServletRequest request) {
+        int response_code = HttpServletResponse.SC_NOT_FOUND;
+        String message = ex.getMessage();
+
+        HashMap<String, String> map = new HashMap<>(4);
+        map.put("msg", "requested data doesn't exist in the database");
+        map.put("uri", request.getRequestURI());
+        map.put("exception", String.format(ex.getMessage()));
+        map.put("status", String.valueOf(response_code));
+
+        return ResponseEntity
+                .status(response_code)
+                .body(map);
+    }
 
     // Handle database errors
     @ExceptionHandler(SQLException.class)

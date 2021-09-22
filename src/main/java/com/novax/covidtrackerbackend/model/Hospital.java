@@ -4,6 +4,7 @@ package com.novax.covidtrackerbackend.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.checkerframework.common.aliasing.qual.Unique;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -21,6 +22,7 @@ public class Hospital {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int hospital_id;
 
+    @Unique
     @NotEmpty(message = "name cannot be null")
     private String name;
 

@@ -345,6 +345,11 @@ ALTER TABLE `ward`
   ADD CONSTRAINT `ward_ibfk_1` FOREIGN KEY (`hospital_id`) REFERENCES `hospital` (`hospital_id`);
 
 --
+-- Constraints for table `hospital`
+--
+
+ALTER TABLE `hospital` ADD UNIQUE(`name`);
+--
 -- Constraints for table `wardtransfertable`
 --
 
