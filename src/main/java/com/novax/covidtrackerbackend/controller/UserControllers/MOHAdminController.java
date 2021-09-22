@@ -1,6 +1,7 @@
 package com.novax.covidtrackerbackend.controller.UserControllers;
 
 import com.novax.covidtrackerbackend.model.User;
+import com.novax.covidtrackerbackend.response.Response;
 import com.novax.covidtrackerbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,7 +10,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.Optional;
 
 @RestController
@@ -48,17 +51,21 @@ public class MOHAdminController {
 
     @PutMapping("/user/add")
     @PreAuthorize("hasAuthority('moh_admin:write')")
-    public ResponseEntity<Optional<User>> addUser(@Valid @RequestBody User user) throws Exception {
-        // TODO: sends an error if try to add different user type excep MOH_USER/HOSPITAL_ADMIN
+    public ResponseEntity<HashMap<String, Object>> addUser(@Valid @RequestBody User user, HttpServletRequest request) throws Exception {
+        // TODO: sends an error if try to add different user type excep HOSPITAL_USER/HOSPITAL_ADMIN
         // TODO: Auto generate a password
         user.setPassword(passwordEncoder.encode("password")); // temporarily set password
 
         // TODO: send an email with password for newly saved user
 
         Optional<User> u = userService.addUser(user);
-        ResponseEntity<Optional<User>> userResponseEntity = new ResponseEntity<>(u, HttpStatus.OK);
-        return userResponseEntity;
-
+        // if no exception occurred send this response
+        Response<Object> response = new Response<>();
+        response.setResponseCode(HttpStatus.OK.value())
+                .setMessage("request success")
+                .setURI(request.getRequestURI())
+                .addField("userInfo",u);
+        return response.getResponseEntity();
     }
 
     /**
