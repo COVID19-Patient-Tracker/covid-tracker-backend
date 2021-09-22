@@ -71,11 +71,10 @@ public class JwtTokenAuthentication extends OncePerRequestFilter{
 
             SecurityContextHolder.getContext()
                     .setAuthentication(authentication);
-            filterChain.doFilter(request, response);
         } catch (Exception e) {
             customAuthenticationFailureHandler.onAuthenticationFailure(request,response,e);
-//            throw new IllegalStateException(String.format("Token %s not valid", token));
         }
+        filterChain.doFilter(request, response);
 
     }
 

@@ -2,11 +2,16 @@ package com.novax.covidtrackerbackend.repository;
 
 import com.novax.covidtrackerbackend.model.User;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.jdbc.Sql;
+
+import java.sql.SQLException;
 import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
 @DataJpaTest
 class UserRepositoryUnitTest {
@@ -23,11 +28,15 @@ class UserRepositoryUnitTest {
     void itShouldGetUserByEmail() {
         // given
         User user = new User(
-                999999999999999990L,
+                null,
                 "MOH_ADMIN",
                 "encrypted_pwd",
-                "mohadmn@gmail.com"
-        );
+                "mohadmn@gmail.com",
+                "aaaaaa",
+                null,
+                "999999999v",
+                99
+                );
 
         underTest.save(user);
 
@@ -65,10 +74,15 @@ class UserRepositoryUnitTest {
     void itShouldCheckIfIsUserExist() {
         // given
         User user = new User(
-                999999999999999990L,
+                null,
                 "MOH_ADMIN",
                 "encrypted_pwd",
-                "mohadmn@gmail.com"
+                "mohadmn@gmail.com",
+                "aaaaaa",
+                null,
+                null,
+                99
+//                99
         );
 
         underTest.save(user);
@@ -100,5 +114,27 @@ class UserRepositoryUnitTest {
 
         // then
         assertThat(notExists).isEqualTo(false);
+    }
+    @Test
+//    @Sql({"/create_stored_procedure.sql"})
+    void itShouldAddMOHAdmin() {
+        User user = new User(
+                null,
+                "MOH_ADMIN",
+                "encrypted_pwd",
+                "mohadmn@gmail.com",
+                "aaaaaa",
+                null,
+                null,
+                99
+//                null
+        );
+
+        User output = underTest.save(
+                user
+        );
+        assertThat(output).isEqualTo(user);
+        assertThatExceptionOfType(SQLException.class);
+
     }
 }
