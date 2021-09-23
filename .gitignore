@@ -37,3 +37,6 @@ out/
 .vscode/
 /functions.sql
 /springboot.sql
+
+### Local Configs ###
+config.properties
