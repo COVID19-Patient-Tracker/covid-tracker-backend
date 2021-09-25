@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -29,17 +30,19 @@ public class HospitalAdminController {
     private PasswordEncoder passwordEncoder;
 
     @PostMapping("/user/add")
-    @PreAuthorize("hasAuthority('hospital_user:write')")
-    public ResponseEntity<HashMap<String, Object>> addUser(@Valid @RequestBody User user, HttpServletRequest request) throws Exception {
+    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN')")
+    public ResponseEntity<HashMap<String, Object>> addUser(@Valid @RequestBody User user, HttpServletRequest request) throws IOException {
 
         user.setPassword(passwordEncoder.encode("password")); // temporarily set password
-
         Optional<User> new_user = userService.addUser(user);
+
         Response<Object> response = new Response<>();
         response.setResponseCode(HttpStatus.OK.value())
                 .setMessage("request success")
                 .setURI(request.getRequestURI())
-                .addField("userInfo",new_user);
+                .addField("userInfo", new_user);
         return response.getResponseEntity();
+
+
     }
 }
