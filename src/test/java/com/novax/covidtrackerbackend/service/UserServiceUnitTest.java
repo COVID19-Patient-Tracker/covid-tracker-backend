@@ -1,4 +1,3 @@
-/*
 package com.novax.covidtrackerbackend.service;
 import com.novax.covidtrackerbackend.model.User;
 import com.novax.covidtrackerbackend.repository.UserRepository;
@@ -44,4 +43,4 @@ class UserServiceUnitTest {
     }
 
     // see about argument captor
-}*/
+}
