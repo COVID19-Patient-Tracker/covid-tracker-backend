@@ -16,17 +16,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
-    @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private SendGridEmailService emailService;
 
-   /* @Value("${ADMIN_EMAIL_ADDRESS}")
-    private String adminEmailAddress;*/
-    private static final String adminEmailAddress = "team.novax18@gmail.com";
+    @Autowired
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
-    //@Value("${EMAIL_SIGNUP_TEMPLATE_ID}")
-    private static final String Signup_tid = "d-9de5bd7209a541c7b9b40b45e7b23afd";
+    @Value("${ADMIN_EMAIL_ADDRESS}")
+    private String adminEmailAddress;
+
+    @Value("${EMAIL_SIGNUP_TEMPLATE_ID}")
+    private String Signup_tid;
 
     public List<User> getAllUsers(){
         return (List<User>) userRepository.findAll();
