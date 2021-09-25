@@ -1,18 +1,22 @@
 package com.novax.covidtrackerbackend.controller.UserControllers;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.novax.covidtrackerbackend.model.Hospital;
 import com.novax.covidtrackerbackend.model.User;
 import com.novax.covidtrackerbackend.response.Response;
 import com.novax.covidtrackerbackend.service.HospitalService;
 import com.novax.covidtrackerbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -26,9 +30,12 @@ import java.util.Optional;
 @RequestMapping(path = "management/api/V1/MOH/user")
 @PreAuthorize("hasRole('ROLE_MOH_USER')")
 public class MOHUserController {
+
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final HospitalService hospitalService;
+    private Response response = new Response();
+
     @Autowired
     public MOHUserController(UserService userService, PasswordEncoder passwordEncoder,HospitalService hospitalService) {
         this.userService = userService;
@@ -43,11 +50,6 @@ public class MOHUserController {
         return "HI All Users";
     }
 
-
-
-
-
-
     // @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_NEWROLE')")
     // @PreAuthorize("hasAuthority('moh_user:read')")
     // @PreAuthorize("hasAuthority('moh_user:read')")
@@ -55,7 +57,8 @@ public class MOHUserController {
 
     /**
      *
-     * @param hospital - Hospital entity to pserdidt in the databse. Refer Hospital entity in the modle
+     * @param hospital - Hospital entity to persist in the database. Refer Hospital entity in the modle
+     * @param request - HttpServletRequest object to access uri
      * @return - If validation passes for all fields , returns added hospital as a JSON response
      */
 
@@ -64,23 +67,76 @@ public class MOHUserController {
     public ResponseEntity<HashMap<String, Object>> addHospital(@Valid @RequestBody Hospital hospital,HttpServletRequest request){
         Hospital h = hospitalService.save(hospital);
         // if no exception occurred send this response
-        Response<Object> response = new Response<>();
-        response.setResponseCode(HttpStatus.OK.value())
+
+        response.reset().setResponseCode(HttpStatus.OK.value())
                 .setMessage("request success")
                 .setURI(request.getRequestURI())
                 .addField("hospitalInfo",h);
         return response.getResponseEntity();
     }
 
+    @PostMapping("/update/details")
+    @PreAuthorize("hasAnyRole('MOH_USER')")
+    public ResponseEntity<HashMap<String, Object>> updateMOHUserDetails(@Valid @RequestBody User user, HttpServletRequest request) throws SQLException {
+        Response response = new Response();
+        Long u_id = user.getUser_id();
+
+        // user doesn't exist exception is handled
+        Optional<User> u = userService.getUserById(u_id);
+        if(u.isPresent()){
+            userService.save(user);
+        }
+
+        return response.getResponseEntity();
+
+    }
+
+
+    /**
+     * DELETES HOSPITAL_ADMIN/HOSPITAL_USER
+     * @param u_id - User id to delete from the database.Refer user entity in the model.
+     * @param request - HttpServletRequest object to access uri
+     * @return - If user exist and successfully deleted, returns success message with deleted user_id.
+     */
+
+
+    @DeleteMapping("/delete/{u_id}")
+    @PreAuthorize("hasAuthority('hospital_admin:write')")
+    public ResponseEntity<HashMap<String, Object>> deleteUser(@PathVariable Long u_id,HttpServletRequest request) throws SQLException {
+        Response response = new Response();
+        Optional<User> user = userService.getUserById(u_id);
+        if(user.isPresent()){
+
+            User u = user.get();
+            if(u.getRole().equals("HOSPITAL_ADMIN") || u.getRole().equals("HOSPITAL_USER")){
+                // if no exception occurred send this response
+
+                response.setResponseCode(HttpStatus.OK.value())
+                        .setMessage("request success")
+                        .setURI(request.getRequestURI())
+                        .addField("Deleted",u);
+
+                userService.deleteUser(u_id);
+
+            }else{
+                throw new EmptyResultDataAccessException("You don't have permission to delete this type of users",0);
+            }
+        }
+
+        return response.getResponseEntity();
+    }
+
     /**
      * ADDS NEW HOSPITAL_ADMIN/HOSPITAL_USER
      * @param user - User entity to persist in the database.Refer user entity in the model.
+     * @param request - HttpServletRequest object to access uri
      * @return - If database validation passes, returns copy of persisted user information as JSON object.
      */
 
     @PutMapping("/user/add")
-    @PreAuthorize("hasAuthority('moh_user:write')")
-    public ResponseEntity<HashMap<String, Object>> addUser(@Valid @RequestBody User user,HttpServletRequest request) throws Exception {
+    @PreAuthorize("hasAuthority('hospital_admin:write')")
+    @JsonView(User.WithoutPasswordView.class)
+    public ResponseEntity<HashMap<String, Object>> addUser(@Valid @RequestBody User user,HttpServletRequest request){
         // TODO: sends an error if try to add different user type excep HOSPITAL_USER/HOSPITAL_ADMIN
         // TODO: Auto generate a password
         user.setPassword(passwordEncoder.encode("password")); // temporarily set password
@@ -88,17 +144,21 @@ public class MOHUserController {
         // TODO: send an email with password for newly saved user
 
         Optional<User> u = userService.addUser(user);
+
+        // exclude unwanted details (pw)
+        MappingJacksonValue value = new MappingJacksonValue(u.get());
+        value.setSerializationView(User.WithoutPasswordView.class);
+
         // if no exception occurred send this response
-        Response<Object> response = new Response<>();
-        response.setResponseCode(HttpStatus.OK.value())
+        response.reset().setResponseCode(HttpStatus.OK.value())
                 .setMessage("request success")
                 .setURI(request.getRequestURI())
-                .addField("userInfo",u);
+                .addField("userInfo",value.getValue());
         return response.getResponseEntity();
     }
 
     /**
-     *
+     * DELETES HOSPITAL
      * @param hospitalId - id of the hospital to delete
      * @param request - HttpServletRequest object to access uri
      * @return Response object if success or in exception
@@ -111,8 +171,7 @@ public class MOHUserController {
         hospitalService.deleteHospitalById(hospitalId);
 
         // if no exception occurred send this response
-        Response<Object> response = new Response<>();
-        response.setResponseCode(HttpStatus.OK.value())
+        response.reset().setResponseCode(HttpStatus.OK.value())
                 .setMessage("request success")
                 .setURI(request.getRequestURI());
 

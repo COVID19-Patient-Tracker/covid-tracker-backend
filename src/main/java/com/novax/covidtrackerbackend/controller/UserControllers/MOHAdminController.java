@@ -6,6 +6,7 @@ import com.novax.covidtrackerbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ public class MOHAdminController {
 
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private MappingJacksonValue value;
 
     @Autowired
     public MOHAdminController(UserService userService, PasswordEncoder passwordEncoder) {
@@ -34,6 +36,9 @@ public class MOHAdminController {
      * @return - returns copy of persisted user information as JSON object.
      */
 
+
+
+
     @GetMapping("/dashboard")
     @PreAuthorize("hasAuthority('moh_admin:read')")
     public String getHospitalDetails() {
@@ -41,6 +46,37 @@ public class MOHAdminController {
         // business logic
 
         return "dashboard of the MOH";
+    }
+
+
+
+
+
+    /**
+     * UPDATES INFORMATION OF MOH_ADMIN
+     * @return
+     */
+
+    @PostMapping("/user/update")
+    @PreAuthorize("hasAuthority('moh_admin:read')")
+    public String getAllMOHUsers() {
+        return "dashboard of the MOH";
+    }
+
+    /**
+     * DELETES MOH_USER/HOSPITAL_ADMIN
+     * @param nic - NIC of the targeted user to delete.
+     * @return - If database validation passes, returns copy of deleted user information as JSON object.
+     */
+
+    @DeleteMapping("/user/delete")
+    @PreAuthorize("hasAuthority('moh_admin:write')")
+    public String deleteMOHUser(@RequestBody String nic){
+
+        // deleting a user
+        // business logic
+
+        return "user deleted";
     }
 
     /**
@@ -59,43 +95,19 @@ public class MOHAdminController {
         // TODO: send an email with password for newly saved user
 
         Optional<User> u = userService.addUser(user);
+
+        // exclude unwanted details (pw)
+        MappingJacksonValue value = new MappingJacksonValue(u.get());
+        value.setSerializationView(User.WithoutPasswordView.class);
+
         // if no exception occurred send this response
-        Response<Object> response = new Response<>();
+        Response response = new Response();
         response.setResponseCode(HttpStatus.OK.value())
                 .setMessage("request success")
                 .setURI(request.getRequestURI())
-                .addField("userInfo",u);
+                .addField("Info",value.getValue());
+
         return response.getResponseEntity();
-    }
-
-    /**
-     * UPDATES INFORMATION OF MOH_ADMIN
-     * @return
-     */
-
-    @PostMapping("/user/update")
-    @PreAuthorize("hasAuthority('moh_admin:read')")
-    public String getAllMOHUsers() {
-
-        // buisness logic
-
-        return "dashboard of the MOH";
-    }
-
-    /**
-     * DELETES MOH_USER/HOSPITAL_ADMIN
-     * @param nic - NIC of the targeted user to delete.
-     * @return - If database validation passes, returns copy of deleted user information as JSON object.
-     */
-
-    @DeleteMapping("/user/delete")
-    @PreAuthorize("hasAuthority('moh_admin:write')")
-    public String deleteMOHUser(@RequestBody String nic){
-
-        // deleting a user
-        // business logic
-
-        return "user deleted";
     }
 
     @PostMapping("/user/update/details")
