@@ -1,5 +1,6 @@
 package com.novax.covidtrackerbackend.service;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +32,23 @@ public class UserService {
         return user;
     }
 
+    public void deleteUser(Long id){
+        userRepository.deleteById(id);
+    }
+
+    public Optional<User> getUserById(Long id) throws SQLException {
+        Optional<User> u = userRepository.findById(id);
+        if(u.isEmpty()){
+            throw new SQLException("requested data doesn't exists in database");
+        }
+        return u;
+    }
+
+    public User save(User user) {
+        User u = userRepository.save(user);
+        return u;
+    }
+
     public Optional<User> addUser(User user){
         Optional<User> u = userRepository.addUser(
                 user.getEmail(),
@@ -43,4 +61,6 @@ public class UserService {
         );
         return u;
     }
+
+
 }
