@@ -7,9 +7,12 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.HashMap;
 
 @Entity
 @AllArgsConstructor
@@ -18,12 +21,25 @@ import lombok.NoArgsConstructor;
 @Table(name = "user")
 public class User {
 
+    public interface WithoutPasswordView {};
+    public interface WithPasswordView extends WithoutPasswordView {};
+
+    @JsonView(WithoutPasswordView.class)
+    public HashMap<String,Object> getUserDetails() {
+        HashMap<String,Object> detailsArr = new HashMap<String,Object>(6);
+        detailsArr.put("email",this.email);
+        detailsArr.put("first_name",this.first_name);
+        detailsArr.put("last_name",this.last_name);
+        detailsArr.put("nic",this.nic);
+        detailsArr.put("role",this.role);
+        detailsArr.put("user_id",this.user_id);
+        return detailsArr;
+    }
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long user_id;
-
-    @NotEmpty(message = "role cannot be null")
-    private String role;
 
     @Size(min = 8,max = 100,message = "size does not match")
     private String password;
@@ -38,6 +54,9 @@ public class User {
 
     @Size(min = 0,max = 100,message = "size does not match")
     private String last_name;
+
+    @NotEmpty(message = "role cannot be null")
+    private String role;
 
     @NotEmpty(message = "nic cannot be null")
     @Size(min = 10,max = 10,message = "size does not match")
