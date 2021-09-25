@@ -63,6 +63,7 @@ public class JwtAuthenticationAndPasswordFilter extends UsernamePasswordAuthenti
                         .setSubject(authResult.getName())
                         .claim("authorities",authResult.getAuthorities())
                         .claim("id",userDetails.getId())
+                        .claim("role",userDetails.getRole())
                         .setIssuedAt(new Date())
                         .setExpiration(java.sql.Date.valueOf(LocalDate.now().plusWeeks(4)))
                         .signWith(jwtSecretKey)
