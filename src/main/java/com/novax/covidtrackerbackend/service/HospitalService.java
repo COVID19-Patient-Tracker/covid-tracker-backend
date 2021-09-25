@@ -25,7 +25,6 @@ public class HospitalService {
         return h;
     }
 
-
     // TODO : do integration testing, unit testing done
     public List<Hospital> getAllHospitals(){
         return (List<Hospital>) hospitalRepository.findAll();
