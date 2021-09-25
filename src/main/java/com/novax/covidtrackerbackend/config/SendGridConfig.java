@@ -8,7 +8,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SendGridConfig {
 
-    private static final String sendGridAPIKey = "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 ";
+    @Value("${EMAIL_API_KEY}")
+    private String sendGridAPIKey;
 
     private static SendGrid sendGrid;
 

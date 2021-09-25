@@ -1,6 +1,5 @@
 package com.novax.covidtrackerbackend.service;
 
-import com.sendgrid.*;
 import com.novax.covidtrackerbackend.config.SendGridConfig;
 import com.novax.covidtrackerbackend.model.dto.EmailResponseDTO;
 
@@ -9,16 +8,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MimeTypeUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sendgrid.Content;
 import com.sendgrid.Email;
 import com.sendgrid.Mail;
 import com.sendgrid.Method;
@@ -27,7 +23,6 @@ import com.sendgrid.Request;
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
 
-import java.io.IOException;
 
 @Service
 public class SendGridEmailService implements EmailService{
@@ -41,9 +36,8 @@ public class SendGridEmailService implements EmailService{
     @Autowired
     EmailService emailService;
 
-    /*@Value("${ADMIN_EMAIL_ADDRESS}")
-    private String adminEmailAddress;*/
-    private static final String adminEmailAddress = "team.novax18@gmail.com";
+    @Value("${ADMIN_EMAIL_ADDRESS}")
+    private String adminEmailAddress;
 
     @Override
     public EmailResponseDTO sendTextEmail(String from, String to, String templateId, Map<String, String> dynamic_data) throws IOException {
