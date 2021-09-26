@@ -47,7 +47,7 @@ public class DatabaseExceptionHandling {
         }
 
         Response response = new Response()
-                .setMessage("requested data doesn't exist in the database")
+                .setMessage("Database exception occurred")
                 .setResponseCode(response_code)
                 .setURI(request.getRequestURI())
                 .setException(ex);
