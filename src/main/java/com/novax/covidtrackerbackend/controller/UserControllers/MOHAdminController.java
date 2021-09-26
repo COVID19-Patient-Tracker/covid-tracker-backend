@@ -92,20 +92,18 @@ public class MOHAdminController {
         // TODO: Auto generate a password
         user.setPassword(passwordEncoder.encode("password")); // temporarily set password
 
-        // TODO: send an email with password for newly saved user
-
         Optional<User> u = userService.addUser(user);
 
         // exclude unwanted details (pw)
         MappingJacksonValue value = new MappingJacksonValue(u.get());
         value.setSerializationView(User.WithoutPasswordView.class);
-
+        User useWithOutPasswordView = (User)  value.getValue();
         // if no exception occurred send this response
         Response response = new Response();
         response.setResponseCode(HttpStatus.OK.value())
                 .setMessage("request success")
                 .setURI(request.getRequestURI())
-                .addField("Info",value.getValue());
+                .addField("Info",useWithOutPasswordView.getUserDetails());
 
         return response.getResponseEntity();
     }

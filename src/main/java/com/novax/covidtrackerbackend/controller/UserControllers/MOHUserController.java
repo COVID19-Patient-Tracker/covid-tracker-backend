@@ -140,20 +140,18 @@ public class MOHUserController {
         // TODO: sends an error if try to add different user type excep HOSPITAL_USER/HOSPITAL_ADMIN
         // TODO: Auto generate a password
         user.setPassword(passwordEncoder.encode("password")); // temporarily set password
-
-        // TODO: send an email with password for newly saved user
-
         Optional<User> u = userService.addUser(user);
 
         // exclude unwanted details (pw)
         MappingJacksonValue value = new MappingJacksonValue(u.get());
         value.setSerializationView(User.WithoutPasswordView.class);
+        User useWithOutPasswordView = (User)  value.getValue();
 
         // if no exception occurred send this response
         response.reset().setResponseCode(HttpStatus.OK.value())
                 .setMessage("request success")
                 .setURI(request.getRequestURI())
-                .addField("userInfo",value.getValue());
+                .addField("userInfo",useWithOutPasswordView.getUserDetails());
         return response.getResponseEntity();
     }
 

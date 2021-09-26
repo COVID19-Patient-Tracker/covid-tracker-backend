@@ -18,10 +18,7 @@ import java.util.HashMap;
 @Data
 @Table(name = "user")
 public class User {
-
     public interface WithoutPasswordView {};
-    public interface WithPasswordView extends WithoutPasswordView {};
-
     @JsonView(WithoutPasswordView.class)
     public HashMap<String,Object> getUserDetails() {
         HashMap<String,Object> detailsArr = new HashMap<String,Object>(6);
@@ -30,6 +27,7 @@ public class User {
         detailsArr.put("last_name",this.last_name);
         detailsArr.put("nic",this.nic);
         detailsArr.put("role",this.role);
+        detailsArr.put("hospital_id",this.hospital_id);
         detailsArr.put("user_id",this.user_id);
         return detailsArr;
     }
