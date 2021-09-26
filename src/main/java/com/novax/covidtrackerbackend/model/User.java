@@ -6,12 +6,10 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.util.HashMap;
 
 @Entity
@@ -35,7 +33,6 @@ public class User {
         detailsArr.put("user_id",this.user_id);
         return detailsArr;
     }
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -63,7 +60,6 @@ public class User {
     @Pattern(regexp = "^[0-9]{9}v$",message = "format should be 99999999v {10 digits followed by \"v\"}")
     private String nic;
 
-    @Transient
     @Nullable
     private int hospital_id;
 }
