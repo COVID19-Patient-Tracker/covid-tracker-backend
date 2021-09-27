@@ -40,7 +40,6 @@ public class JwtAuthenticationAndPasswordFilter extends UsernamePasswordAuthenti
         this.jwtSecretKey = jwtSecretKey;
         this.customAuthenticationFailureHandler = customAuthenticationFailureHandler;
     }
-
     // This method calls when first time login fails
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
@@ -57,7 +56,6 @@ public class JwtAuthenticationAndPasswordFilter extends UsernamePasswordAuthenti
 
         ApplicationUser userDetails = ((ApplicationUser) authResult.getPrincipal()); // get the principal (logged-in user) object
 
-        // TODO : need to encode user details into jwt and send
         // create JWT
                 String token = Jwts.builder()
                         .setSubject(authResult.getName())
