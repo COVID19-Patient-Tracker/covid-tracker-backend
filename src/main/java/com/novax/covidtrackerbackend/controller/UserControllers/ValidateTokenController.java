@@ -1,6 +1,7 @@
 package com.novax.covidtrackerbackend.controller.UserControllers;
 
 import com.novax.covidtrackerbackend.response.Response;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -24,10 +25,11 @@ import java.util.HashMap;
             "ROLE_MOH_ADMIN')" +
         "")
 public class ValidateTokenController {
+    @Autowired
+    Response response;
 
     @PostMapping("/jwt")
     public ResponseEntity<HashMap<String, Object>> validateToken(HttpServletRequest request, Authentication authentication) throws SQLException {
-        Response response = new Response();
 
         response.reset()
                 .setMessage("Token is Valid")
