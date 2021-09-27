@@ -58,6 +58,7 @@ public class User {
     @Pattern(regexp = "^[0-9]{9}v$",message = "format should be 99999999v {10 digits followed by \"v\"}")
     private String nic;
 
+    @Transient
     @Nullable
     private int hospital_id;
 }
