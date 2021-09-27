@@ -1,14 +1,22 @@
 package com.novax.covidtrackerbackend.response;
 import lombok.Data;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import java.util.HashMap;
 
 @Data
+@Configuration
 public class Response {
 
     private HashMap<String,Object> responseBody;
     private int responseCode;
+
+    @Bean
+    public Response getResponseObject(){
+        return new Response();
+    }
 
     public Response() {
         this.responseBody = new HashMap<>();
