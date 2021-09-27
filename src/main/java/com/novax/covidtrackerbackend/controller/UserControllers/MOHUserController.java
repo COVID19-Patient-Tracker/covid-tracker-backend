@@ -12,9 +12,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -25,31 +27,26 @@ import java.util.Optional;
  *
  * @return
  */
-
 @RestController
 @RequestMapping(path = "management/api/V1/MOH/user")
 @PreAuthorize("hasRole('ROLE_MOH_USER')")
 public class MOHUserController {
-
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final HospitalService hospitalService;
     private Response response = new Response();
-
     @Autowired
     public MOHUserController(UserService userService, PasswordEncoder passwordEncoder,HospitalService hospitalService) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.hospitalService = hospitalService;
     }
-
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('hospital_admin:read')")
     public String getAllMOHUsers(){
         // business logic
         return "HI All Users";
     }
-
     // @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_NEWROLE')")
     // @PreAuthorize("hasAuthority('moh_user:read')")
     // @PreAuthorize("hasAuthority('moh_user:read')")
@@ -61,7 +58,6 @@ public class MOHUserController {
      * @param request - HttpServletRequest object to access uri
      * @return - If validation passes for all fields , returns added hospital as a JSON response
      */
-
     @PutMapping("/hospital/add")
     @PreAuthorize("hasAnyRole('MOH_USER')")
     public ResponseEntity<HashMap<String, Object>> addHospital(@Valid @RequestBody Hospital hospital,HttpServletRequest request){
@@ -75,20 +71,32 @@ public class MOHUserController {
         return response.getResponseEntity();
     }
 
+    /**
+     *
+     * @param newDetailsOfUser - updated details sent by the client
+     * @param request - HttpServletRequest object to access uri
+     * @param auth - Authentication object in the application context to access authenticated user's user_id
+     * @return - updated user details with response
+     * @throws SQLException
+     */
     @PostMapping("/update/details")
     @PreAuthorize("hasAnyRole('MOH_USER')")
-    public ResponseEntity<HashMap<String, Object>> updateMOHUserDetails(@Valid @RequestBody User user, HttpServletRequest request) throws SQLException {
+    @JsonView(User.WithoutPasswordView.class)
+    public ResponseEntity<HashMap<String, Object>> updateMOHUserDetails(@Valid @RequestBody User newDetailsOfUser, HttpServletRequest request, Authentication auth) throws SQLException {
         Response response = new Response();
-        Long u_id = user.getUser_id();
+        User updatedDetailsOfUser = userService.updateUserDetails(newDetailsOfUser,auth);
+        // send this response if data update is success
+        // exclude unwanted details (pw)
+        MappingJacksonValue value = new MappingJacksonValue(updatedDetailsOfUser);
+        value.setSerializationView(User.WithoutPasswordView.class);
+        User useWithOutPasswordView = (User)  value.getValue();
 
-        // user doesn't exist exception is handled
-        Optional<User> u = userService.getUserById(u_id);
-        if(u.isPresent()){
-            userService.save(user);
-        }
-
+        response.reset()
+                .setMessage("details updated")
+                .setURI(request.getRequestURI())
+                .setResponseCode(HttpServletResponse.SC_OK)
+                .addField("updatedInfo",useWithOutPasswordView);
         return response.getResponseEntity();
-
     }
 
 

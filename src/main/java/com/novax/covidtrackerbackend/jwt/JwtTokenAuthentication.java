@@ -36,27 +36,20 @@ public class JwtTokenAuthentication extends OncePerRequestFilter{
             throws ServletException, IOException {
 
         String authorizationHdr = request.getHeader(jwtConfig.getAuthorizationHeader());
-
         if(Strings.isNullOrEmpty(authorizationHdr) || !authorizationHdr.startsWith("Bearer")){
             filterChain.doFilter(request, response);
             return;
         }
-
         String token = authorizationHdr.replace(jwtConfig.getTokenPrefix(), "");
-        
         try {
-            
             Jws<Claims> claimJws = Jwts.parserBuilder()
                     .setSigningKey(jwtSecretKey)
                     .build()
                     .parseClaimsJws(token);
-
             Claims Body = claimJws.getBody();
-
             String usrName = Body.getSubject();
-
+            var objectWithId = (Map<String, String>) Body.get("email"); // for use in subsequent request ot verify user and requests
             var authorities = (List<Map<String, String>>) Body.get("authorities");
-
             Set<SimpleGrantedAuthority>
                         simpleGrantedAuthorities = 
                             authorities.stream()
@@ -65,7 +58,7 @@ public class JwtTokenAuthentication extends OncePerRequestFilter{
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(
                             usrName,
-                            null,
+                            objectWithId.get("id"),
                             simpleGrantedAuthorities
                         );
 
