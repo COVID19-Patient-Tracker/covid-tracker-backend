@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpClientErrorException;
 
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
@@ -37,6 +36,13 @@ public class HospitalAdminController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+
+    /**
+     * ADDS NEW HOSPITAL USER OR ADMIN
+     * @param user - User entity to persist in the database.Refer user entity in the model.
+     * @return - If database validation passes, returns copy of persisted user information as JSON object.
+     */
+
     @PostMapping("/user/add")
     @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN')")
     public ResponseEntity<HashMap<String, Object>> addUser(@Valid @RequestBody User user, HttpServletRequest request) throws IOException {
@@ -52,20 +58,58 @@ public class HospitalAdminController {
         return response.getResponseEntity();
     }
 
-    @GetMapping("/user/{email}")
-    public ResponseEntity<HashMap<String, Object>> getUserByEmail( @PathVariable("email") String userEmail){
-        try{
-            UserDAO user = (UserDAO) userDAOService.loadUserByUsername(userEmail);
+    /**
+     * Get user by its nic and hospital id
+     * @param - Path variables of usernic and hospitalId
+     * @return - The user details if user found
+     */
+
+    @GetMapping("/user/{hospitalId}/nic/{userNic}")
+    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN')")
+    public ResponseEntity<HashMap<String, Object>> getUserByNicAndHospitalID(@PathVariable("userNic") String userNic,
+                                                                             @PathVariable("hospitalId") Integer hospitalId,
+                                                                             HttpServletRequest request) {
+        try {
+            UserDAO user = userDAOService.loadUserByNicHospitalId(userNic, hospitalId);
             Response<Object> response = new Response<>();
             response.setResponseCode(HttpStatus.OK.value())
                     .addField("userInfo", user);
             return response.getResponseEntity();
 
         } catch (EntityNotFoundException e) {
-            System.out.println("Error");
             Response<Object> response = new Response<>();
             response.setResponseCode(HttpStatus.NOT_FOUND.value())
-                    .setException(e);
+                    .setException(e)
+                    .setMessage("Requested User Not Found")
+                    .setURI(request.getRequestURI());
+            return response.getResponseEntity();
+        }
+    }
+
+    /**
+     * Get user by its email and hospital id
+     * @param - Path variables of userEmail and hospitalId
+     * @return - The user details if user found
+     */
+
+    @GetMapping("/user/{hospitalId}/email/{userEmail}")
+    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN')")
+    public ResponseEntity<HashMap<String, Object>> getUserByEmailAndHospitalID(@PathVariable("userEmail") String userEmail,
+                                                                             @PathVariable("hospitalId") Integer hospitalId,
+                                                                             HttpServletRequest request) {
+        try {
+            UserDAO user = userDAOService.loadUserByEmailNHospitalId(userEmail, hospitalId);
+            Response<Object> response = new Response<>();
+            response.setResponseCode(HttpStatus.OK.value())
+                    .addField("userInfo", user);
+            return response.getResponseEntity();
+
+        } catch (EntityNotFoundException e) {
+            Response<Object> response = new Response<>();
+            response.setResponseCode(HttpStatus.NOT_FOUND.value())
+                    .setException(e)
+                    .setMessage("Requested User Not Found")
+                    .setURI(request.getRequestURI());
             return response.getResponseEntity();
         }
     }
