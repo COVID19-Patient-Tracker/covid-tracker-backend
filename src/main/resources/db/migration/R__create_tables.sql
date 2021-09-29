@@ -37,6 +37,7 @@ DROP TABLE IF EXISTS `ward`;
 DROP TABLE IF EXISTS `patient`;
 DROP TABLE IF EXISTS `hospital`;
 DROP TABLE IF EXISTS `user`;
+DROP TABLE IF EXISTS `pat`;
 
 
 CREATE TABLE `covidpatient` (
@@ -180,7 +181,7 @@ INSERT INTO `user` (`user_id`, `password`, `email`, `role`,`nic`,`first_name`,`l
 (10000, '$2a$10$uHTQrwQWUSAgWMekvYgqduJ2odI9gdGpdFu7zXR5816/drVQfRroC', 'adminaaa@gmail.com', 'ADMIN','909090909V','first_name','last_name'),
 (10001, '$2a$10$uHTQrwQWUSAgWMekvYgqduJ2odI9gdGpdFu7zXR5816/drVQfRroC', 'abcdfg@gmail.com', 'ADMIN','909090909V','first_name','last_name'),
 (10002, '$2a$10$uHTQrwQWUSAgWMekvYgqduJ2odI9gdGpdFu7zXR5816/drVQfRroC', 'mohusr@gmail.com', 'MOH_USER','909090909V','first_name','last_name'),
-(10003, '$2a$10$uHTQrwQWUSAgWMekvYgqduJ2odI9gdGpdFu7zXR5816/drVQfRroC', 'mohadmn@gmail.com', 'MOH_ADMIN','909090909V','first_name','last_name');
+(10003, '$2a$10$uHTQrwQWUSAgWMekvYgqduJ2odI9gdGpdFu7zXR5816/drVQfRroC', 'abd@gmail.com', 'MOH_ADMIN','909090909V','first_name','last_name');
 
 -- --------------------------------------------------------
 
@@ -358,6 +359,30 @@ ALTER TABLE `wardtransfertable`
   ADD CONSTRAINT `wardtransfertable_ibfk_2` FOREIGN KEY (`transfer_ward_id`) REFERENCES `ward` (`ward_id`),
   ADD CONSTRAINT `wardtransfertable_ibfk_3` FOREIGN KEY (`patient_id`) REFERENCES `patient` (`patient_id`),
   ADD CONSTRAINT `wardtransfertable_ibfk_4` FOREIGN KEY (`hospital_id`) REFERENCES `hospital` (`hospital_id`);
+
+--
+-- Add first_name, last_name, is_child to patient table
+--
+ALTER TABLE `patient` ADD `first_name` varchar(100) NOT NULL;
+ALTER TABLE `patient` ADD `last_name` varchar(100);
+ALTER TABLE `patient` ADD `is_child` tinyint(1) NOT NULL DEFAULT 0;
+
+--
+-- change type of contact_no in patient table
+--
+ALTER TABLE `patient` MODIFY `contact_no` varchar(10);
+
+CREATE TABLE `pat` (
+    `pat_id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `password` varchar(300) NOT NULL,
+    `email` varchar(100) NOT NULL,
+    `nic` varchar(50) NOT NULL,
+    `first_name` varchar(100) NOT NULL,
+    `last_name` varchar(100),
+    `is_child` tinyint(1) NOT NULL DEFAULT 0,
+    PRIMARY KEY (`pat_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE `pat` MODIFY `is_child` int(10);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
@@ -445,6 +470,32 @@ CREATE or replace DEFINER=`root`@`localhost` PROCEDURE `add_user` (IN `email` VA
 			SIGNAL SQLSTATE '45000'
 			SET MESSAGE_TEXT = 'user already exists in db';
 		END IF;
+    END$$
+DELIMITER ;
+
+-- This procedure used to add PATIENT to the database
+-- Use this procedure to add PATIENT under above roles
+
+
+
+DELIMITER $$
+CREATE or replace DEFINER=`root`@`localhost` PROCEDURE `add_patient` (IN `email` VARCHAR(100),
+                                                                         IN `nic` varchar(50),
+                                                                         IN `password` varchar(300),
+                                                                         IN `first_name` varchar(100),
+                                                                         IN `last_name` varchar(100),
+                                                                         IN `is_child` int(1))  BEGIN
+
+        IF NOT EXISTS (SELECT pat.email FROM pat WHERE pat.email = email) THEN
+            START TRANSACTION;
+                INSERT INTO `pat` (`nic`, `email`,`password`,`first_name`,`last_name`,`is_child`)
+                    VALUES (nic,email,password,first_name,last_name,is_child);
+                SELECT * FROM `pat` WHERE pat.email = email;
+                COMMIT;
+        ELSE
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'user already exists in db';
+        END IF;
     END$$
 DELIMITER ;
 
