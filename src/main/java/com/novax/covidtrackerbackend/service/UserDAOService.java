@@ -17,6 +17,12 @@ public class UserDAOService {
     @Autowired
     private final UserDAORepository userDAORepository;
 
+    /**
+     * GETS USER BY NIC AND HOSPITAL ID
+     * @param userNic
+     * @param hospitalId
+     * @return UserDAO object
+     */
     public UserDAO loadUserByNicHospitalId(String userNic, Integer hospitalId)  {
         Optional<UserDAO> result = userDAORepository.findByNicAndHospitalusersHospital(userNic , hospitalId);
         if (result.isPresent()) {
@@ -26,6 +32,12 @@ public class UserDAOService {
         }
     }
 
+    /**
+     * GETS USER BY HOSPITAL ID AND EMAIL
+     * @param userEmail
+     * @param hospitalId
+     * @return UserDAO object
+     */
     public UserDAO loadUserByEmailNHospitalId(String userEmail, Integer hospitalId) {
         Optional<UserDAO> result = userDAORepository.findByEmailAndHospitalusersHospital(userEmail, hospitalId);
         if (result.isPresent()) {
