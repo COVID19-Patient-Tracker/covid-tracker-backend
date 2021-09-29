@@ -29,7 +29,7 @@ public class HospitalUserController {
     @PostMapping("/patient/add")
 
     public ResponseEntity<HashMap<String, Object>> addPatient(@Valid @RequestBody Patient patient, HttpServletRequest request) throws IOException {
-//        Optional<Patient> new_patient = patientServices.addPatient(patient);
+        Optional<Patient> new_patient = patientServices.addPatient(patient);
         System.out.println(patient);
         Response<Object> response = new Response<>();
         response.setResponseCode(HttpStatus.OK.value())
