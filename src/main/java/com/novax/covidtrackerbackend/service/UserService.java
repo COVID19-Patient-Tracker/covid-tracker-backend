@@ -1,5 +1,6 @@
 package com.novax.covidtrackerbackend.service;
 
+import java.sql.SQLException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +12,13 @@ import com.novax.covidtrackerbackend.model.User;
 import com.novax.covidtrackerbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.converter.json.MappingJacksonValue;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 @Service
 public class UserService {
@@ -32,6 +39,9 @@ public class UserService {
     @Value("${EMAIL_SIGNUP_TEMPLATE_ID}")
     private String Signup_tid;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public List<User> getAllUsers(){
         return (List<User>) userRepository.findAll();
     }
@@ -45,6 +55,28 @@ public class UserService {
         return user;
     }
 
+    public void deleteUser(Long id){
+        userRepository.deleteById(id);
+    }
+
+    public Optional<User> getUserById(Long id) throws SQLException {
+        Optional<User> u = userRepository.findById(id);
+        if(u.isEmpty()){
+            throw new SQLException("requested data doesn't exists in database");
+        }
+        return u;
+    }
+
+    public User save(User user) {
+        User u = userRepository.save(user);
+        return u;
+    }
+
+    /**
+     *
+     * @param user - user object to add to the database
+     * @return
+     */
     public Optional<User> addUser(User user){
         Optional<User> created_user = userRepository.addUser(
                 user.getEmail(),
@@ -63,6 +95,70 @@ public class UserService {
             }
         }
         return created_user;
+    }
+    /*** under construction
+     *
+     * @param userWithNewPassword - new details of the user
+     * @param auth - authentication object in the context - to verify user updating their own details by comparing id
+     * @return
+     * @throws SQLException
+     */
+    public synchronized User updateUserPassword(User userWithNewPassword, Authentication auth) throws SQLException {
+
+        Long u_id = userWithNewPassword.getUser_id();
+
+        // user doesn't exist exception is handled
+        // get previous info by id
+        Optional<User> previousDetailsOfUser = this.getUserById(Long.valueOf(String.valueOf(auth.getCredentials())));
+        User updatedDetailsOfUser = null;
+
+        if(previousDetailsOfUser.isPresent()){
+            // get old password for verify process
+            User user = previousDetailsOfUser.get();
+            String previousEncodedPassword = user.getPassword();
+
+            String password = userWithNewPassword.getPassword();
+            passwordEncoder.matches(password,previousEncodedPassword);
+            userWithNewPassword.setRole(previousDetailsOfUser.get().getRole());
+
+            if(previousDetailsOfUser.get().getUser_id().equals(userWithNewPassword.getUser_id())) {
+                updatedDetailsOfUser = this.save(userWithNewPassword);
+            }else{
+                throw new SQLException("id in database and provided id doesn't match"); // this exception throws to handle
+            }
+        }
+        // always return non-null object
+        return updatedDetailsOfUser;
+    }
+    /***
+     *
+     * @param newDetailsOfUser - new details of the user
+     * @param auth - authentication object in the context - to verify user updating their own details by comparing id
+     * @return
+     * @throws SQLException
+     */
+    public synchronized User updateUserDetails(User newDetailsOfUser, Authentication auth) throws SQLException {
+
+        Long u_id = newDetailsOfUser.getUser_id();
+
+        // user doesn't exist exception is handled
+        // get previous info by id
+        Optional<User> previousDetailsOfUser = this.getUserById(Long.valueOf(String.valueOf(auth.getCredentials())));
+        User updatedDetailsOfUser = null;
+
+        if(previousDetailsOfUser.isPresent()){
+            // password and role changes not permitted here (so rest them if they have changed by malformed activity or any AFJ
+            newDetailsOfUser.setPassword(previousDetailsOfUser.get().getPassword());
+            newDetailsOfUser.setRole(previousDetailsOfUser.get().getRole());
+
+            if(previousDetailsOfUser.get().getUser_id().equals(newDetailsOfUser.getUser_id())) {
+                updatedDetailsOfUser = this.save(newDetailsOfUser);
+            }else{
+                throw new SQLException("id in database and provided id doesn't match"); // this exception throws to handle
+            }
+        }
+        // always return non-null object
+        return updatedDetailsOfUser;
     }
 
     /**
@@ -84,4 +180,6 @@ public class UserService {
                 dynamic_data
         );
     }
+
+
 }

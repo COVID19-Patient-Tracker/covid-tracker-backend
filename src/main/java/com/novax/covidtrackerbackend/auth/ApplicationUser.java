@@ -14,13 +14,15 @@ public class ApplicationUser implements UserDetails{
     private final String password;
     private final String username;
 	private final Long id;
+	private final String role;
     private final boolean isAccountNonExpired;
     private final boolean isAccountNonLocked;
     private final boolean isCredentialsNonExpired;
     private final boolean isEnabled;
 
 	public Long getId() { return id;}
-    @Override
+	public String getRole() { return role;}
+	@Override
 	public Set<? extends GrantedAuthority> getAuthorities() {
 		return grantedAuthorities;
 	}
