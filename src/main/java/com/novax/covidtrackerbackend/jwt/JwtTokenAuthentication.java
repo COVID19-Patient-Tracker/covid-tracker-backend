@@ -48,7 +48,7 @@ public class JwtTokenAuthentication extends OncePerRequestFilter{
                     .parseClaimsJws(token);
             Claims Body = claimJws.getBody();
             String usrName = Body.getSubject();
-            var objectWithId = (Map<String, String>) Body.get("email"); // for use in subsequent request ot verify user and requests
+            var objectWithId = Body.get("id"); // for use in subsequent request to verify user and requests
             var authorities = (List<Map<String, String>>) Body.get("authorities");
             Set<SimpleGrantedAuthority>
                         simpleGrantedAuthorities = 
@@ -58,7 +58,7 @@ public class JwtTokenAuthentication extends OncePerRequestFilter{
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(
                             usrName,
-                            objectWithId.get("id"),
+                            objectWithId,
                             simpleGrantedAuthorities
                         );
 
