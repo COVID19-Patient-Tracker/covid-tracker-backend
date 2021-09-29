@@ -24,23 +24,26 @@ import java.util.Optional;
 
 /**
  * This controller provides resources to the MOH user
- *
- * @return
  */
+
 @RestController
 @RequestMapping(path = "management/api/V1/MOH/user")
 @PreAuthorize("hasRole('ROLE_MOH_USER')")
 public class MOHUserController {
+
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final HospitalService hospitalService;
-    private Response response = new Response();
+    private final Response response;
+
     @Autowired
-    public MOHUserController(UserService userService, PasswordEncoder passwordEncoder,HospitalService hospitalService) {
+    public MOHUserController(UserService userService, PasswordEncoder passwordEncoder,HospitalService hospitalService,Response response) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.hospitalService = hospitalService;
+        this.response = response;
     }
+
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('hospital_admin:read')")
     public String getAllMOHUsers(){
@@ -62,12 +65,13 @@ public class MOHUserController {
     @PreAuthorize("hasAnyRole('MOH_USER')")
     public ResponseEntity<HashMap<String, Object>> addHospital(@Valid @RequestBody Hospital hospital,HttpServletRequest request){
         Hospital h = hospitalService.save(hospital);
-        // if no exception occurred send this response
 
+        // if no exception occurred send this response
         response.reset().setResponseCode(HttpStatus.OK.value())
                 .setMessage("request success")
                 .setURI(request.getRequestURI())
                 .addField("hospitalInfo",h);
+
         return response.getResponseEntity();
     }
 
@@ -83,8 +87,9 @@ public class MOHUserController {
     @PreAuthorize("hasAnyRole('MOH_USER')")
     @JsonView(User.WithoutPasswordView.class)
     public ResponseEntity<HashMap<String, Object>> updateMOHUserDetails(@Valid @RequestBody User newDetailsOfUser, HttpServletRequest request, Authentication auth) throws SQLException {
-        Response response = new Response();
+
         User updatedDetailsOfUser = userService.updateUserDetails(newDetailsOfUser,auth);
+
         // send this response if data update is success
         // exclude unwanted details (pw)
         MappingJacksonValue value = new MappingJacksonValue(updatedDetailsOfUser);
@@ -96,9 +101,9 @@ public class MOHUserController {
                 .setURI(request.getRequestURI())
                 .setResponseCode(HttpServletResponse.SC_OK)
                 .addField("updatedInfo",useWithOutPasswordView);
+
         return response.getResponseEntity();
     }
-
 
     /**
      * DELETES HOSPITAL_ADMIN/HOSPITAL_USER
@@ -107,18 +112,16 @@ public class MOHUserController {
      * @return - If user exist and successfully deleted, returns success message with deleted user_id.
      */
 
-
     @DeleteMapping("/delete/{u_id}")
     @PreAuthorize("hasAuthority('hospital_admin:write')")
     public ResponseEntity<HashMap<String, Object>> deleteUser(@PathVariable Long u_id,HttpServletRequest request) throws SQLException {
-        Response response = new Response();
         Optional<User> user = userService.getUserById(u_id);
         if(user.isPresent()){
 
             User u = user.get();
             if(u.getRole().equals("HOSPITAL_ADMIN") || u.getRole().equals("HOSPITAL_USER")){
-                // if no exception occurred send this response
 
+                // if no exception occurred send this response
                 response.setResponseCode(HttpStatus.OK.value())
                         .setMessage("request success")
                         .setURI(request.getRequestURI())
@@ -183,6 +186,5 @@ public class MOHUserController {
 
         return response.getResponseEntity();
     }
-
 
 }
