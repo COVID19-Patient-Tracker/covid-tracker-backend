@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.sql.SQLException;
 import java.util.HashMap;
 
+/***
+ * controller for validate JWT token for in necessary (All type of Users allowed)
+ */
 @RestController
 @RequestMapping(path = "validate/token")
 @PreAuthorize
@@ -28,17 +30,25 @@ public class ValidateTokenController {
     @Autowired
     Response response;
 
-    @PostMapping("/jwt")
-    public ResponseEntity<HashMap<String, Object>> validateToken(HttpServletRequest request, Authentication authentication) throws SQLException {
+    /***
+     *
+     * @param request - request that contains token in the header
+     * @param authentication - accessing user info that has Authenticated by the spring security
+     * @return
+     *
+     */
 
+    @PostMapping("/jwt")
+    public ResponseEntity<HashMap<String, Object>> validateToken(HttpServletRequest request, Authentication authentication){
+        // invalid tokens handled prior
+        // response
         response.reset()
                 .setMessage("Token is Valid")
                 .setURI(request.getRequestURI())
                 .setResponseCode(HttpServletResponse.SC_OK)
-                .addField("id",authentication.getName())
+                .addField("id",authentication.getCredentials())
                 .addField("authorities",authentication.getAuthorities());
 
         return response.getResponseEntity();
-
     }
 }
