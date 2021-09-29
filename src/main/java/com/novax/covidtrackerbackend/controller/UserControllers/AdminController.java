@@ -25,8 +25,4 @@ public class AdminController {
         return "user added to the database";
     }
 
-
-
-
-
 }

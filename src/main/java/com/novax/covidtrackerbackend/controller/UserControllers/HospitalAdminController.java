@@ -50,7 +50,7 @@ public class HospitalAdminController {
         user.setPassword(passwordEncoder.encode("password")); // temporarily set password
         Optional<User> new_user = userService.addUser(user);
 
-        Response<Object> response = new Response<>();
+        Response response = new Response();
         response.setResponseCode(HttpStatus.OK.value())
                 .setMessage("request success")
                 .setURI(request.getRequestURI())

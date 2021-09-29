@@ -8,9 +8,6 @@ import io.jsonwebtoken.security.Keys;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Autowired;
 
-
-
-
 @Configuration
 public class JwtSecretKey {
     
