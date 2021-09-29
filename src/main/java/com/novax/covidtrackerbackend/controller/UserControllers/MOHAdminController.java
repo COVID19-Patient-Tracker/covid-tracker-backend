@@ -13,7 +13,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -21,6 +20,9 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Optional;
 
+/**
+ * this controller provides resources for the MOH admin
+ */
 @RestController
 @RequestMapping(path = "management/api/V1/MOH/admin")
 @PreAuthorize("hasAnyRole('ROLE_MOH_ADMIN')")
@@ -29,11 +31,13 @@ public class MOHAdminController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private MappingJacksonValue value;
+    private final Response response;
 
     @Autowired
-    public MOHAdminController(UserService userService, PasswordEncoder passwordEncoder) {
+    public MOHAdminController(UserService userService, PasswordEncoder passwordEncoder,Response response) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.response = response;
     }
 
     /**
@@ -73,21 +77,27 @@ public class MOHAdminController {
     @DeleteMapping("/delete/{u_id}")
     @PreAuthorize("hasAuthority('hospital_admin:write')")
     public ResponseEntity<HashMap<String, Object>> deleteUser(@PathVariable Long u_id,HttpServletRequest request) throws SQLException {
-        Response response = new Response();
+
         Optional<User> user = userService.getUserById(u_id);
+
         if(user.isPresent()){
+
             User u = user.get();
+
             if(u.getRole().equals("MOH_ADMIN") || u.getRole().equals("MOH_USER")){
+
                 // if no exception occurred send this response
                 response.setResponseCode(HttpStatus.OK.value())
                         .setMessage("request success")
                         .setURI(request.getRequestURI())
                         .addField("Deleted",u);
                 userService.deleteUser(u_id);
+
             }else{
                 throw new EmptyResultDataAccessException("You don't have permission to delete this type of users",0);
             }
         }
+
         return response.getResponseEntity();
     }
 
@@ -103,8 +113,9 @@ public class MOHAdminController {
     @PreAuthorize("hasAnyRole('ROLE_MOH_ADMIN')")
     @JsonView(User.WithoutPasswordView.class)
     public ResponseEntity<HashMap<String, Object>> updateMOHUserDetails(@Valid @RequestBody User newDetailsOfUser, HttpServletRequest request, Authentication auth) throws SQLException {
-        Response response = new Response();
+
         User updatedDetailsOfUser = userService.updateUserDetails(newDetailsOfUser,auth);
+
         // send this response if data update is success
         // exclude unwanted details (pw)
         MappingJacksonValue value = new MappingJacksonValue(updatedDetailsOfUser);
@@ -116,6 +127,7 @@ public class MOHAdminController {
                 .setURI(request.getRequestURI())
                 .setResponseCode(HttpServletResponse.SC_OK)
                 .addField("updatedInfo",useWithOutPasswordView);
+
         return response.getResponseEntity();
     }
 
@@ -138,9 +150,9 @@ public class MOHAdminController {
         MappingJacksonValue value = new MappingJacksonValue(u.get());
         value.setSerializationView(User.WithoutPasswordView.class);
         User useWithOutPasswordView = (User)  value.getValue();
+
         // if no exception occurred send this response
-        Response response = new Response();
-        response.setResponseCode(HttpStatus.OK.value())
+        response.reset().setResponseCode(HttpStatus.OK.value())
                 .setMessage("request success")
                 .setURI(request.getRequestURI())
                 .addField("Info",useWithOutPasswordView.getUserDetails());
