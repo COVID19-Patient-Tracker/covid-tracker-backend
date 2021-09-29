@@ -36,7 +36,6 @@ public class HospitalAdminController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-
     /**
      * ADDS NEW HOSPITAL USER OR ADMIN
      * @param user - User entity to persist in the database.Refer user entity in the model.
@@ -49,7 +48,6 @@ public class HospitalAdminController {
 
         user.setPassword(passwordEncoder.encode("password")); // temporarily set password
         Optional<User> new_user = userService.addUser(user);
-
         Response response = new Response();
         response.setResponseCode(HttpStatus.OK.value())
                 .setMessage("request success")
@@ -59,9 +57,11 @@ public class HospitalAdminController {
     }
 
     /**
-     * Get user by its nic and hospital id
-     * @param - Path variables of usernic and hospitalId
-     * @return - The user details if user found
+     * GET
+     * @param userNic  - NIC of the requested user
+     * @param hospitalId  - user accessed hospital id setted automatically
+     * @return - If user exists under the given condition user details will be returned
+     * @throws EntityNotFoundException if the user is not available in the database
      */
 
     @GetMapping("/user/{hospitalId}/nic/{userNic}")
@@ -71,13 +71,13 @@ public class HospitalAdminController {
                                                                              HttpServletRequest request) {
         try {
             UserDAO user = userDAOService.loadUserByNicHospitalId(userNic, hospitalId);
-            Response<Object> response = new Response<>();
+            Response response = new Response();
             response.setResponseCode(HttpStatus.OK.value())
                     .addField("userInfo", user);
             return response.getResponseEntity();
 
         } catch (EntityNotFoundException e) {
-            Response<Object> response = new Response<>();
+            Response response = new Response();
             response.setResponseCode(HttpStatus.NOT_FOUND.value())
                     .setException(e)
                     .setMessage("Requested User Not Found")
@@ -87,9 +87,11 @@ public class HospitalAdminController {
     }
 
     /**
-     * Get user by its email and hospital id
-     * @param - Path variables of userEmail and hospitalId
-     * @return - The user details if user found
+     * GET
+     * @param userEmail  - Email of the requested user
+     * @param hospitalId  - user accessed hospital id setted automatically
+     * @return - If user exists under the given condition user details will be returned
+     * @throws EntityNotFoundException if the user is not available in the database
      */
 
     @GetMapping("/user/{hospitalId}/email/{userEmail}")
@@ -99,13 +101,13 @@ public class HospitalAdminController {
                                                                              HttpServletRequest request) {
         try {
             UserDAO user = userDAOService.loadUserByEmailNHospitalId(userEmail, hospitalId);
-            Response<Object> response = new Response<>();
+            Response response = new Response();
             response.setResponseCode(HttpStatus.OK.value())
                     .addField("userInfo", user);
             return response.getResponseEntity();
 
         } catch (EntityNotFoundException e) {
-            Response<Object> response = new Response<>();
+            Response response = new Response();
             response.setResponseCode(HttpStatus.NOT_FOUND.value())
                     .setException(e)
                     .setMessage("Requested User Not Found")
