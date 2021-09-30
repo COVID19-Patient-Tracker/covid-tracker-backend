@@ -31,7 +31,7 @@ public class HospitalUserController {
     public ResponseEntity<HashMap<String, Object>> addPatient(@Valid @RequestBody Patient patient, HttpServletRequest request) throws IOException {
         Optional<Patient> new_patient = patientServices.addPatient(patient);
         System.out.println(patient);
-        Response<Object> response = new Response<>();
+        Response response = new Response();
         response.setResponseCode(HttpStatus.OK.value())
                 .setMessage("request success")
                 .setURI(request.getRequestURI());

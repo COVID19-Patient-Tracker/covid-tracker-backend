@@ -6,35 +6,45 @@ import lombok.NoArgsConstructor;
 
 import javax.annotation.Nullable;
 import javax.persistence.*;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-
-import java.util.Date;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Table(name = "pat")
+@Table(name = "patient")
 public class Patient {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long pat_id;
-
-    @NotEmpty(message = "email cannot be null")
-    @Email
-    private String email;
+    private Long patient_id;
 
     @NotEmpty(message = "nic cannot be null")
     @Size(min = 10,max = 10,message = "size does not match")
     @Pattern(regexp = "^[0-9]{9}v$",message = "format should be 99999999v {10 digits followed by \"v\"}")
     private String nic;
 
-    @Size(min = 8,max = 100,message = "size does not match")
-    private String password;
+    @Transient
+    @NotEmpty(message = "hospital id  cannot be null")
+    private int hospital_id;
+
+    @NotEmpty(message = "address cannot be null")
+    private String address;
+
+    @NotEmpty(message = "gender cannot be null")
+    private Character gender;
+
+    @NotEmpty(message = "date of birth does not match")
+    private String dob;
+
+    @Nullable
+    private int age;
+
+    @NotEmpty(message = "Contact number number cannot be null")
+    @Size(min = 10,max = 10,message = "Contact number size is invalid. size should be 10")
+    private String contact_no;
 
     @NotEmpty(message = "first name cannot be null")
     @Size(min = 5,max = 100,message = "size does not match")
@@ -42,6 +52,11 @@ public class Patient {
 
     @Size(min = 0,max = 100,message = "size does not match")
     private String last_name;
+
     @Nullable
     private int is_child;
+
+    @Nullable
+    private int is_user;
+
 }

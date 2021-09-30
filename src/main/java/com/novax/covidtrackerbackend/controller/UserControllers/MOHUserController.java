@@ -64,7 +64,7 @@ public class MOHUserController {
     public ResponseEntity<HashMap<String, Object>> addHospital(@Valid @RequestBody Hospital hospital,HttpServletRequest request){
         Hospital h = hospitalService.save(hospital);
         // if no exception occurred send this response
-        Response<Object> response = new Response<>();
+        Response response = new Response();
         response.setResponseCode(HttpStatus.OK.value())
                 .setMessage("request success")
                 .setURI(request.getRequestURI())
@@ -89,7 +89,7 @@ public class MOHUserController {
 
         Optional<User> u = userService.addUser(user);
         // if no exception occurred send this response
-        Response<Object> response = new Response<>();
+        Response response = new Response();
         response.setResponseCode(HttpStatus.OK.value())
                 .setMessage("request success")
                 .setURI(request.getRequestURI())
@@ -111,7 +111,7 @@ public class MOHUserController {
         hospitalService.deleteHospitalById(hospitalId);
 
         // if no exception occurred send this response
-        Response<Object> response = new Response<>();
+        Response response = new Response();
         response.setResponseCode(HttpStatus.OK.value())
                 .setMessage("request success")
                 .setURI(request.getRequestURI());
