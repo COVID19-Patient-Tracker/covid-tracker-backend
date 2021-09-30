@@ -12,13 +12,9 @@ import com.novax.covidtrackerbackend.model.User;
 import com.novax.covidtrackerbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 @Service
 public class UserService {
@@ -46,7 +42,7 @@ public class UserService {
         return (List<User>) userRepository.findAll();
     }
 
-    public boolean isUserExist(String email) {
+    public Integer isUserExist(String email) {
         return userRepository.isUserExist(email);
     }
 

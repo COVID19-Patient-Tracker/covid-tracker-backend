@@ -27,15 +27,6 @@ public interface UserRepository extends CrudRepository<User, Long> {
                                 );
 
     @Query(value = "SELECT EXISTS (SELECT * FROM User WHERE email = :email)", nativeQuery = true)
-    public boolean isUserExist(@Param("email") String email);
+    public Integer isUserExist(@Param("email") String email);
 
-//    @Query(value = )
-//    User updateDetailsOfMOHProfiles(
-//            @Param("email") String email,
-//            @Param("role") String role,
-//            @Param("nic") String nic,
-//            @Param("password") String password,
-//            @Param("first_name") String first_name,
-//            @Param("last_name") String last_name
-//            );
 }
