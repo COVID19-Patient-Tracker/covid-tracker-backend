@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.annotation.Nullable;
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -27,13 +28,13 @@ public class Patient {
     private String nic;
 
     @Transient
-    @NotEmpty(message = "hospital id  cannot be null")
+    @NotNull(message = "hospital id  cannot be null")
     private int hospital_id;
 
     @NotEmpty(message = "address cannot be null")
     private String address;
 
-    @NotEmpty(message = "gender cannot be null")
+    @NotNull(message = "gender cannot be null")
     private Character gender;
 
     @NotEmpty(message = "date of birth does not match")
