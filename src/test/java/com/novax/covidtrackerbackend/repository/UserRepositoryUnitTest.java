@@ -2,11 +2,11 @@ package com.novax.covidtrackerbackend.repository;
 
 import com.novax.covidtrackerbackend.model.User;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.jdbc.Sql;
 
 import java.sql.SQLException;
 import java.util.Optional;
@@ -14,11 +14,16 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class UserRepositoryUnitTest {
 
     @Autowired
     private UserRepository underTest;
 
+    @BeforeEach
+    void init() {
+        underTest.deleteAll();
+    }
     @AfterEach
     void tearDown() {
         underTest.deleteAll();
@@ -29,11 +34,11 @@ class UserRepositoryUnitTest {
         // given
         User user = new User(
                 null,
+                "abcdefgh789",
+                "mohadmn_new@gmail.com",
+                "f_name",
+                "l_name",
                 "MOH_ADMIN",
-                "encrypted_pwd",
-                "mohadmn@gmail.com",
-                "aaaaaa",
-                null,
                 "999999999v",
                 99
                 );
@@ -41,7 +46,7 @@ class UserRepositoryUnitTest {
         underTest.save(user);
 
         // when
-        Optional<User> exists = underTest.getUserByEmail("mohadmn@gmail.com");
+        Optional<User> exists = underTest.getUserByEmail("mohadmn_new@gmail.com");
 
         // then
         assertThat(exists).isNotEmpty();
@@ -75,23 +80,22 @@ class UserRepositoryUnitTest {
         // given
         User user = new User(
                 null,
-                "MOH_ADMIN",
-                "encrypted_pwd",
+                "password",
                 "mohadmn@gmail.com",
-                "aaaaaa",
-                null,
-                null,
+                "f_name",
+                "l_name",
+                "MOH_ADMIN",
+                "999999999v",
                 99
-//                99
         );
 
         underTest.save(user);
 
         // when
-        boolean exists = underTest.isUserExist("mohadmn@gmail.com");
+        Integer exists = underTest.isUserExist("mohadmn@gmail.com");
 
         // then
-        assertThat(exists).isEqualTo(true);
+        assertThat(exists).isEqualTo(1);
 
     }
 
@@ -100,40 +104,42 @@ class UserRepositoryUnitTest {
         String nullemail = null;
 
         // when
-        boolean emptyemail = underTest.isUserExist(nullemail);
+        Integer emptyemail = underTest.isUserExist(nullemail);
 
         // then
-        assertThat(emptyemail).isEqualTo(false);
+        assertThat(emptyemail).isEqualTo(0);
     }
 
     @Test
     void itShouldReturnFalseIfEmailIsWrong(){
         String wrongemail = "wrong";
         // when
-        boolean notExists = underTest.isUserExist(wrongemail);
+        Integer notExists = underTest.isUserExist(wrongemail);
 
         // then
-        assertThat(notExists).isEqualTo(false);
+        assertThat(notExists).isEqualTo(0);
     }
     @Test
 //    @Sql({"/create_stored_procedure.sql"})
     void itShouldAddMOHAdmin() {
         User user = new User(
                 null,
+                "pwdpwd",
+                "mohadmn_usr@gmail.com",
+                "f_name",
+                "l_name",
                 "MOH_ADMIN",
-                "encrypted_pwd",
-                "mohadmn@gmail.com",
-                "aaaaaa",
-                null,
-                null,
-                99
-//                null
+                "999999999v",
+                0
         );
 
-        User output = underTest.save(
-                user
+        Optional<User> output = underTest.addUser(
+                user.getEmail(),user.getRole(),user.getNic(),user.getPassword(),user.getFirst_name(),user.getLast_name(),user.getHospital_id()
         );
-        assertThat(output).isEqualTo(user);
+
+        User expectedUser = output.get();
+        user.setUser_id(expectedUser.getUser_id());
+        assertThat(expectedUser).isEqualTo(user);
         assertThatExceptionOfType(SQLException.class);
 
     }

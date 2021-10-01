@@ -1,5 +1,6 @@
 package com.novax.covidtrackerbackend.service;
 
+import java.sql.SQLException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -11,12 +12,20 @@ import com.novax.covidtrackerbackend.model.User;
 import com.novax.covidtrackerbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
 
     private UserRepository userRepository;
+
+    @Value("${ADMIN_EMAIL_ADDRESS}")
+    private String adminEmailAddress;
+
+    @Value("${EMAIL_SIGNUP_TEMPLATE_ID}")
+    private String Signup_tid;
 
     @Autowired
     private SendGridEmailService emailService;
@@ -26,17 +35,14 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    @Value("${ADMIN_EMAIL_ADDRESS}")
-    private String adminEmailAddress;
-
-    @Value("${EMAIL_SIGNUP_TEMPLATE_ID}")
-    private String Signup_tid;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public List<User> getAllUsers(){
         return (List<User>) userRepository.findAll();
     }
 
-    public boolean isUserExist(String email) {
+    public Integer isUserExist(String email) {
         return userRepository.isUserExist(email);
     }
 
@@ -44,6 +50,29 @@ public class UserService {
         Optional<User> user = userRepository.getUserByEmail(email);
         return user;
     }
+
+    public void deleteUser(Long id){
+        userRepository.deleteById(id);
+    }
+
+    public Optional<User> getUserById(Long id) throws SQLException {
+        Optional<User> u = userRepository.findById(id);
+        if(u.isEmpty()){
+            throw new SQLException("requested data doesn't exists in database");
+        }
+        return u;
+    }
+
+    public User save(User user) {
+        User u = userRepository.save(user);
+        return u;
+    }
+
+    /**
+     * ADDS ANY USER WITH ANY ROLE TO THE DATABASE. VALIDATIONS AND NECESSARY TABLE UPDATES HANDLED BY THE DATABASE
+     * @param user - user object to add to the database
+     * @return
+     */
 
     public Optional<User> addUser(User user){
         Optional<User> created_user = userRepository.addUser(
@@ -55,7 +84,8 @@ public class UserService {
                 user.getLast_name(),
                 user.getHospital_id()
         );
-        if (created_user != null){
+
+        if (created_user.isPresent()){
             try{
                 sendFirstLoginEmail(user.getEmail());
             } catch (IOException e) {
@@ -65,8 +95,85 @@ public class UserService {
         return created_user;
     }
 
+    /*** under construction
+     *
+     * @param userWithNewPassword - new details of the user
+     * @param auth - authentication object in the context - to verify user updating their own details by comparing id
+     * @return
+     * @throws SQLException
+     */
+
+    public synchronized User updateUserPassword(User userWithNewPassword, Authentication auth) throws SQLException {
+
+        Long u_id = userWithNewPassword.getUser_id();
+
+        // user doesn't exist exception is handled
+        // get previous info by id
+        Optional<User> previousDetailsOfUser = this.getUserById(Long.valueOf(String.valueOf(auth.getCredentials())));
+        User updatedDetailsOfUser = null;
+
+        if(previousDetailsOfUser.isPresent()){
+            // get old password for verify process
+            User user = previousDetailsOfUser.get();
+            String previousEncodedPassword = user.getPassword();
+
+            String password = userWithNewPassword.getPassword();
+            passwordEncoder.matches(password,previousEncodedPassword);
+            userWithNewPassword.setRole(previousDetailsOfUser.get().getRole());
+
+            if(previousDetailsOfUser.get().getUser_id().equals(userWithNewPassword.getUser_id())) {
+                updatedDetailsOfUser = this.save(userWithNewPassword);
+            }else{
+                throw new SQLException("id in database and provided id doesn't match"); // this exception throws to handle
+            }
+        }
+        // always return non-null object
+        return updatedDetailsOfUser;
+    }
+
+    /***
+     * USER DETAILS UPDATES BY USER
+     * @param newDetailsOfUser - new details of the user
+     * @param auth - authentication object in the context - to verify user updating their own details by comparing id
+     * @return User object (not null)
+     * @throws SQLException
+     */
+
+    public synchronized User updateUserDetails(User newDetailsOfUser, Authentication auth) throws SQLException {
+
+        Long u_id = newDetailsOfUser.getUser_id();
+
+        // user doesn't exist exception is handled
+        // get previous info by id
+        Optional<User> previousDetailsOfUser = this.getUserById(Long.valueOf(String.valueOf(auth.getCredentials())));
+        User updatedDetailsOfUser = null;
+
+        if(previousDetailsOfUser.isPresent()){
+
+            // password and role changes not permitted here (so rest them if they have changed by malformed activity or any AFJ
+            newDetailsOfUser.setPassword(previousDetailsOfUser.get().getPassword());
+            newDetailsOfUser.setRole(previousDetailsOfUser.get().getRole());
+
+            if(previousDetailsOfUser.get().getUser_id().equals(newDetailsOfUser.getUser_id())) {
+
+                updatedDetailsOfUser = this.save(newDetailsOfUser);
+
+            }else{
+
+                throw new SQLException("id in database and provided id doesn't match"); // this exception throws to handle
+
+            }
+        }
+        // always return non-null object
+        return updatedDetailsOfUser;
+    }
+
     /**
-     * Email Sending service
+     * EMAIL SERVICE
+     * @param to - recipient email
+     * @param template_id -
+     * @param dynamic_data -
+     * @throws IOException
      */
     public void sendEmail(String to, String template_id, Map<String, String> dynamic_data) throws IOException {
         emailService.sendHTMLEmail(
@@ -76,6 +183,12 @@ public class UserService {
                 dynamic_data
         );
     }
+
+    /**
+     * LOGIN EMAIL SERVICE
+     * @param userEmail - recipient email
+     * @throws IOException
+     */
     public void sendFirstLoginEmail(String userEmail) throws IOException {
         Map<String, String> dynamic_data = new HashMap<String, String>();
         sendEmail(

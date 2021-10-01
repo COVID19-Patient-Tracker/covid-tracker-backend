@@ -34,8 +34,8 @@ public class Patient {
     @NotEmpty(message = "address cannot be null")
     private String address;
 
-    @NotNull(message = "gender cannot be null")
-    private Character gender;
+    @NotEmpty(message = "gender cannot be null")
+    private String gender;
 
     @NotEmpty(message = "date of birth does not match")
     private String dob;
@@ -55,9 +55,9 @@ public class Patient {
     private String last_name;
 
     @Nullable
-    private int is_child;
+    private int is_user;
 
     @Nullable
-    private int is_user;
+    private int is_child;
 
 }
