@@ -2,14 +2,18 @@ package com.novax.covidtrackerbackend.model;
 
 import javax.annotation.Nullable;
 import javax.persistence.*;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+
 import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.util.HashMap;
 
 @Entity
@@ -19,8 +23,10 @@ import java.util.HashMap;
 @Table(name = "user")
 public class User {
     public interface WithoutPasswordView {};
+
     @JsonView(WithoutPasswordView.class)
     public HashMap<String,Object> getUserDetails() {
+
         HashMap<String,Object> detailsArr = new HashMap<String,Object>(6);
         detailsArr.put("email",this.email);
         detailsArr.put("first_name",this.first_name);
@@ -30,6 +36,7 @@ public class User {
         detailsArr.put("hospital_id",this.hospital_id);
         detailsArr.put("user_id",this.user_id);
         return detailsArr;
+
     }
 
     @Id
@@ -58,7 +65,34 @@ public class User {
     @Pattern(regexp = "^[0-9]{9}v$",message = "format should be 99999999v {10 digits followed by \"v\"}")
     private String nic;
 
-    @Transient
     @Nullable
-    private int hospital_id;
+    @Transient
+    private int hospital_id = 0;
+
+    @Nullable
+    @Transient
+    @Size(min = 8,max = 100,message = "size does not match")
+    private String new_password = null;
+
+    public User(Long user_id, String password, String email, String first_name, String last_name, String role, String nic) {
+        this.user_id = user_id;
+        this.password = password;
+        this.email = email;
+        this.first_name = first_name;
+        this.last_name = last_name;
+        this.role = role;
+        this.nic = nic;
+    }
+
+    public User(Long user_id, String password, String email, String first_name, String last_name, String role, String nic, int hospital_id) {
+        this.user_id = user_id;
+        this.password = password;
+        this.email = email;
+        this.first_name = first_name;
+        this.last_name = last_name;
+        this.role = role;
+        this.nic = nic;
+        this.hospital_id = hospital_id;
+    }
+
 }
