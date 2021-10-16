@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,14 +40,14 @@ public class UserService {
     @Value("${EMAIL_SIGNUP_TEMPLATE_ID}")
     private String Signup_tid;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+//    @Autowired
+    private PasswordEncoder passwordEncoder =  new BCryptPasswordEncoder(10);
 
     public List<User> getAllUsers(){
         return (List<User>) userRepository.findAll();
     }
 
-    public boolean isUserExist(String email) {
+    public Integer isUserExist(String email) {
         return userRepository.isUserExist(email);
     }
 
@@ -68,14 +69,13 @@ public class UserService {
     }
 
     public User save(User user) {
-        User u = userRepository.save(user);
-        return u;
+        return userRepository.save(user);
     }
 
     /**
      *
      * @param user - user object to add to the database
-     * @return
+     * @return new user details
      */
     public Optional<User> addUser(User user){
         Optional<User> created_user = userRepository.addUser(
@@ -87,7 +87,7 @@ public class UserService {
                 user.getLast_name(),
                 user.getHospital_id()
         );
-        if (created_user != null){
+        if (created_user.isPresent()){
             try{
                 sendFirstLoginEmail(user.getEmail());
             } catch (IOException e) {
@@ -100,8 +100,8 @@ public class UserService {
      *
      * @param userWithNewPassword - new details of the user
      * @param auth - authentication object in the context - to verify user updating their own details by comparing id
-     * @return
-     * @throws SQLException
+     * @return user
+     * @throws - SQLException
      */
     public synchronized User updateUserPassword(User userWithNewPassword, Authentication auth) throws SQLException {
 
@@ -117,19 +117,30 @@ public class UserService {
             User user = previousDetailsOfUser.get();
             String previousEncodedPassword = user.getPassword();
 
+            // get new password
             String password = userWithNewPassword.getPassword();
-            passwordEncoder.matches(password,previousEncodedPassword);
+            boolean isPasswordMatched = passwordEncoder.matches(password,previousEncodedPassword);
+
             userWithNewPassword.setRole(previousDetailsOfUser.get().getRole());
 
-            if(previousDetailsOfUser.get().getUser_id().equals(userWithNewPassword.getUser_id())) {
+            if(isPasswordMatched) {
+
+                // encode password
+                String encodedNewPassword = passwordEncoder.encode(userWithNewPassword.getNew_password());
+                // set encoded password
+                userWithNewPassword.setPassword(encodedNewPassword);
+                // save new password with user
                 updatedDetailsOfUser = this.save(userWithNewPassword);
+
             }else{
-                throw new SQLException("id in database and provided id doesn't match"); // this exception throws to handle
+                throw new SQLException("id/password mismatch"); // this exception throws to handle
             }
         }
+
         // always return non-null object
         return updatedDetailsOfUser;
     }
+
     /***
      *
      * @param newDetailsOfUser - new details of the user
@@ -147,7 +158,7 @@ public class UserService {
         User updatedDetailsOfUser = null;
 
         if(previousDetailsOfUser.isPresent()){
-            // password and role changes not permitted here (so rest them if they have changed by malformed activity or any AFJ
+            // password and role changes not permitted here (so rest of them if they have changed by malformed activity or any AFJ)
             newDetailsOfUser.setPassword(previousDetailsOfUser.get().getPassword());
             newDetailsOfUser.setRole(previousDetailsOfUser.get().getRole());
 
