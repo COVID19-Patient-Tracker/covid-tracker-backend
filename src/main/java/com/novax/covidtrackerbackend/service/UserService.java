@@ -13,6 +13,7 @@ import com.novax.covidtrackerbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,9 +35,6 @@ public class UserService {
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     public List<User> getAllUsers(){
         return (List<User>) userRepository.findAll();
@@ -64,14 +62,13 @@ public class UserService {
     }
 
     public User save(User user) {
-        User u = userRepository.save(user);
-        return u;
+        return userRepository.save(user);
     }
 
     /**
      * ADDS ANY USER WITH ANY ROLE TO THE DATABASE. VALIDATIONS AND NECESSARY TABLE UPDATES HANDLED BY THE DATABASE
      * @param user - user object to add to the database
-     * @return
+     * @return new user details
      */
 
     public Optional<User> addUser(User user){
@@ -99,8 +96,8 @@ public class UserService {
      *
      * @param userWithNewPassword - new details of the user
      * @param auth - authentication object in the context - to verify user updating their own details by comparing id
-     * @return
-     * @throws SQLException
+     * @return user
+     * @throws - SQLException
      */
 
     public synchronized User updateUserPassword(User userWithNewPassword, Authentication auth) throws SQLException {
@@ -117,16 +114,26 @@ public class UserService {
             User user = previousDetailsOfUser.get();
             String previousEncodedPassword = user.getPassword();
 
+            // get old password send by client to change
             String password = userWithNewPassword.getPassword();
-            passwordEncoder.matches(password,previousEncodedPassword);
+            boolean isPasswordMatched = passwordEncoder.matches(password,previousEncodedPassword);
+
             userWithNewPassword.setRole(previousDetailsOfUser.get().getRole());
 
-            if(previousDetailsOfUser.get().getUser_id().equals(userWithNewPassword.getUser_id())) {
+            if(isPasswordMatched) {
+
+                // encode password
+                String encodedNewPassword = passwordEncoder.encode(userWithNewPassword.getNew_password());
+                // set encoded password
+                userWithNewPassword.setPassword(encodedNewPassword);
+                // save new password with user
                 updatedDetailsOfUser = this.save(userWithNewPassword);
+
             }else{
-                throw new SQLException("id in database and provided id doesn't match"); // this exception throws to handle
+                throw new SQLException("id/password mismatch"); // this exception throws to handle
             }
         }
+
         // always return non-null object
         return updatedDetailsOfUser;
     }
@@ -149,8 +156,7 @@ public class UserService {
         User updatedDetailsOfUser = null;
 
         if(previousDetailsOfUser.isPresent()){
-
-            // password and role changes not permitted here (so rest them if they have changed by malformed activity or any AFJ
+            // password and role changes not permitted here (so rest of them if they have changed by malformed activity or any AFJ)
             newDetailsOfUser.setPassword(previousDetailsOfUser.get().getPassword());
             newDetailsOfUser.setRole(previousDetailsOfUser.get().getRole());
 
