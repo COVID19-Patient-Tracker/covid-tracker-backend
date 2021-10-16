@@ -12,19 +12,21 @@ import com.novax.covidtrackerbackend.model.User;
 import com.novax.covidtrackerbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
 @Service
 public class UserService {
 
     private UserRepository userRepository;
+
+    @Value("${ADMIN_EMAIL_ADDRESS}")
+    private String adminEmailAddress;
+
+    @Value("${EMAIL_SIGNUP_TEMPLATE_ID}")
+    private String Signup_tid;
 
     @Autowired
     private SendGridEmailService emailService;
@@ -33,15 +35,6 @@ public class UserService {
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-
-    @Value("${ADMIN_EMAIL_ADDRESS}")
-    private String adminEmailAddress;
-
-    @Value("${EMAIL_SIGNUP_TEMPLATE_ID}")
-    private String Signup_tid;
-
-//    @Autowired
-    private PasswordEncoder passwordEncoder =  new BCryptPasswordEncoder(10);
 
     public List<User> getAllUsers(){
         return (List<User>) userRepository.findAll();
@@ -73,10 +66,11 @@ public class UserService {
     }
 
     /**
-     *
+     * ADDS ANY USER WITH ANY ROLE TO THE DATABASE. VALIDATIONS AND NECESSARY TABLE UPDATES HANDLED BY THE DATABASE
      * @param user - user object to add to the database
      * @return new user details
      */
+
     public Optional<User> addUser(User user){
         Optional<User> created_user = userRepository.addUser(
                 user.getEmail(),
@@ -87,6 +81,7 @@ public class UserService {
                 user.getLast_name(),
                 user.getHospital_id()
         );
+
         if (created_user.isPresent()){
             try{
                 sendFirstLoginEmail(user.getEmail());
@@ -96,6 +91,7 @@ public class UserService {
         }
         return created_user;
     }
+
     /*** under construction
      *
      * @param userWithNewPassword - new details of the user
@@ -103,6 +99,7 @@ public class UserService {
      * @return user
      * @throws - SQLException
      */
+
     public synchronized User updateUserPassword(User userWithNewPassword, Authentication auth) throws SQLException {
 
         Long u_id = userWithNewPassword.getUser_id();
@@ -142,12 +139,13 @@ public class UserService {
     }
 
     /***
-     *
+     * USER DETAILS UPDATES BY USER
      * @param newDetailsOfUser - new details of the user
      * @param auth - authentication object in the context - to verify user updating their own details by comparing id
-     * @return
+     * @return User object (not null)
      * @throws SQLException
      */
+
     public synchronized User updateUserDetails(User newDetailsOfUser, Authentication auth) throws SQLException {
 
         Long u_id = newDetailsOfUser.getUser_id();
@@ -163,9 +161,13 @@ public class UserService {
             newDetailsOfUser.setRole(previousDetailsOfUser.get().getRole());
 
             if(previousDetailsOfUser.get().getUser_id().equals(newDetailsOfUser.getUser_id())) {
+
                 updatedDetailsOfUser = this.save(newDetailsOfUser);
+
             }else{
+
                 throw new SQLException("id in database and provided id doesn't match"); // this exception throws to handle
+
             }
         }
         // always return non-null object
@@ -173,7 +175,11 @@ public class UserService {
     }
 
     /**
-     * Email Sending service
+     * EMAIL SERVICE
+     * @param to - recipient email
+     * @param template_id -
+     * @param dynamic_data -
+     * @throws IOException
      */
     public void sendEmail(String to, String template_id, Map<String, String> dynamic_data) throws IOException {
         emailService.sendHTMLEmail(
@@ -183,6 +189,12 @@ public class UserService {
                 dynamic_data
         );
     }
+
+    /**
+     * LOGIN EMAIL SERVICE
+     * @param userEmail - recipient email
+     * @throws IOException
+     */
     public void sendFirstLoginEmail(String userEmail) throws IOException {
         Map<String, String> dynamic_data = new HashMap<String, String>();
         sendEmail(
@@ -191,6 +203,4 @@ public class UserService {
                 dynamic_data
         );
     }
-
-
 }

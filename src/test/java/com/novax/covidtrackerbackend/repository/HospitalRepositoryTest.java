@@ -30,6 +30,7 @@ class HospitalRepositoryTest {
     // adding hospitals to the database
     @Test
     void itShouldCheckIfHospitalSavesCorrectly() {
+
         // given
         Hospital h = new Hospital();
         h.setAddress("address/address/address");
@@ -37,8 +38,10 @@ class HospitalRepositoryTest {
         h.setTelephone("9999999999");
         h.setName("name");
         h.setHospital_id(99);
+
         // when
         Hospital saved_h = underTest.save(h);
+
         // then
         assertThat(saved_h).usingRecursiveComparison().ignoringFields("hospital_id").isEqualTo(h);
     }

@@ -40,40 +40,13 @@ public class MOHAdminController {
         this.response = response;
     }
 
-    /**
-     * DASHBOARD RELATED DATA
-     * @return - returns copy of persisted user information as JSON object.
-     */
-
-    @GetMapping("/dashboard")
-    @PreAuthorize("hasAuthority('moh_admin:read')")
-    public String getHospitalDetails() {
-
-        // business logic
-
-        return "dashboard of the MOH";
-    }
-
-
-
-
-
-    /**
-     * UPDATES INFORMATION OF MOH_ADMIN
-     * @return
-     */
-
-    @PostMapping("/user/update")
-    @PreAuthorize("hasAuthority('moh_admin:read')")
-    public String getAllMOHUsers() {
-        return "dashboard of the MOH";
-    }
 
     /**
      * DELETES MOH_USER/HOSPITAL_ADMIN
      * @param u_id - NIC of the targeted user to delete.
      * @return - If database validation passes, returns copy of deleted user information as JSON object.
      */
+
     @DeleteMapping("/delete/{u_id}")
     @PreAuthorize("hasAuthority('hospital_admin:write')")
     public ResponseEntity<HashMap<String, Object>> deleteUser(@PathVariable Long u_id,HttpServletRequest request) throws SQLException {
@@ -81,9 +54,7 @@ public class MOHAdminController {
         Optional<User> user = userService.getUserById(u_id);
 
         if(user.isPresent()){
-
             User u = user.get();
-
             if(u.getRole().equals("MOH_ADMIN") || u.getRole().equals("MOH_USER")){
 
                 // if no exception occurred send this response
@@ -97,9 +68,9 @@ public class MOHAdminController {
                 throw new EmptyResultDataAccessException("You don't have permission to delete this type of users",0);
             }
         }
-
         return response.getResponseEntity();
     }
+
 
 
     /**
@@ -111,7 +82,6 @@ public class MOHAdminController {
     @PutMapping("/user/add")
     @PreAuthorize("hasAuthority('moh_admin:write')")
     public ResponseEntity<HashMap<String, Object>> addUser(@Valid @RequestBody User user, HttpServletRequest request) throws Exception {
-        // TODO: sends an error if try to add different user type excep HOSPITAL_USER/HOSPITAL_ADMIN
         // TODO: Auto generate a password
         user.setPassword(passwordEncoder.encode("password")); // temporarily set password
 
@@ -131,17 +101,4 @@ public class MOHAdminController {
         return response.getResponseEntity();
     }
 
-    @PostMapping("/user/update/details")
-    @PreAuthorize("hasAuthority('moh_admin:write')")
-    public String updateMOHUser() {
-        // updating details of a user
-        // business logic
-        return "user details updated";
-    }
-
-
-    // @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_NEWROLE')")
-    // @PreAuthorize("hasAuthority('moh_user:read')")
-    // @PreAuthorize("hasAuthority('moh_user:read')")
-    // @PreAuthorize("hasAuthority('moh_user:read')")
 }

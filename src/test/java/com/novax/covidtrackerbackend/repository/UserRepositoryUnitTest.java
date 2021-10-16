@@ -91,7 +91,7 @@ class UserRepositoryUnitTest {
                 "l_name",
                 "MOH_ADMIN",
                 "999999999v",
-                0
+                  0
         );
 
         underTest.save(user);
@@ -138,7 +138,7 @@ class UserRepositoryUnitTest {
                 "MOH_ADMIN",
                 "999999999v",
                 0
-        );
+          );
 
         Optional<User> output = underTest.addUser(
                 user.getEmail(),user.getRole(),user.getNic(),user.getPassword(),user.getFirst_name(),user.getLast_name(),user.getHospital_id()
@@ -211,7 +211,7 @@ class UserRepositoryUnitTest {
 
         Optional<User> output = underTest.addUser(
                 user.getEmail(),user.getRole(),user.getNic(),user.getPassword(),user.getFirst_name(),user.getLast_name(),user.getHospital_id()
-        );
+          );
 
         User expectedUser = output.get();
         user.setUser_id(expectedUser.getUser_id());
@@ -239,6 +239,5 @@ class UserRepositoryUnitTest {
         }).withMessage("could not extract ResultSet; " +
                 "nested exception is org.hibernate.exception.GenericJDBCException: " +
                 "could not extract ResultSet");
-
     }
 }

@@ -44,37 +44,6 @@ public class MOHUserController {
         this.response = response;
     }
 
-    @GetMapping("/all")
-    @PreAuthorize("hasAuthority('hospital_admin:read')")
-    public String getAllMOHUsers(){
-        // business logic
-        return "HI All Users";
-    }
-    // @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_NEWROLE')")
-    // @PreAuthorize("hasAuthority('moh_user:read')")
-    // @PreAuthorize("hasAuthority('moh_user:read')")
-    // @PreAuthorize("hasAuthority('moh_user:read')")
-
-    /**
-     *
-     * @param hospital - Hospital entity to persist in the database. Refer Hospital entity in the modle
-     * @param request - HttpServletRequest object to access uri
-     * @return - If validation passes for all fields , returns added hospital as a JSON response
-     */
-    @PutMapping("/hospital/add")
-    @PreAuthorize("hasAnyRole('MOH_USER')")
-    public ResponseEntity<HashMap<String, Object>> addHospital(@Valid @RequestBody Hospital hospital,HttpServletRequest request){
-        Hospital h = hospitalService.save(hospital);
-
-        // if no exception occurred send this response
-        response.reset().setResponseCode(HttpStatus.OK.value())
-                .setMessage("request success")
-                .setURI(request.getRequestURI())
-                .addField("hospitalInfo",h);
-
-        return response.getResponseEntity();
-    }
-
     /**
      * DELETES HOSPITAL_ADMIN/HOSPITAL_USER
      * @param u_id - User id to delete from the database.Refer user entity in the model.
@@ -93,7 +62,7 @@ public class MOHUserController {
 
                 // if no exception occurred send this response
                 response.setResponseCode(HttpStatus.OK.value())
-                        .setMessage("request success")
+                        .setMessage("request success. user deleted")
                         .setURI(request.getRequestURI())
                         .addField("Deleted",u);
 
@@ -137,6 +106,28 @@ public class MOHUserController {
     }
 
     /**
+     * ADDS HOSPITAL TO THE SYSTEM
+     * @param hospital - Hospital entity to persist in the database. Refer Hospital entity in the modle
+     * @param request - HttpServletRequest object to access uri
+     * @return - If validation passes for all fields , returns added hospital as a JSON response
+     */
+
+    @PutMapping("/hospital/add")
+    @PreAuthorize("hasAnyRole('MOH_USER')")
+    public ResponseEntity<HashMap<String, Object>> addHospital(@Valid @RequestBody Hospital hospital,HttpServletRequest request){
+        Hospital h = hospitalService.save(hospital);
+
+        // if no exception occurred send this response
+        response.reset().setResponseCode(HttpStatus.OK.value())
+                .setMessage("request success")
+                .setURI(request.getRequestURI())
+                .addField("hospitalInfo",h);
+
+        return response.getResponseEntity();
+    }
+
+
+    /**
      * DELETES HOSPITAL
      * @param hospitalId - id of the hospital to delete
      * @param request - HttpServletRequest object to access uri
@@ -146,6 +137,7 @@ public class MOHUserController {
     @DeleteMapping("/hospital/delete/{hospitalId}")
     @PreAuthorize("hasAnyRole('MOH_USER')")
     public ResponseEntity<HashMap<String, Object>> deleteHospital(@PathVariable("hospitalId") int hospitalId, HttpServletRequest request){
+
         // exceptions handled
         hospitalService.deleteHospitalById(hospitalId);
 
