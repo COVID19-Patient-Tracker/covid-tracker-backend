@@ -117,7 +117,7 @@ public class UserService {
             User user = previousDetailsOfUser.get();
             String previousEncodedPassword = user.getPassword();
 
-            // get new password
+            // get old password send by client to change
             String password = userWithNewPassword.getPassword();
             boolean isPasswordMatched = passwordEncoder.matches(password,previousEncodedPassword);
 

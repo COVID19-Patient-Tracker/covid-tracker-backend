@@ -76,36 +76,6 @@ public class MOHUserController {
     }
 
     /**
-     *
-     * @param newDetailsOfUser - updated details sent by the client
-     * @param request - HttpServletRequest object to access uri
-     * @param auth - Authentication object in the application context to access authenticated user's user_id
-     * @return - updated user details with response
-     * @throws SQLException
-     */
-    @PostMapping("/update/details")
-    @PreAuthorize("hasAnyRole('MOH_USER')")
-    @JsonView(User.WithoutPasswordView.class)
-    public ResponseEntity<HashMap<String, Object>> updateMOHUserDetails(@Valid @RequestBody User newDetailsOfUser, HttpServletRequest request, Authentication auth) throws SQLException {
-
-        User updatedDetailsOfUser = userService.updateUserDetails(newDetailsOfUser,auth);
-
-        // send this response if data update is success
-        // exclude unwanted details (pw)
-        MappingJacksonValue value = new MappingJacksonValue(updatedDetailsOfUser);
-        value.setSerializationView(User.WithoutPasswordView.class);
-        User useWithOutPasswordView = (User)  value.getValue();
-
-        response.reset()
-                .setMessage("details updated")
-                .setURI(request.getRequestURI())
-                .setResponseCode(HttpServletResponse.SC_OK)
-                .addField("updatedInfo",useWithOutPasswordView);
-
-        return response.getResponseEntity();
-    }
-
-    /**
      * DELETES HOSPITAL_ADMIN/HOSPITAL_USER
      * @param u_id - User id to delete from the database.Refer user entity in the model.
      * @param request - HttpServletRequest object to access uri
