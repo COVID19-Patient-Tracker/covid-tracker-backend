@@ -36,4 +36,10 @@ public class Hospital {
     @NotNull
     private int capacity;
 
+    public Hospital(@Unique String name, String address, String telephone, int capacity) {
+        this.name = name;
+        this.address = address;
+        this.telephone = telephone;
+        this.capacity = capacity;
+    }
 }

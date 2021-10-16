@@ -32,6 +32,9 @@ public class UserService {
     private SendGridEmailService emailService;
 
     @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
