@@ -8,12 +8,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sendgrid.Email;
 import com.sendgrid.Mail;
@@ -102,7 +100,6 @@ public class SendGridEmailService implements EmailService{
                 }
             }
         }
-
     }
 
     private EmailResponseDTO convertToResponse(Response response) {
