@@ -1,7 +1,7 @@
 package com.novax.covidtrackerbackend.service;
 
 import com.novax.covidtrackerbackend.model.dao.PcrTestDAO;
-import com.novax.covidtrackerbackend.model.dto.AddPcrTestRequestDTO;
+import com.novax.covidtrackerbackend.model.dto.AddTestRequestDTO;
 import com.novax.covidtrackerbackend.repository.PcrTestDAORepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ public class PcrTestDAOService {
      * @return created PCR Record data
      */
 
-    public PcrTestDAO addPcrTest( AddPcrTestRequestDTO testData)  throws SQLException {
+    public PcrTestDAO addPcrTest( AddTestRequestDTO testData)  throws SQLException {
         PcrTestDAO pcr = new PcrTestDAO(
                 testData.getPatient_id(),
                 testData.getHospital_id(),
