@@ -322,13 +322,11 @@ class UserServiceUnitTest {
     }
 
     @Test
-    @Disabled
     void sendEmail() {
 
     }
 
     @Test
-    @Disabled
     void sendFirstLoginEmail() {
 
     }
