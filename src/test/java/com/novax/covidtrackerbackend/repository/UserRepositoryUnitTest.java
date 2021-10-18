@@ -1,14 +1,13 @@
 package com.novax.covidtrackerbackend.repository;
 import com.novax.covidtrackerbackend.model.User;
-import org.hibernate.exception.GenericJDBCException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.orm.jpa.JpaSystemException;
-
 import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
@@ -32,6 +31,7 @@ class UserRepositoryUnitTest {
 
     // get user by email
     @Test
+    @DisplayName("get user by email")
     void itShouldGetUserByEmail() {
         // given
         User user = new User(
@@ -54,11 +54,11 @@ class UserRepositoryUnitTest {
         assertThat(exists).isNotEmpty();
         assertThat(exists).hasValue(user);
 
-
     }
 
     // what if email is wrong
     @Test
+    @DisplayName("should return null if email is wrong")
     void itShouldReturnNullIfEmailIsWrong(){
         String email = "wrongemail";
         // when
@@ -70,6 +70,7 @@ class UserRepositoryUnitTest {
 
     // what if email is null
     @Test
+    @DisplayName("should return null if email is null")
     void itShouldReturnNullIfEmailIsNull(){
         String email = "";
         // when
@@ -81,6 +82,7 @@ class UserRepositoryUnitTest {
 
     // existence of record of user using email
     @Test
+    @DisplayName("user exists by email")
     void itShouldCheckIfIsUserExist() {
         // given
         User user = new User(
@@ -104,8 +106,8 @@ class UserRepositoryUnitTest {
 
     }
 
-
     @Test
+    @DisplayName("should return false if email is null for user existence")
     void itShouldReturnFalseIfEmailIsNull(){
         String nullemail = null;
 
@@ -116,8 +118,8 @@ class UserRepositoryUnitTest {
         assertThat(emptyemail).isEqualTo(0);
     }
 
-
     @Test
+    @DisplayName("should return false if email is wrong for user existence")
     void itShouldReturnFalseIfEmailIsWrong(){
         String wrongemail = "wrong";
         // when
@@ -128,6 +130,7 @@ class UserRepositoryUnitTest {
     }
 
     @Test
+    @DisplayName("should add moh admin")
     void itShouldAddMOHAdmin() {
         User user = new User(
                 null,
@@ -149,8 +152,8 @@ class UserRepositoryUnitTest {
         assertThat(expectedUser).isEqualTo(user);
     }
 
-
     @Test
+    @DisplayName("should add hospital admin")
     void itShouldAddHospitalAdmin() {
         User user = new User(
                 null,
@@ -174,6 +177,7 @@ class UserRepositoryUnitTest {
     }
 
     @Test
+    @DisplayName("should add hospital user")
     void itShouldAddHospitalUser() {
         User user = new User(
                 null,
@@ -197,6 +201,7 @@ class UserRepositoryUnitTest {
     }
 
     @Test
+    @DisplayName("should add moh user")
     void itShouldAddMOHUser() {
         User user = new User(
                 null,
@@ -220,6 +225,7 @@ class UserRepositoryUnitTest {
 
 
     @Test
+    @DisplayName("should raise exception if user role is invalid")
     void itShouldRaiseExceptionWhenAddUserWithInvalidUserRole() {
         User user = new User(
                 null,
