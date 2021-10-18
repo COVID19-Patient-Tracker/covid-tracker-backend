@@ -1,7 +1,7 @@
 package com.novax.covidtrackerbackend.service;
 
 import com.novax.covidtrackerbackend.model.dao.PcrTestDAO;
-import com.novax.covidtrackerbackend.model.dto.AddPcrTestRequestDTO;
+import com.novax.covidtrackerbackend.model.dto.AddTestRequestDTO;
 import com.novax.covidtrackerbackend.repository.PcrTestDAORepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ class PcrTestDAOServiceUnitTest {
     @Test
     void isAbleToAddPcrTest() throws SQLException {
         // when
-        AddPcrTestRequestDTO addPcr = new AddPcrTestRequestDTO();
+        AddTestRequestDTO addPcr = new AddTestRequestDTO();
         PcrTestDAO pcr = underTest.addPcrTest(addPcr);
         // then
         verify(pcrTestDAORepository).save(any());
