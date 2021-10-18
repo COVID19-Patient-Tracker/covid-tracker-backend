@@ -9,12 +9,12 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @NoArgsConstructor
-public class AddPcrTestRequestDTO {
+public class AddTestRequestDTO {
 
     @Getter
     @Setter
     @NotNull(message = "patient id cannot be null")
-    private Long Patient_id;
+    private Long patient_id;
 
     @Getter
     @Setter

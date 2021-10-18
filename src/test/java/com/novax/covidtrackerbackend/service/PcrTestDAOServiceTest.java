@@ -1,7 +1,7 @@
 package com.novax.covidtrackerbackend.service;
 
 import com.novax.covidtrackerbackend.model.dao.PcrTestDAO;
-import com.novax.covidtrackerbackend.model.dto.AddPcrTestRequestDTO;
+import com.novax.covidtrackerbackend.model.dto.AddTestRequestDTO;
 import com.novax.covidtrackerbackend.repository.PcrTestDAORepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,7 +40,7 @@ class PcrTestDAOServiceTest {
     Date testDate = new Date();
     String testResult = "PENDING";
 
-    AddPcrTestRequestDTO  testData = new AddPcrTestRequestDTO();
+    AddTestRequestDTO testData = new AddTestRequestDTO();
     PcrTestDAO pcrTest = new PcrTestDAO(patientId , hospitalId, testDate, testResult);
 
     String notFoundException = "Invalid Test ID Provided";
