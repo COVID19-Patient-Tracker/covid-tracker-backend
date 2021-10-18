@@ -40,3 +40,5 @@ out/
 
 ### Local Configs ###
 config.properties
+
+application.properties
