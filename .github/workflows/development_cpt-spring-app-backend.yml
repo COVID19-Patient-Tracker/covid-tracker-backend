@@ -49,5 +49,5 @@ jobs:
         with:
           app-name: 'CPT-spring-app-backend'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_65F93DEE83984F7BA710B5DC93C7BD3F }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1D291DA635B74393893612A84AA18B10 }}
           package: '*.jar'
