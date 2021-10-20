@@ -28,7 +28,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: java-app
-          path: '${{ github.workspace }}/target/*.jar'
+          path: '${{ github.workspace }}/build/covid-tracker-backend-0.0.1-SNAPSHOT.jar'
 
   deploy:
     runs-on: ubuntu-latest
