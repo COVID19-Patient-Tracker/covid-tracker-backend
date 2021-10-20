@@ -2,7 +2,6 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
 name: Build and deploy JAR app to Azure Web App - CPT-spring-app-backend
-
 on:
   push:
     branches:
@@ -50,4 +49,4 @@ jobs:
           app-name: 'CPT-spring-app-backend'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1D291DA635B74393893612A84AA18B10 }}
-          package: '*.jar'
+          package: 'covid-tracker-backend-0.0.1-SNAPSHOT.jar'
