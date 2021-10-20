@@ -2,7 +2,6 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
 name: Build and deploy JAR app to Azure Web App - CPT-Spring-App-Backend
-
 on:
   push:
     branches:
@@ -21,14 +20,14 @@ jobs:
         with:
           java-version: '11'
 
-      - name: Build with Maven
-        run: mvn clean install
+      - name: Build with Gradle
+        run: gradle build
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
         with:
           name: java-app
-          path: '${{ github.workspace }}/target/*.jar'
+          path: '${{ github.workspace }}/build/libs/covid-tracker-backend-0.0.1-SNAPSHOT.jar'
 
   deploy:
     runs-on: windows-latest
@@ -50,4 +49,4 @@ jobs:
           app-name: 'CPT-Spring-App-Backend'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_80B7C235C9CA48EF8018A8B4D52E769C }}
-          package: '*.jar'
+          package: 'covid-tracker-backend-0.0.1-SNAPSHOT.jar'
