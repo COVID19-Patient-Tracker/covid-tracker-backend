@@ -21,7 +21,7 @@ jobs:
           java-version: '11'
 
       - name: Build with Gradle
-        run: mvn build
+        run: gradle build -x test
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
