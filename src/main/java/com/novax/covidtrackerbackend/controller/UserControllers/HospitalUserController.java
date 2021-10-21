@@ -9,15 +9,17 @@ import com.novax.covidtrackerbackend.service.HospitalVisitHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+
 @RestController
 @RequestMapping(path = "management/api/V1/hospital/user")
-//@PreAuthorize("hasAnyRole('ROLE_MOH_USER,ROLE_HOSPITAL_USER')")
+@PreAuthorize("hasAnyRole('ROLE_MOH_USER,ROLE_HOSPITAL_USER')")
 public class HospitalUserController {
 
     private final HospitalService hospitalService;
@@ -77,8 +79,16 @@ public class HospitalUserController {
         return response.getResponseEntity();
     }
 
+    /**
+     * UPDATES DATA OF A VISIT RECORD
+     * @param hospitalVisitHistoryWithIdAndData - id of the covid patient and data that should be updated
+     * @param request - request object
+     * @return
+     * @throws SQLException
+     */
     @PostMapping("/hospital/updateHistoryRecord/visitStatus")
-    public ResponseEntity<HashMap<String, Object>> updateVisitStatus(@RequestBody HospitalVisitHistory hospitalVisitHistoryWithIdAndData, HttpServletRequest request) throws SQLException {
+    public ResponseEntity<HashMap<String, Object>> updateVisitStatus(@RequestBody HospitalVisitHistory hospitalVisitHistoryWithIdAndData, HttpServletRequest request){
+        // update record with new data
         HospitalVisitHistory updatedHospitalVisitHistory = hospitalVisitHistoryService.updateVisitStatus(hospitalVisitHistoryWithIdAndData);
 
         // if no exception occurred send this response
@@ -90,9 +100,15 @@ public class HospitalUserController {
         return response.getResponseEntity();
     }
 
+    /**
+     * UPDATES THE VISIT STATUS OF A VISIT HISTORY RECORD
+     * @param hospitalVisitHistoryWithIdAndVisitStatus - id of the covid patient and visit status that should be updated
+     * @param request - request object
+     * @return updatedHospitalVisitHistory
+     */
     @PostMapping("/hospital/updateHistoryRecord/data")
-    public ResponseEntity<HashMap<String, Object>> updateData(@RequestBody HospitalVisitHistory hospitalVisitHistoryWithIdAndData, HttpServletRequest request) throws SQLException {
-        HospitalVisitHistory updatedHospitalVisitHistory = hospitalVisitHistoryService.updateData(hospitalVisitHistoryWithIdAndData);
+    public ResponseEntity<HashMap<String, Object>> updateData(@RequestBody HospitalVisitHistory hospitalVisitHistoryWithIdAndVisitStatus, HttpServletRequest request){
+        HospitalVisitHistory updatedHospitalVisitHistory = hospitalVisitHistoryService.updateData(hospitalVisitHistoryWithIdAndVisitStatus);
 
         // if no exception occurred send this response
         response.reset().setResponseCode(HttpStatus.OK.value())
@@ -103,8 +119,14 @@ public class HospitalUserController {
         return response.getResponseEntity();
     }
 
+    /**
+     * GET THE NEWEST VISIT HISTORY RECORD OF A COVID PATIENT
+     * @param patientId - id of the covid patient
+     * @param request - request object
+     * @return hospitalVisitHistories
+     */
     @GetMapping("/hospital/getNewestHospitalVisitRecord/{patientId}")
-    public ResponseEntity<HashMap<String, Object>> getNewestHospitalVisitHistoryRecord(@PathVariable("patientId") long patientId, HttpServletRequest request) throws SQLException {
+    public ResponseEntity<HashMap<String, Object>> getNewestHospitalVisitHistoryRecord(@PathVariable("patientId") long patientId, HttpServletRequest request){
         HospitalVisitHistory hospitalVisitHistories = hospitalVisitHistoryService.getNewestVisitHistoryByPatientId(patientId);
 
         // if no exception occurred send this response
@@ -116,8 +138,14 @@ public class HospitalUserController {
         return response.getResponseEntity();
     }
 
+    /**
+     *  GETS ALL VISIT HISTORIES OF A COVID PATIENT
+     * @param patientId - id of the covid patient
+     * @param request - request object
+     * @return hospitalVisitHistories
+     */
     @GetMapping("/hospital/getHospitalVisitHistories/{patientId}")
-    public ResponseEntity<HashMap<String, Object>> getHospitalVisitHistories(@PathVariable("patientId") long patientId, HttpServletRequest request) throws SQLException {
+    public ResponseEntity<HashMap<String, Object>> getHospitalVisitHistories(@PathVariable("patientId") long patientId, HttpServletRequest request){
         List<HospitalVisitHistory> hospitalVisitHistories = hospitalVisitHistoryService.getAllVisitHistoriesByPatientId(patientId);
 
         // if no exception occurred send this response
