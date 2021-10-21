@@ -13,6 +13,12 @@ import java.util.HashMap;
 @ControllerAdvice
 public class DatabaseExceptionHandling {
 
+    /**
+     * HANDLES EMPTY DATA ACCESS ERROR IN DATABASE
+     * @param ex - exception thrown
+     * @param request - request mad by the client
+     * @return ResponseEntity
+     */
     // Handle empty result data access exceptions
     @ExceptionHandler(EmptyResultDataAccessException.class)
     public ResponseEntity<HashMap> databaseError(EmptyResultDataAccessException ex,HttpServletRequest request) {
@@ -30,7 +36,14 @@ public class DatabaseExceptionHandling {
                 .body(map);
     }
 
-    // Handle database errors
+    /**
+     * Handle database errors
+     * @param ex - exception thrown
+     * @param request - request mad by the client
+     * @return ResponseEntity
+     */
+
+
     @ExceptionHandler(SQLException.class)
     public ResponseEntity<HashMap> databaseError(SQLException ex,HttpServletRequest request) {
         int response_code;

@@ -35,28 +35,30 @@ public class JwtTokenAuthentication extends OncePerRequestFilter{
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        // get authorization header from req
         String authorizationHdr = request.getHeader(jwtConfig.getAuthorizationHeader());
 
+        // null check for auth hdr
         if(Strings.isNullOrEmpty(authorizationHdr) || !authorizationHdr.startsWith("Bearer")){
+
             filterChain.doFilter(request, response);
             return;
+
         }
 
+        // sanitization for auth hdr
         String token = authorizationHdr.replace(jwtConfig.getTokenPrefix(), "");
-        
+
+        // validating the token
         try {
-            
             Jws<Claims> claimJws = Jwts.parserBuilder()
                     .setSigningKey(jwtSecretKey)
                     .build()
                     .parseClaimsJws(token);
-
             Claims Body = claimJws.getBody();
-
             String usrName = Body.getSubject();
-
+            var objectWithId = Body.get("id"); // for use in subsequent request to verify user and requests
             var authorities = (List<Map<String, String>>) Body.get("authorities");
-
             Set<SimpleGrantedAuthority>
                         simpleGrantedAuthorities = 
                             authorities.stream()
@@ -65,16 +67,19 @@ public class JwtTokenAuthentication extends OncePerRequestFilter{
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(
                             usrName,
-                            null,
+                            objectWithId,
                             simpleGrantedAuthorities
                         );
 
             SecurityContextHolder.getContext()
                     .setAuthentication(authentication);
+
+            filterChain.doFilter(request, response);
+
         } catch (Exception e) {
             customAuthenticationFailureHandler.onAuthenticationFailure(request,response,e);
         }
-        filterChain.doFilter(request, response);
+
 
     }
 

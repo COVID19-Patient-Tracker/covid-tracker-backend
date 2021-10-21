@@ -1,8 +1,8 @@
 package com.novax.covidtrackerbackend.service;
 
-import com.novax.covidtrackerbackend.model.dao.PcrTestDAO;
+import com.novax.covidtrackerbackend.model.dao.RapidAntigenTestDAO;
 import com.novax.covidtrackerbackend.model.dto.AddTestRequestDTO;
-import com.novax.covidtrackerbackend.repository.PcrTestDAORepository;
+import com.novax.covidtrackerbackend.repository.RapidAntigenTestDAORepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,44 +13,44 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class PcrTestDAOService {
+public class RapidAntigenTestDAOService {
 
     @Autowired
-    private final PcrTestDAORepository pcrTestDAORepository;
+    private final RapidAntigenTestDAORepository rapidAntigenTestDAORepository;
 
     /**
-     * ADD NEW PCR TEST RECORD TO PCRTEST TABLE
+     * ADD NEW RAPIDANTIGEN TEST RECORD TO `rapidantigentest` TABLE
      * @param testData
-     * @return created PCR Record data
+     * @return created Antigen Test Record data
      */
 
-    public PcrTestDAO addPcrTest( AddTestRequestDTO testData)  throws SQLException {
-        PcrTestDAO pcr = new PcrTestDAO(
+    public RapidAntigenTestDAO addAntigenTest(AddTestRequestDTO testData)  throws SQLException {
+        RapidAntigenTestDAO antigenTest = new RapidAntigenTestDAO(
                 testData.getPatient_id(),
                 testData.getHospital_id(),
                 testData.getTest_data(),
                 testData.getTest_result());
-        pcrTestDAORepository.save(pcr);
-        return pcr;
+        rapidAntigenTestDAORepository.save(antigenTest);
+        return antigenTest;
     }
 
     /**
-     * UPDATE PCR TEST STATE
+     * UPDATE ANTIGEN TEST STATE
      * @param test_id Unique ID of the test which needs to be updated
      * @param test_state New value for the test status
-     * @return updates pcr test details
+     * @return updates antigen test details
      */
 
-    public PcrTestDAO updatePcrTestStatus( Integer test_id,  String test_state)  throws SQLException {
-        Optional<PcrTestDAO> testFound = pcrTestDAORepository.findById(test_id);
+    public RapidAntigenTestDAO updateAntigenTestStatus( Integer test_id,  String test_state)  throws SQLException {
+        Optional<RapidAntigenTestDAO> testFound = rapidAntigenTestDAORepository.findById(test_id);
         if (testFound.isEmpty()){
             throw new EntityNotFoundException("Invalid Test ID Provided");
         }
-        PcrTestDAO testData = testFound.get();
+        RapidAntigenTestDAO testData = testFound.get();
         if (test_state != null && !testData.getTest_result().equals(test_state)){
             testData.setTest_result(test_state);
         }
-        pcrTestDAORepository.save(testData);
+        rapidAntigenTestDAORepository.save(testData);
         return testData;
     }
 }

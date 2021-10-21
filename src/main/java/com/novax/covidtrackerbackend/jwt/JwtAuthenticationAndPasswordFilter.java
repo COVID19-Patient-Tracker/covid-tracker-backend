@@ -92,15 +92,7 @@ public class JwtAuthenticationAndPasswordFilter extends UsernamePasswordAuthenti
 
             return authenticationManager.authenticate(auth);
             
-        } catch (JsonParseException e) {
-            e.printStackTrace();
-
-        } catch (JsonMappingException e) {
-
-            e.printStackTrace();
-
         } catch (IOException e) {
-
             e.printStackTrace();
 
         }

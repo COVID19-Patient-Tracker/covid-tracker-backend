@@ -1,6 +1,12 @@
 HELP.md
 .gradle
-build/
+build/resources
+build/bootJarMainClassName
+build/generated
+build/reports
+build/test-results
+build/tmp
+build/classes
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
@@ -40,3 +46,5 @@ out/
 
 ### Local Configs ###
 config.properties
+
+application.properties

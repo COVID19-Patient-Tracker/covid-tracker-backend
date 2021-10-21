@@ -1,6 +1,7 @@
 package com.novax.covidtrackerbackend.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -36,4 +39,18 @@ public class Hospital {
     @NotNull
     private int capacity;
 
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL,mappedBy="hospital")
+    private List<HospitalVisitHistory> hospitalVisitHistories;
+
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL,mappedBy="hospital")
+    private List<CovidPatient> covidPatients;
+
+    public Hospital(@Unique String name, String address, String telephone, int capacity) {
+        this.name = name;
+        this.address = address;
+        this.telephone = telephone;
+        this.capacity = capacity;
+    }
 }

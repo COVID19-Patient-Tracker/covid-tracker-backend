@@ -14,6 +14,14 @@ import java.util.Map;
 
 @ControllerAdvice
 public class ValidationExceptionHandling extends ResponseEntityExceptionHandler {
+
+    /**
+     * HANDLES VALIDATION EXCEPTIONS AND SENDS RESPOSNE
+     * @param ex - exception thrown
+     * @param request - request mad by the client
+     * @return ResponseEntity
+     */
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
 

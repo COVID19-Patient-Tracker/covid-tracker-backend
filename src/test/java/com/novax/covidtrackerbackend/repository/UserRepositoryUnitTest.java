@@ -1,14 +1,13 @@
 package com.novax.covidtrackerbackend.repository;
-
 import com.novax.covidtrackerbackend.model.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
-import java.sql.SQLException;
+import org.springframework.orm.jpa.JpaSystemException;
 import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
@@ -24,12 +23,15 @@ class UserRepositoryUnitTest {
     void init() {
         underTest.deleteAll();
     }
+
     @AfterEach
     void tearDown() {
         underTest.deleteAll();
     }
 
+    // get user by email
     @Test
+    @DisplayName("get user by email")
     void itShouldGetUserByEmail() {
         // given
         User user = new User(
@@ -52,10 +54,11 @@ class UserRepositoryUnitTest {
         assertThat(exists).isNotEmpty();
         assertThat(exists).hasValue(user);
 
-
     }
 
+    // what if email is wrong
     @Test
+    @DisplayName("should return null if email is wrong")
     void itShouldReturnNullIfEmailIsWrong(){
         String email = "wrongemail";
         // when
@@ -65,7 +68,9 @@ class UserRepositoryUnitTest {
         assertThat(wrongemail).isEmpty();
     }
 
+    // what if email is null
     @Test
+    @DisplayName("should return null if email is null")
     void itShouldReturnNullIfEmailIsNull(){
         String email = "";
         // when
@@ -75,7 +80,9 @@ class UserRepositoryUnitTest {
         assertThat(emptyemail).isEmpty();
     }
 
+    // existence of record of user using email
     @Test
+    @DisplayName("user exists by email")
     void itShouldCheckIfIsUserExist() {
         // given
         User user = new User(
@@ -86,7 +93,7 @@ class UserRepositoryUnitTest {
                 "l_name",
                 "MOH_ADMIN",
                 "999999999v",
-                99
+                  0
         );
 
         underTest.save(user);
@@ -100,6 +107,7 @@ class UserRepositoryUnitTest {
     }
 
     @Test
+    @DisplayName("should return false if email is null for user existence")
     void itShouldReturnFalseIfEmailIsNull(){
         String nullemail = null;
 
@@ -111,6 +119,7 @@ class UserRepositoryUnitTest {
     }
 
     @Test
+    @DisplayName("should return false if email is wrong for user existence")
     void itShouldReturnFalseIfEmailIsWrong(){
         String wrongemail = "wrong";
         // when
@@ -119,8 +128,9 @@ class UserRepositoryUnitTest {
         // then
         assertThat(notExists).isEqualTo(0);
     }
+
     @Test
-//    @Sql({"/create_stored_procedure.sql"})
+    @DisplayName("should add moh admin")
     void itShouldAddMOHAdmin() {
         User user = new User(
                 null,
@@ -131,7 +141,7 @@ class UserRepositoryUnitTest {
                 "MOH_ADMIN",
                 "999999999v",
                 0
-        );
+          );
 
         Optional<User> output = underTest.addUser(
                 user.getEmail(),user.getRole(),user.getNic(),user.getPassword(),user.getFirst_name(),user.getLast_name(),user.getHospital_id()
@@ -140,7 +150,100 @@ class UserRepositoryUnitTest {
         User expectedUser = output.get();
         user.setUser_id(expectedUser.getUser_id());
         assertThat(expectedUser).isEqualTo(user);
-        assertThatExceptionOfType(SQLException.class);
+    }
 
+    @Test
+    @DisplayName("should add hospital admin")
+    void itShouldAddHospitalAdmin() {
+        User user = new User(
+                null,
+                "pwdpwd",
+                "mohadmn_usr@gmail.com",
+                "f_name",
+                "l_name",
+                "HOSPITAL_ADMIN",
+                "999999999v",
+                3
+        );
+
+        Optional<User> output = underTest.addUser(
+                user.getEmail(),user.getRole(),user.getNic(),user.getPassword(),user.getFirst_name(),user.getLast_name(),user.getHospital_id()
+        );
+
+        User expectedUser = output.get();
+        user.setUser_id(expectedUser.getUser_id());
+        user.setHospital_id(0);
+        assertThat(expectedUser).isEqualTo(user);
+    }
+
+    @Test
+    @DisplayName("should add hospital user")
+    void itShouldAddHospitalUser() {
+        User user = new User(
+                null,
+                "pwdpwd",
+                "hospital_usr@gmail.com",
+                "f_name",
+                "l_name",
+                "HOSPITAL_USER",
+                "999999999v",
+                3
+        );
+
+        Optional<User> output = underTest.addUser(
+                user.getEmail(),user.getRole(),user.getNic(),user.getPassword(),user.getFirst_name(),user.getLast_name(),user.getHospital_id()
+        );
+
+        User expectedUser = output.get();
+        user.setUser_id(expectedUser.getUser_id());
+        user.setHospital_id(0);
+        assertThat(expectedUser).isEqualTo(user);
+    }
+
+    @Test
+    @DisplayName("should add moh user")
+    void itShouldAddMOHUser() {
+        User user = new User(
+                null,
+                "pwdpwd",
+                "mohadmn_usr@gmail.com",
+                "f_name",
+                "l_name",
+                "MOH_USER",
+                "999999999v",
+                0
+        );
+
+        Optional<User> output = underTest.addUser(
+                user.getEmail(),user.getRole(),user.getNic(),user.getPassword(),user.getFirst_name(),user.getLast_name(),user.getHospital_id()
+          );
+
+        User expectedUser = output.get();
+        user.setUser_id(expectedUser.getUser_id());
+        assertThat(expectedUser).isEqualTo(user);
+    }
+
+
+    @Test
+    @DisplayName("should raise exception if user role is invalid")
+    void itShouldRaiseExceptionWhenAddUserWithInvalidUserRole() {
+        User user = new User(
+                null,
+                "pwdpwd",
+                "mohadmn_usr@gmail.com",
+                "f_name",
+                "l_name",
+                "MOH_",
+                "999999999v",
+                0
+        );
+
+        assertThatExceptionOfType(JpaSystemException.class).isThrownBy(() -> {
+            underTest.addUser(
+                    user.getEmail(),user.getRole(),user.getNic(),user.getPassword(),user.getFirst_name(),user.getLast_name(),user.getHospital_id()
+            );
+        }).withMessage("could not extract ResultSet; " +
+                "nested exception is org.hibernate.exception.GenericJDBCException: " +
+                "could not extract ResultSet");
     }
 }
