@@ -3,26 +3,19 @@ package com.novax.covidtrackerbackend.service;
 import com.novax.covidtrackerbackend.model.CovidPatient;
 import com.novax.covidtrackerbackend.model.Hospital;
 import com.novax.covidtrackerbackend.model.HospitalVisitHistory;
-import com.novax.covidtrackerbackend.model.User;
-import com.novax.covidtrackerbackend.model.dao.PcrTestDAO;
 import com.novax.covidtrackerbackend.repository.CovidPatientRepository;
 import com.novax.covidtrackerbackend.repository.HospitalVisitHistoryRepository;
-import com.novax.covidtrackerbackend.repository.UserRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.persistence.EntityNotFoundException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -44,6 +37,7 @@ class HospitalVisitHistoryServiceTest {
 
 
     @Test
+    @DisplayName("save visit history record")
     void isAbleToSave() {
         // when
         underTest.save(hospitalVisitHistory);
@@ -52,6 +46,7 @@ class HospitalVisitHistoryServiceTest {
     }
 
     @Test
+    @DisplayName("Get all visit history records as requested")
     void isAbleToGetAllVisitHistoriesByPatientId() {
         // when
         List<HospitalVisitHistory> hospitalVisitHistories =  underTest.getAllVisitHistoriesByPatientId(anyLong());
@@ -61,9 +56,10 @@ class HospitalVisitHistoryServiceTest {
     }
 
     @Test
+    @DisplayName("Update data of visit history record")
     void updateData() {
         // data for saving
-        HospitalVisitHistory UpdateDataOfhospitalVisitHistory = new HospitalVisitHistory(
+        HospitalVisitHistory UpdateDataOfHospitalVisitHistory = new HospitalVisitHistory(
                 99L,
                 99L,
                 null,
@@ -78,7 +74,7 @@ class HospitalVisitHistoryServiceTest {
                 .willReturn(hospitalVisitHistory);
 
         // when
-        underTest.updateData(UpdateDataOfhospitalVisitHistory);
+        underTest.updateData(UpdateDataOfHospitalVisitHistory);
 
         // then
         verify(hospitalVisitHistoryRepository).findNewestRecordByPatientId(anyLong());
@@ -86,9 +82,10 @@ class HospitalVisitHistoryServiceTest {
     }
 
     @Test
+    @DisplayName("Update visit status of visit history record")
     void updateVisitStatus() {
         // data for saving
-        HospitalVisitHistory UpdateDataOfhospitalVisitHistory = new HospitalVisitHistory(
+        HospitalVisitHistory UpdateDataOfHospitalVisitHistory = new HospitalVisitHistory(
                 99L,
                 99L,
                 null,
@@ -103,7 +100,7 @@ class HospitalVisitHistoryServiceTest {
                 .willReturn(hospitalVisitHistory);
 
         // when
-        underTest.updateData(UpdateDataOfhospitalVisitHistory);
+        underTest.updateData(UpdateDataOfHospitalVisitHistory);
 
         // then
         verify(hospitalVisitHistoryRepository).findNewestRecordByPatientId(anyLong());
@@ -111,8 +108,9 @@ class HospitalVisitHistoryServiceTest {
     }
 
     @Test
-    void itShouldtransfer() throws SQLException {
-        HospitalVisitHistory UpdateDataOfhospitalVisitHistory = new HospitalVisitHistory(
+    @DisplayName("It should transfer hospital")
+    void itShouldTransfer() throws SQLException {
+        HospitalVisitHistory UpdateDataOfHospitalVisitHistory = new HospitalVisitHistory(
                 99L,
                 99L,
                 new Hospital(99,null,null,null,800,null,null),
@@ -127,20 +125,21 @@ class HospitalVisitHistoryServiceTest {
         given(covidPatientRepository.getById(99L))
                 .willReturn(new CovidPatient(
                         99L,
-                        new Hospital(99,null,null,null,800,null,null),
+                        new Hospital(98,null,null,null,800,null,null),
                         new Date(),
                         "null"
                 ));
 
         // when
-        underTest.transfer(UpdateDataOfhospitalVisitHistory);
+        underTest.transfer(UpdateDataOfHospitalVisitHistory);
 
         // then
         verify(covidPatientRepository).getById(anyLong());
-        verify(hospitalVisitHistoryRepository).save(UpdateDataOfhospitalVisitHistory);
+        verify(hospitalVisitHistoryRepository).save(UpdateDataOfHospitalVisitHistory);
     }
 
     @Test
+    @DisplayName("Get newest Visit history record")
     void getNewestVisitHistoryByPatientId() {
         // when
         HospitalVisitHistory hospitalVisitHistory =  underTest.getNewestVisitHistoryByPatientId(anyLong());

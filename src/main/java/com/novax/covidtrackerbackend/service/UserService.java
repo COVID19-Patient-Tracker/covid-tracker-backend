@@ -13,14 +13,13 @@ import com.novax.covidtrackerbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Value("${ADMIN_EMAIL_ADDRESS}")
     private String adminEmailAddress;
@@ -100,7 +99,7 @@ public class UserService {
      * @param userWithNewPassword - new details of the user
      * @param auth - authentication object in the context - to verify user updating their own details by comparing id
      * @return user
-     * @throws - SQLException
+     * @throws SQLException - id/password mismatch
      */
 
     public synchronized User updateUserPassword(User userWithNewPassword, Authentication auth) throws SQLException {
