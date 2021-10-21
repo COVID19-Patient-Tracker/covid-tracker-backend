@@ -83,9 +83,9 @@ public class HospitalUserController {
      * UPDATES DATA OF A VISIT RECORD
      * @param hospitalVisitHistoryWithIdAndData - id of the covid patient and data that should be updated
      * @param request - request object
-     * @return
-     * @throws SQLException
+     * @return updatedHospitalVisitHistory
      */
+
     @PostMapping("/hospital/updateHistoryRecord/visitStatus")
     public ResponseEntity<HashMap<String, Object>> updateVisitStatus(@RequestBody HospitalVisitHistory hospitalVisitHistoryWithIdAndData, HttpServletRequest request){
         // update record with new data
@@ -125,6 +125,7 @@ public class HospitalUserController {
      * @param request - request object
      * @return hospitalVisitHistories
      */
+
     @GetMapping("/hospital/getNewestHospitalVisitRecord/{patientId}")
     public ResponseEntity<HashMap<String, Object>> getNewestHospitalVisitHistoryRecord(@PathVariable("patientId") long patientId, HttpServletRequest request){
         HospitalVisitHistory hospitalVisitHistories = hospitalVisitHistoryService.getNewestVisitHistoryByPatientId(patientId);
@@ -144,6 +145,7 @@ public class HospitalUserController {
      * @param request - request object
      * @return hospitalVisitHistories
      */
+
     @GetMapping("/hospital/getHospitalVisitHistories/{patientId}")
     public ResponseEntity<HashMap<String, Object>> getHospitalVisitHistories(@PathVariable("patientId") long patientId, HttpServletRequest request){
         List<HospitalVisitHistory> hospitalVisitHistories = hospitalVisitHistoryService.getAllVisitHistoriesByPatientId(patientId);

@@ -1,25 +1,23 @@
 package com.novax.covidtrackerbackend.service;
 
 import com.novax.covidtrackerbackend.model.CovidPatient;
-import com.novax.covidtrackerbackend.model.Hospital;
 import com.novax.covidtrackerbackend.model.HospitalVisitHistory;
 import com.novax.covidtrackerbackend.repository.CovidPatientRepository;
 import com.novax.covidtrackerbackend.repository.HospitalVisitHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class HospitalVisitHistoryService {
+
     @Autowired
-    private HospitalVisitHistoryRepository hospitalVisitHistoryRepository;
+    private final HospitalVisitHistoryRepository hospitalVisitHistoryRepository;
     @Autowired
-    private CovidPatientRepository covidPatientRepository;
+    private final CovidPatientRepository covidPatientRepository;
 
     // saves a visit history record
     public void save(HospitalVisitHistory hospitalVisitHistory) {
@@ -30,13 +28,14 @@ public class HospitalVisitHistoryService {
     public List<HospitalVisitHistory> getAllVisitHistoriesByPatientId(Long patientId){
         return hospitalVisitHistoryRepository.findAllHistoriesByPatientId(patientId);
     }
-    
+
     // get the newest visit history record
     public HospitalVisitHistory getNewestVisitHistoryByPatientId(Long patientId){
         return hospitalVisitHistoryRepository.findNewestRecordByPatientId(patientId);
     }
 
     public HospitalVisitHistory updateData(HospitalVisitHistory hospitalVisitHistoryWithIdAndData){
+
         // get original record
         HospitalVisitHistory originalHospitalVisitHistory
                 = this.getNewestVisitHistoryByPatientId(hospitalVisitHistoryWithIdAndData.getPatient_id());
@@ -44,9 +43,10 @@ public class HospitalVisitHistoryService {
         originalHospitalVisitHistory.setData(hospitalVisitHistoryWithIdAndData.getData());
         // save updated original record
         return hospitalVisitHistoryRepository.save(originalHospitalVisitHistory);
-    }
 
+    }
     public HospitalVisitHistory updateVisitStatus(HospitalVisitHistory hospitalVisitHistoryWithIdAndData){
+
         // get original record
         HospitalVisitHistory originalHospitalVisitHistory
                 = this.getNewestVisitHistoryByPatientId(hospitalVisitHistoryWithIdAndData.getPatient_id());
@@ -54,9 +54,10 @@ public class HospitalVisitHistoryService {
         originalHospitalVisitHistory.setVisit_status(hospitalVisitHistoryWithIdAndData.getVisit_status());
         // save updated original record
         return hospitalVisitHistoryRepository.save(originalHospitalVisitHistory);
-    }
 
+    }
     public CovidPatient transfer(HospitalVisitHistory hospitalVisitHistory) throws SQLException {
+
         // change covid patient table hospital id
         CovidPatient covidPatient = covidPatientRepository.getById(hospitalVisitHistory.getPatient_id());
         // change hospital id if new hospital id is in record
@@ -70,5 +71,7 @@ public class HospitalVisitHistoryService {
             // save new record
             return covidPatientRepository.save(covidPatient);
         }
+
     }
+
 }
