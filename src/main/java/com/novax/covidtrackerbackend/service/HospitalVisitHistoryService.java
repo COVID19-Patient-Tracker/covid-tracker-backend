@@ -21,30 +21,38 @@ public class HospitalVisitHistoryService {
     @Autowired
     private CovidPatientRepository covidPatientRepository;
 
-
+    // saves a visit history record
     public void save(HospitalVisitHistory hospitalVisitHistory) {
         hospitalVisitHistoryRepository.save(hospitalVisitHistory);
     }
 
+    // get all visit history records
     public List<HospitalVisitHistory> getAllVisitHistoriesByPatientId(Long patientId){
         return hospitalVisitHistoryRepository.findAllHistoriesByPatientId(patientId);
     }
-
+    
+    // get the newest visit history record
     public HospitalVisitHistory getNewestVisitHistoryByPatientId(Long patientId){
         return hospitalVisitHistoryRepository.findNewestRecordByPatientId(patientId);
     }
 
-    public HospitalVisitHistory updateVisitStatus(HospitalVisitHistory hospitalVisitHistoryWithIdAndData){
+    public HospitalVisitHistory updateData(HospitalVisitHistory hospitalVisitHistoryWithIdAndData){
+        // get original record
         HospitalVisitHistory originalHospitalVisitHistory
                 = this.getNewestVisitHistoryByPatientId(hospitalVisitHistoryWithIdAndData.getPatient_id());
-        originalHospitalVisitHistory.setVisit_status(hospitalVisitHistoryWithIdAndData.getVisit_status());
+        // change Data of original record
+        originalHospitalVisitHistory.setData(hospitalVisitHistoryWithIdAndData.getData());
+        // save updated original record
         return hospitalVisitHistoryRepository.save(originalHospitalVisitHistory);
     }
 
-    public HospitalVisitHistory updateData(HospitalVisitHistory hospitalVisitHistoryWithIdAndData){
+    public HospitalVisitHistory updateVisitStatus(HospitalVisitHistory hospitalVisitHistoryWithIdAndData){
+        // get original record
         HospitalVisitHistory originalHospitalVisitHistory
                 = this.getNewestVisitHistoryByPatientId(hospitalVisitHistoryWithIdAndData.getPatient_id());
-        originalHospitalVisitHistory.setData(hospitalVisitHistoryWithIdAndData.getData());
+        // change visit status of original record
+        originalHospitalVisitHistory.setVisit_status(hospitalVisitHistoryWithIdAndData.getVisit_status());
+        // save updated original record
         return hospitalVisitHistoryRepository.save(originalHospitalVisitHistory);
     }
 
