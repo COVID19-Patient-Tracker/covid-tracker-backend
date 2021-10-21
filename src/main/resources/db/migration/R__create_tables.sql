@@ -38,7 +38,6 @@ DROP TABLE IF EXISTS `patient`;
 DROP TABLE IF EXISTS `hospital`;
 DROP TABLE IF EXISTS `user`;
 
-
 -- phpMyAdmin SQL Dump
 -- version 5.0.1
 -- https://www.phpmyadmin.net/
@@ -47,7 +46,6 @@ DROP TABLE IF EXISTS `user`;
 -- Generation Time: Sep 26, 2021 at 03:38 PM
 -- Server version: 10.4.11-MariaDB
 -- PHP Version: 7.4.3
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
 START TRANSACTION;
@@ -154,6 +152,13 @@ CREATE TABLE `covidpatient` (
   `patient_status` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `covidpatient`
+--
+
+INSERT INTO `covidpatient` (`patient_id`, `hospital_id`, `verified_date`, `patient_status`) VALUES
+(8, 9, '2021-10-09', 'ACTIVE');
+
 -- --------------------------------------------------------
 
 --
@@ -170,6 +175,30 @@ CREATE TABLE `hibernate_sequence` (
 
 INSERT INTO `hibernate_sequence` (`next_val`) VALUES
 (18);
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `patient`
+--
+
+CREATE TABLE `patient` (
+  `patient_id` bigint(20) NOT NULL,
+  `nic` varchar(12) NOT NULL,
+  `hospital_id` int(11) NOT NULL,
+  `address` varchar(400) NOT NULL,
+  `gender` char(1) NOT NULL,
+  `dob` date NOT NULL,
+  `age` smallint(6) NOT NULL,
+  `contact_no` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`contact_no`)),
+  `is_user` tinyint(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `patient`
+--
+
+INSERT INTO `patient` (`patient_id`, `nic`, `hospital_id`, `address`, `gender`, `dob`, `age`, `contact_no`, `is_user`) VALUES
+(8, '99999999', 3, 'aaaa', '0', '2021-10-13', 99, '99', 0);
 
 -- --------------------------------------------------------
 
@@ -192,7 +221,9 @@ CREATE TABLE `hospital` (
 INSERT INTO `hospital` (`hospital_id`, `name`, `address`, `telephone`, `capacity`) VALUES
 (1, 'Hospital A', '999 p/o\r\nabcd road,\r\nabcd.', '0123456789', 8000),
 (2, 'Hospital B', '999 p/o\r\npqrs road,\r\npqrs.', '0123456789', 8000),
-(3, 'Hospital C', '999 p/o\r\nffff road,\r\nffff.', '0123456789', 8000);
+(3, 'Hospital C', '999 p/o\r\nffff road,\r\nffff.', '0123456789', 8000),
+(8, 'Hospital D', '999 p/o\r\nffff road,\r\nffff.', '0123456789', 8000),
+(9, 'Hospital P', '999 p/o\r\nffff road,\r\nffff.', '0123456789', 8000);
 
 -- --------------------------------------------------------
 
@@ -206,9 +237,17 @@ CREATE TABLE `hospitalvisithistory` (
   `hospital_id` int(11) NOT NULL,
   `ward_id` int(11) NOT NULL,
   `patient_id` bigint(20) NOT NULL,
-  `treatment_data` varchar(300) NOT NULL,
-  `visit_status` varchar(20) NOT NULL
+  `data` varchar(300) DEFAULT NULL,
+  `visit_status` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `hospitalvisithistory`
+--
+
+INSERT INTO `hospitalvisithistory` (`visit_id`, `visit_date`, `hospital_id`, `ward_id`, `patient_id`, `data`, `visit_status`) VALUES
+(3, '2021-10-13', 3, 3, 8, 'aaaa', 'aaaa'),
+(117, '2020-10-10', 9, 3, 8, 'new data updated', 'new visit status');
 
 -- --------------------------------------------------------
 
@@ -219,24 +258,6 @@ CREATE TABLE `hospitalvisithistory` (
 CREATE TABLE `hospital_user` (
   `user_id` bigint(20) NOT NULL,
   `hospital_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `patient`
---
-
-CREATE TABLE `patient` (
-  `patient_id` bigint(20) NOT NULL,
-  `nic` varchar(12) NOT NULL,
-  `hospital_id` int(11) NOT NULL,
-  `address` varchar(400) NOT NULL,
-  `gender` char(1) NOT NULL,
-  `dob` date NOT NULL,
-  `age` smallint(6) NOT NULL,
-  `contact_no` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`contact_no`)),
-  `is_user` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -316,6 +337,21 @@ CREATE TABLE `ward` (
   `ward_id` int(11) NOT NULL,
   `ward_name` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `ward`
+--
+
+INSERT INTO `ward` (`hospital_id`, `ward_id`, `ward_name`) VALUES
+(1, 1, 'ward 1'),
+(1, 2, 'ward 2'),
+(1, 3, 'ward 3'),
+(2, 1, 'ward 1'),
+(2, 2, 'ward 2'),
+(2, 3, 'ward 3'),
+(3, 1, 'ward 1'),
+(3, 2, 'ward 2'),
+(3, 3, 'ward 3');
 
 -- --------------------------------------------------------
 
