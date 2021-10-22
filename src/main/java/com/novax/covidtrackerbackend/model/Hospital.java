@@ -36,6 +36,23 @@ public class Hospital {
     @Size(min = 10,max = 10,message = "telephone number size is invalid. size should be 10")
     private String telephone;
 
+    public Hospital(int hospital_id, @Unique String name, String address, String telephone, int capacity) {
+        this.hospital_id = hospital_id;
+        this.name = name;
+        this.address = address;
+        this.telephone = telephone;
+        this.capacity = capacity;
+    }
+
+    @ManyToMany
+    @JoinTable(
+            name = "hospital_user",
+            joinColumns = @JoinColumn(name = "hospital_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    @JsonIgnore
+    private Set<User> hospitalUsers;
+
     @NotNull
     private int capacity;
 
@@ -46,6 +63,7 @@ public class Hospital {
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL,mappedBy="hospital")
     private List<CovidPatient> covidPatients;
+
 
     public Hospital(@Unique String name, String address, String telephone, int capacity) {
         this.name = name;

@@ -8,6 +8,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.AllArgsConstructor;
@@ -15,6 +16,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -23,6 +26,22 @@ import java.util.HashMap;
 @Table(name = "user")
 public class User {
     public interface WithoutPasswordView {};
+    public interface WithoutPasswordViewAndHospitalInfoForHospitalUsers {};
+
+    @JsonView(WithoutPasswordViewAndHospitalInfoForHospitalUsers.class)
+    public HashMap<String,Object> getHospitalUserOrAdminDetails() {
+
+        HashMap<String,Object> detailsArr = new HashMap<String,Object>();
+        detailsArr.put("email",this.email);
+        detailsArr.put("first_name",this.first_name);
+        detailsArr.put("last_name",this.last_name);
+        detailsArr.put("nic",this.nic);
+        detailsArr.put("hospital",this.hospital);
+        detailsArr.put("role",this.role);
+        detailsArr.put("user_id",this.user_id);
+        return detailsArr;
+
+    }
 
     @JsonView(WithoutPasswordView.class)
     public HashMap<String,Object> getUserDetails() {
@@ -33,11 +52,13 @@ public class User {
         detailsArr.put("last_name",this.last_name);
         detailsArr.put("nic",this.nic);
         detailsArr.put("role",this.role);
-        detailsArr.put("hospital_id",this.hospital_id);
         detailsArr.put("user_id",this.user_id);
         return detailsArr;
 
     }
+
+    @ManyToMany(mappedBy = "hospitalUsers")
+    private List<Hospital> hospital;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

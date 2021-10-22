@@ -2,7 +2,6 @@ package com.novax.covidtrackerbackend.service;
 import com.novax.covidtrackerbackend.model.User;
 import com.novax.covidtrackerbackend.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -129,6 +128,7 @@ class UserServiceUnitTest {
         );
 
         User newuser = new User(
+                null,
                 9999L,
                 "password",
                 "mohadmn@gmail.com",
