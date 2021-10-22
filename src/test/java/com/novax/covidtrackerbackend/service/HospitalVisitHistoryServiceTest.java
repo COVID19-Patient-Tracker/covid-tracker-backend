@@ -3,6 +3,8 @@ package com.novax.covidtrackerbackend.service;
 import com.novax.covidtrackerbackend.model.CovidPatient;
 import com.novax.covidtrackerbackend.model.Hospital;
 import com.novax.covidtrackerbackend.model.HospitalVisitHistory;
+import com.novax.covidtrackerbackend.model.User;
+import com.novax.covidtrackerbackend.model.dao.PcrTestDAO;
 import com.novax.covidtrackerbackend.repository.CovidPatientRepository;
 import com.novax.covidtrackerbackend.repository.HospitalVisitHistoryRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -113,7 +115,7 @@ class HospitalVisitHistoryServiceTest {
         HospitalVisitHistory UpdateDataOfHospitalVisitHistory = new HospitalVisitHistory(
                 99L,
                 99L,
-                new Hospital(99,null,null,null,800,null,null),
+                new Hospital(99,null,null,null,800),
                 null,
                 99,
                 "Updated data",
@@ -125,7 +127,7 @@ class HospitalVisitHistoryServiceTest {
         given(covidPatientRepository.getById(99L))
                 .willReturn(new CovidPatient(
                         99L,
-                        new Hospital(98,null,null,null,800,null,null),
+                        new Hospital(98,null,null,null,800),
                         new Date(),
                         "null"
                 ));
