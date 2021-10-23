@@ -67,11 +67,11 @@ public class HospitalVisitHistoryService {
             // TODO : change patient table hospital id
             // add record to the hospital visit history table
             this.save(hospitalVisitHistory);
+            // update covid patient table
             covidPatient.setHospital(hospitalVisitHistory.getHospital());
             // save new record
             return covidPatientRepository.save(covidPatient);
         }
 
     }
-
 }

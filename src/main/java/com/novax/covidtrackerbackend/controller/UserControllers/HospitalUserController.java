@@ -3,12 +3,15 @@ package com.novax.covidtrackerbackend.controller.UserControllers;
 import com.novax.covidtrackerbackend.model.CovidPatient;
 import com.novax.covidtrackerbackend.model.Hospital;
 import com.novax.covidtrackerbackend.model.HospitalVisitHistory;
+import com.novax.covidtrackerbackend.model.User;
 import com.novax.covidtrackerbackend.response.Response;
 import com.novax.covidtrackerbackend.service.HospitalService;
 import com.novax.covidtrackerbackend.service.HospitalVisitHistoryService;
+import com.novax.covidtrackerbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
@@ -24,13 +27,34 @@ public class HospitalUserController {
 
     private final HospitalService hospitalService;
     private final HospitalVisitHistoryService hospitalVisitHistoryService;
+    private final UserService userService;
     private final Response response;
 
     @Autowired
-    public HospitalUserController(HospitalService hospitalService, HospitalVisitHistoryService hospitalVisitHistoryService, Response response) {
+    public HospitalUserController(HospitalService hospitalService, HospitalVisitHistoryService hospitalVisitHistoryService, UserService userService, Response response) {
         this.hospitalService = hospitalService;
         this.hospitalVisitHistoryService = hospitalVisitHistoryService;
+        this.userService = userService;
         this.response = response;
+    }
+
+    @GetMapping("/getDetails/{userId}")
+    public ResponseEntity<HashMap<String, Object>> addUser(@PathVariable("userId") long userId, HttpServletRequest request) throws Exception {
+
+        Optional<User> u = userService.getUserById(userId);
+
+        // exclude unwanted details (pw)
+        MappingJacksonValue value = new MappingJacksonValue(u.get());
+        value.setSerializationView(User.WithoutPasswordViewAndHospitalInfoForHospitalUsers.class);
+        User useWithOutPasswordView = (User)  value.getValue();
+
+        // if no exception occurred send this response
+        response.reset().setResponseCode(HttpStatus.OK.value())
+                .setMessage("request success")
+                .setURI(request.getRequestURI())
+                .addField("Info",useWithOutPasswordView.getHospitalUserOrAdminDetails());
+
+        return response.getResponseEntity();
     }
 
     /**
