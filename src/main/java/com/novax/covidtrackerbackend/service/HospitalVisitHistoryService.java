@@ -30,10 +30,11 @@ public class HospitalVisitHistoryService {
     }
 
     // get the newest visit history record
-    public HospitalVisitHistory getNewestVisitHistoryByPatientId(Long patientId){
-        return hospitalVisitHistoryRepository.findNewestRecordByPatientId(patientId);
+    public HospitalVisitHistory getNewestVisitHistoryByPatientId(Long patientId) {
+            return hospitalVisitHistoryRepository.findNewestRecordByPatientId(patientId);
     }
 
+    // update visit history record data
     public HospitalVisitHistory updateData(HospitalVisitHistory hospitalVisitHistoryWithIdAndData){
 
         // get original record
@@ -45,6 +46,8 @@ public class HospitalVisitHistoryService {
         return hospitalVisitHistoryRepository.save(originalHospitalVisitHistory);
 
     }
+
+    // update visit status of visit history record
     public HospitalVisitHistory updateVisitStatus(HospitalVisitHistory hospitalVisitHistoryWithIdAndData){
 
         // get original record
@@ -56,6 +59,8 @@ public class HospitalVisitHistoryService {
         return hospitalVisitHistoryRepository.save(originalHospitalVisitHistory);
 
     }
+
+    // transfer hospital of a covid patient
     public CovidPatient transfer(HospitalVisitHistory hospitalVisitHistory) throws SQLException {
 
         // change covid patient table hospital id
@@ -72,6 +77,5 @@ public class HospitalVisitHistoryService {
             // save new record
             return covidPatientRepository.save(covidPatient);
         }
-
     }
 }
