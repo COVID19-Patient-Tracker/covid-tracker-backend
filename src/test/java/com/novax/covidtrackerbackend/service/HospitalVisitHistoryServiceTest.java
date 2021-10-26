@@ -3,8 +3,6 @@ package com.novax.covidtrackerbackend.service;
 import com.novax.covidtrackerbackend.model.CovidPatient;
 import com.novax.covidtrackerbackend.model.Hospital;
 import com.novax.covidtrackerbackend.model.HospitalVisitHistory;
-import com.novax.covidtrackerbackend.model.User;
-import com.novax.covidtrackerbackend.model.dao.PcrTestDAO;
 import com.novax.covidtrackerbackend.repository.CovidPatientRepository;
 import com.novax.covidtrackerbackend.repository.HospitalVisitHistoryRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,7 +57,7 @@ class HospitalVisitHistoryServiceTest {
 
     @Test
     @DisplayName("Update data of visit history record")
-    void updateData() {
+    void updateData() throws SQLException {
         // data for saving
         HospitalVisitHistory UpdateDataOfHospitalVisitHistory = new HospitalVisitHistory(
                 99L,

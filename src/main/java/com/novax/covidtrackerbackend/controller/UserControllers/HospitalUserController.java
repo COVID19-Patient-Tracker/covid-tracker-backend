@@ -22,7 +22,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "management/api/V1/hospital/user")
-@PreAuthorize("hasAnyRole('ROLE_MOH_USER,ROLE_HOSPITAL_USER')")
+@PreAuthorize("hasAnyRole('ROLE_MOH_USER,ROLE_HOSPITAL_ADMIN,ROLE_HOSPITAL_USER')")
 public class HospitalUserController {
 
     private final HospitalService hospitalService;
@@ -39,7 +39,7 @@ public class HospitalUserController {
     }
 
     @GetMapping("/getDetails/{userId}")
-    public ResponseEntity<HashMap<String, Object>> addUser(@PathVariable("userId") long userId, HttpServletRequest request) throws Exception {
+    public ResponseEntity<HashMap<String, Object>> getDetails(@PathVariable("userId") long userId, HttpServletRequest request) throws Exception {
 
         Optional<User> u = userService.getUserById(userId);
 
@@ -111,7 +111,7 @@ public class HospitalUserController {
      */
 
     @PostMapping("/hospital/updateHistoryRecord/visitStatus")
-    public ResponseEntity<HashMap<String, Object>> updateVisitStatus(@RequestBody HospitalVisitHistory hospitalVisitHistoryWithIdAndData, HttpServletRequest request){
+    public ResponseEntity<HashMap<String, Object>> updateVisitStatus(@RequestBody HospitalVisitHistory hospitalVisitHistoryWithIdAndData, HttpServletRequest request) throws SQLException {
         // update record with new data
         HospitalVisitHistory updatedHospitalVisitHistory = hospitalVisitHistoryService.updateVisitStatus(hospitalVisitHistoryWithIdAndData);
 
@@ -131,7 +131,7 @@ public class HospitalUserController {
      * @return updatedHospitalVisitHistory
      */
     @PostMapping("/hospital/updateHistoryRecord/data")
-    public ResponseEntity<HashMap<String, Object>> updateData(@RequestBody HospitalVisitHistory hospitalVisitHistoryWithIdAndVisitStatus, HttpServletRequest request){
+    public ResponseEntity<HashMap<String, Object>> updateData(@RequestBody HospitalVisitHistory hospitalVisitHistoryWithIdAndVisitStatus, HttpServletRequest request) throws SQLException {
         HospitalVisitHistory updatedHospitalVisitHistory = hospitalVisitHistoryService.updateData(hospitalVisitHistoryWithIdAndVisitStatus);
 
         // if no exception occurred send this response
@@ -151,9 +151,12 @@ public class HospitalUserController {
      */
 
     @GetMapping("/hospital/getNewestHospitalVisitRecord/{patientId}")
-    public ResponseEntity<HashMap<String, Object>> getNewestHospitalVisitHistoryRecord(@PathVariable("patientId") long patientId, HttpServletRequest request){
+    public ResponseEntity<HashMap<String, Object>> getNewestHospitalVisitHistoryRecord(@PathVariable("patientId") long patientId, HttpServletRequest request) throws SQLException {
         HospitalVisitHistory hospitalVisitHistories = hospitalVisitHistoryService.getNewestVisitHistoryByPatientId(patientId);
 
+        if(hospitalVisitHistories == null){
+            throw new SQLException("provided id invalid or not found in the database");
+        }
         // if no exception occurred send this response
         response.reset().setResponseCode(HttpStatus.OK.value())
                 .setMessage("request success")
