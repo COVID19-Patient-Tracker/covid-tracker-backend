@@ -26,7 +26,8 @@ public class PcrTestDAO {
 
     @Getter
     @Setter
-    private Long patient_id;
+    @Column(name = "patient_id")
+    private Long patientId;
 
     @Getter
     @Setter
@@ -40,8 +41,8 @@ public class PcrTestDAO {
     @Setter
     private String test_result;
 
-    public PcrTestDAO(Long patient_id, int hospital_id, Date test_data, String test_result) {
-        this.patient_id = patient_id;
+    public PcrTestDAO(Long patientId, int hospital_id, Date test_data, String test_result) {
+        this.patientId = patientId;
         this.hospital_id = hospital_id;
         this.test_data = test_data;
         this.test_result = test_result;
