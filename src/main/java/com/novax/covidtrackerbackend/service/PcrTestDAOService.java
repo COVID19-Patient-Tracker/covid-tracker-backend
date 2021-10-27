@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -52,5 +53,14 @@ public class PcrTestDAOService {
         }
         pcrTestDAORepository.save(testData);
         return testData;
+    }
+
+    /**
+     * GET THE LIST OF PCR TESTS FOR A PATIENT
+     * @param patient_id Unique ID of the test which needs to be updated
+     * @return A list of Pcr test data
+     */
+    public List<PcrTestDAO> getPcrTestByPatientID(Long patient_id){
+        return pcrTestDAORepository.findByPatientId(patient_id);
     }
 }
