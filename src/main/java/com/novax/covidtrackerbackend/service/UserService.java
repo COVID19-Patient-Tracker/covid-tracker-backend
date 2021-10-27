@@ -31,8 +31,8 @@ public class UserService {
     @Autowired
     private SendGridEmailService emailService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    //@Autowired
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
     @Autowired
     public UserService(UserRepository userRepository) {

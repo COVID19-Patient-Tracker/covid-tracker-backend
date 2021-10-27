@@ -181,8 +181,8 @@ CREATE TABLE `covidpatient` (
 -- Dumping data for table `covidpatient`
 --
 
-INSERT INTO `covidpatient` (`patient_id`, `hospital_id`, `verified_date`, `patient_status`) VALUES
-(8, 9, '2021-10-09', 'ACTIVE');
+-- INSERT INTO `covidpatient` (`patient_id`, `hospital_id`, `verified_date`, `patient_status`) VALUES
+-- (8, 9, '2021-10-09', 'ACTIVE');
 
 -- --------------------------------------------------------
 
@@ -207,23 +207,27 @@ INSERT INTO `hibernate_sequence` (`next_val`) VALUES
 --
 
 CREATE TABLE `patient` (
-  `patient_id` bigint(20) NOT NULL,
-  `nic` varchar(12) NOT NULL,
-  `hospital_id` int(11) NOT NULL,
-  `address` varchar(400) NOT NULL,
-  `gender` char(1) NOT NULL,
-  `dob` date NOT NULL,
-  `age` smallint(6) NOT NULL,
-  `contact_no` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`contact_no`)),
-  `is_user` tinyint(1) NOT NULL DEFAULT 0
+    `patient_id` bigint(20) NOT NULL,
+   `nic` varchar(12) NOT NULL,
+   `hospital_id` int(11) NOT NULL,
+   `address` varchar(400) NOT NULL,
+   `first_name` varchar(100) NOT NULL,
+   `last_name` varchar(100),
+   `gender` varchar(10) NOT NULL,
+   `dob` varchar(10) NOT NULL,
+   `age` smallint(6) NOT NULL,
+   `contact_no` varchar(10) NOT NULL,
+   `is_user` tinyint(1) NOT NULL DEFAULT 0,
+   `is_child` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 --
 -- Dumping data for table `patient`
 --
 
-INSERT INTO `patient` (`patient_id`, `nic`, `hospital_id`, `address`, `gender`, `dob`, `age`, `contact_no`, `is_user`) VALUES
-(8, '99999999', 3, 'aaaa', '0', '2021-10-13', 99, '99', 0);
+-- INSERT INTO `patient` (`patient_id`, `nic`, `hospital_id`, `address`, `gender`, `dob`, `age`, `contact_no`, `is_user`) VALUES
+-- (8, '99999999', 3, 'aaaa', '0', '2021-10-13', 99, '99', 0);
 
 -- --------------------------------------------------------
 
@@ -270,9 +274,9 @@ CREATE TABLE `hospitalvisithistory` (
 -- Dumping data for table `hospitalvisithistory`
 --
 
-INSERT INTO `hospitalvisithistory` (`visit_id`, `visit_date`, `hospital_id`, `ward_id`, `patient_id`, `data`, `visit_status`) VALUES
-(3, '2021-10-13', 3, 3, 8, 'aaaa', 'aaaa'),
-(117, '2020-10-10', 9, 3, 8, 'new data updated', 'new visit status');
+-- INSERT INTO `hospitalvisithistory` (`visit_id`, `visit_date`, `hospital_id`, `ward_id`, `patient_id`, `data`, `visit_status`) VALUES
+-- (3, '2021-10-13', 3, 3, 8, 'aaaa', 'aaaa'),
+-- (117, '2020-10-10', 9, 3, 8, 'new data updated', 'new visit status');
 
 -- --------------------------------------------------------
 

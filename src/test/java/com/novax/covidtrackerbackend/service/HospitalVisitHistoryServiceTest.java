@@ -127,7 +127,7 @@ class HospitalVisitHistoryServiceTest {
         given(covidPatientRepository.getById(99L))
                 .willReturn(new CovidPatient(
                         99L,
-                        new Hospital(99,null,null,null,800,null,null),
+                        new Hospital(98,null,null,null,800,null,null),
                         new Date(),
                         "null"
                 ));
