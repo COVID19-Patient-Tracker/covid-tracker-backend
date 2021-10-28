@@ -267,7 +267,7 @@ CREATE TABLE `hospitalvisithistory` (
   `ward_id` int(11) NOT NULL,
   `patient_id` bigint(20) NOT NULL,
   `data` varchar(300) DEFAULT NULL,
-  `visit_status` varchar(20) DEFAULT NULL
+  `visit_status` enum('QUARANTINED','ADMITTED','DISCHARGED','') DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --

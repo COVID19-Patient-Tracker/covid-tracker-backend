@@ -1,5 +1,6 @@
 package com.novax.covidtrackerbackend.service;
 
+import com.novax.covidtrackerbackend.model.dao.PcrTestDAO;
 import com.novax.covidtrackerbackend.model.dao.RapidAntigenTestDAO;
 import com.novax.covidtrackerbackend.model.dto.AddTestRequestDTO;
 import com.novax.covidtrackerbackend.repository.RapidAntigenTestDAORepository;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -52,5 +54,14 @@ public class RapidAntigenTestDAOService {
         }
         rapidAntigenTestDAORepository.save(testData);
         return testData;
+    }
+
+    /**
+     * GET THE LIST OF RAPID ANTIGEN TESTS FOR A PATIENT
+     * @param patient_id Unique ID of the test which needs to be updated
+     * @return A list of Antigen test data
+     */
+    public List<RapidAntigenTestDAO> getAntigenTestByPatientID(Long patient_id){
+        return rapidAntigenTestDAORepository.findByPatientId(patient_id);
     }
 }
