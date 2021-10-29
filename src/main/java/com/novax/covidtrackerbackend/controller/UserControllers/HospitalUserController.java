@@ -1,7 +1,6 @@
 package com.novax.covidtrackerbackend.controller.UserControllers;
 
 import com.novax.covidtrackerbackend.model.*;
-import com.novax.covidtrackerbackend.model.dto.CovidPatientDTO;
 import com.novax.covidtrackerbackend.response.Response;
 import com.novax.covidtrackerbackend.service.HospitalService;
 import com.novax.covidtrackerbackend.service.HospitalVisitHistoryService;
@@ -142,7 +141,7 @@ public class HospitalUserController {
     }
 
     /**
-     * GET ALL HOSPITALS WARDS
+     * GET ALL HOSPITALS COIVD PATIENTS
      * @param request - request object
      * @return updatedHospitalVisitHistory
      */
