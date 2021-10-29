@@ -1,9 +1,7 @@
 package com.novax.covidtrackerbackend.controller.UserControllers;
 
-import com.novax.covidtrackerbackend.model.CovidPatient;
-import com.novax.covidtrackerbackend.model.Hospital;
-import com.novax.covidtrackerbackend.model.HospitalVisitHistory;
-import com.novax.covidtrackerbackend.model.User;
+import com.novax.covidtrackerbackend.model.*;
+import com.novax.covidtrackerbackend.model.dto.CovidPatientDTO;
 import com.novax.covidtrackerbackend.response.Response;
 import com.novax.covidtrackerbackend.service.HospitalService;
 import com.novax.covidtrackerbackend.service.HospitalVisitHistoryService;
@@ -144,6 +142,83 @@ public class HospitalUserController {
     }
 
     /**
+     * GET ALL HOSPITALS WARDS
+     * @param request - request object
+     * @return updatedHospitalVisitHistory
+     */
+
+    @GetMapping("/hospital/covidPatients/{hospitalId}")
+    public ResponseEntity<HashMap<String, Object>> getAllHospitalCovidPatients(@PathVariable("hospitalId") int hospitalId,HttpServletRequest request) throws SQLException {
+        List<CovidPatient> covidPatients = hospitalService.getCovidPatientsByHospitalId(hospitalId);
+
+        // if no exception occurred send this response
+        response.reset().setResponseCode(HttpStatus.OK.value())
+                .setMessage("request success")
+                .setURI(request.getRequestURI())
+                .addField("CovidPatients",covidPatients);
+
+        return response.getResponseEntity();
+    }
+
+    /**
+     * GET ALL HOSPITALS WARDS
+     * @param request - request object
+     * @return updatedHospitalVisitHistory
+     */
+
+    @GetMapping("/hospital/wards/{hospitalId}")
+    public ResponseEntity<HashMap<String, Object>> getAllHospitalWards(@PathVariable("hospitalId") int hospitalId,HttpServletRequest request) throws SQLException {
+        List<Ward> wards = hospitalService.getWardsByHospitalId(hospitalId);
+
+        // if no exception occurred send this response
+        response.reset().setResponseCode(HttpStatus.OK.value())
+                .setMessage("request success")
+                .setURI(request.getRequestURI())
+                .addField("wards",wards);
+
+        return response.getResponseEntity();
+    }
+
+    /**
+     * GET ALL HOSPITALS
+     * @param request - request object
+     * @return updatedHospitalVisitHistory
+     */
+
+    @GetMapping("/hospitals/all")
+    public ResponseEntity<HashMap<String, Object>> getAllHospitals(HttpServletRequest request) throws SQLException {
+        List<Hospital> hospitals = hospitalService.getAllHospitals();
+
+        // if no exception occurred send this response
+        response.reset().setResponseCode(HttpStatus.OK.value())
+                .setMessage("request success")
+                .setURI(request.getRequestURI())
+                .addField("hospitals",hospitals);
+
+        return response.getResponseEntity();
+    }
+
+    /**
+     * UPDATES THE WARD ID OF A PATIENT VISIT HISTORY RECORD NEWEST (TRANSFER WARD)
+     * @param hospitalVisitHistoryWithIdAndVisitStatus - id of the covid patient and visit status that should be updated
+     * @param request - request object
+     * @return updatedHospitalVisitHistory
+     */
+
+    @PostMapping("/hospital/transferWard")
+    public ResponseEntity<HashMap<String, Object>> transferWard(@RequestBody HospitalVisitHistory hospitalVisitHistoryWithIdAndVisitStatus, HttpServletRequest request) throws SQLException {
+        HospitalVisitHistory updatedHospitalVisitHistory = hospitalVisitHistoryService.transferWard(hospitalVisitHistoryWithIdAndVisitStatus);
+
+        // if no exception occurred send this response
+        response.reset().setResponseCode(HttpStatus.OK.value())
+                .setMessage("request success")
+                .setURI(request.getRequestURI())
+                .addField("updatedInfo",updatedHospitalVisitHistory);
+
+        return response.getResponseEntity();
+    }
+
+    /**
      * GET THE NEWEST VISIT HISTORY RECORD OF A COVID PATIENT
      * @param patientId - id of the covid patient
      * @param request - request object
@@ -167,7 +242,7 @@ public class HospitalUserController {
     }
 
     /**
-     *  GETS ALL VISIT HISTORIES OF A COVID PATIENT
+     * GETS ALL VISIT HISTORIES OF A COVID PATIENT
      * @param patientId - id of the covid patient
      * @param request - request object
      * @return hospitalVisitHistories
