@@ -3,11 +3,9 @@ package com.novax.covidtrackerbackend.service;
 import com.novax.covidtrackerbackend.model.CovidPatient;
 import com.novax.covidtrackerbackend.model.Hospital;
 import com.novax.covidtrackerbackend.model.Ward;
-import com.novax.covidtrackerbackend.model.dto.CovidPatientDTO;
 import com.novax.covidtrackerbackend.repository.CovidPatientRepository;
 import com.novax.covidtrackerbackend.repository.HospitalRepository;
 import com.novax.covidtrackerbackend.repository.WardRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
