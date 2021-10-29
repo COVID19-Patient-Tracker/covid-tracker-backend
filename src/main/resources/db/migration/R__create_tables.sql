@@ -139,6 +139,44 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `add_user` (IN `email` VARCHAR(100),
 
 DELIMITER ;
 
+
+
+
+-- --------------------------------------------------------
+--
+-- Event for getting cumultive statistice
+--
+
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` EVENT `update_all_satistics` ON SCHEDULE EVERY 1 DAY STARTS '2021-10-29 20:15:02' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
+
+
+SET @total_pcrs = (SELECT COUNT(*) FROM pcrtests);
+SET @total_antigens = (SELECT COUNT(*) AS c FROM rapidantigentest);
+SET @total_covid_patients = (SELECT COUNT(*) AS c FROM covidpatient);
+SET @total_deaths = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'DEATH');
+SET @total_actives = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'ACTIVE');
+SET @total_antigens_positive = (SELECT COUNT(*) AS c FROM rapidantigentest WHERE test_result='POSITIVE');
+SET @total_antigens_negative = (SELECT COUNT(*) AS c FROM rapidantigentest WHERE test_result='NEGATIVE');
+SET @total_antigens_pending = (SELECT COUNT(*) AS c FROM rapidantigentest WHERE test_result='PENDING');
+SET @total_pcrs_positive = (SELECT COUNT(*) AS c FROM pcrtests WHERE test_result='POSITIVE');
+SET @total_pcrs_negative = (SELECT COUNT(*) AS c FROM pcrtests WHERE test_result='NEGATIVE');
+SET @total_pcrs_pending = (SELECT COUNT(*) AS c FROM pcrtests WHERE test_result='PENDING');
+SET @total_recovered = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'RECOVERED');
+SET @total_positives = (SELECT COUNT(*) AS c FROM covidpatient);
+INSERT INTO statistics (`date`,  `total_pcrs`,`total_pcrs_positive`,`total_pcrs_negative`,`total_pcrs_pending`,
+   `total_antigens`,`total_antigens_positive`,
+   `total_antigens_negative`,`total_antigens_pending`,`total_covid_patients`, `total_deaths`, `total_actives`, `total_recovered`, `total_positives`)
+ VALUES (CURDATE(), @total_pcrs, @total_pcrs_positive, @total_pcrs_negative, @total_antigens_pending,
+        @total_antigens, @total_antigens_positive, @total_antigens_negative,@total_antigens_pending,@total_covid_patients,@total_deaths,@total_actives,@total_recovered,@total_positives);
+
+END $$
+
+DELIMITER ;
+
+
+
 -- --------------------------------------------------------
 CREATE TABLE `covidpatient` (
   `patient_id` bigint(20) NOT NULL,
@@ -281,6 +319,41 @@ CREATE TABLE `pcrtests` (
   `test_data` date NOT NULL,
   `test_result` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `statistics`
+--
+
+CREATE TABLE `statistics` (
+  `id` bigint(20) NOT NULL,
+  `total_pcrs` bigint(20) NOT NULL,
+  `total_antigens` bigint(20) NOT NULL,
+  `date` date NOT NULL,
+  `total_covid_patients` bigint(20) NOT NULL,
+  `total_deaths` bigint(20) NOT NULL,
+  `total_actives` bigint(20) NOT NULL,
+  `total_recovered` bigint(20) NOT NULL,
+  `total_positives` bigint(11) NOT NULL,
+  `total_pcrs_positive` bigint(20) NOT NULL,
+  `total_pcrs_negative` bigint(20) NOT NULL,
+  `total_pcrs_pending` int(11) NOT NULL,
+  `total_antigens_pending` int(11) NOT NULL,
+  `total_antigens_negative` bigint(20) NOT NULL,
+  `total_antigens_positive` bigint(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `statistics`
+--
+
+INSERT INTO `statistics` (`id`, `total_pcrs`, `total_antigens`, `date`, `total_covid_patients`, `total_deaths`, `total_actives`, `total_recovered`, `total_positives`, `total_pcrs_positive`, `total_pcrs_negative`, `total_pcrs_pending`, `total_antigens_pending`, `total_antigens_negative`, `total_antigens_positive`) VALUES
+(1, 1, 1, '2021-10-17', 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 1),
+(2, 1, 1, '2021-10-18', 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 1),
+(3, 1, 1, '2021-10-19', 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 1),
+(4, 1, 1, '2021-10-20', 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 1);
+
+
 
 -- --------------------------------------------------------
 
@@ -430,6 +503,14 @@ ALTER TABLE `rapidantigentest`
   ADD KEY `patient_id` (`patient_id`),
   ADD KEY `hospital_id` (`hospital_id`);
 
+
+  --
+  -- Indexes for table `statistics`
+  --
+  ALTER TABLE `statistics`
+    ADD PRIMARY KEY (`id`);
+
+
 --
 -- Indexes for table `user`
 --
@@ -499,6 +580,14 @@ ALTER TABLE `user`
 --
 ALTER TABLE `wardtransfertable`
   MODIFY `transfer_id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+  --
+  -- AUTO_INCREMENT for table `statistics`
+  --
+  ALTER TABLE `statistics`
+    MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  COMMIT;
 
 --
 -- Constraints for dumped tables
