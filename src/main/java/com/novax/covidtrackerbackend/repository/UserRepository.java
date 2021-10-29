@@ -29,4 +29,12 @@ public interface UserRepository extends CrudRepository<User, Long> {
     @Query(value = "SELECT EXISTS (SELECT * FROM User WHERE email = :email)", nativeQuery = true)
     public Integer isUserExist(@Param("email") String email);
 
+    @Query(value = "call patient_signup(:patient_id,:email,:nic ,:password);", nativeQuery = true)
+    public Optional<User> registerPatient(
+            @Param("patient_id") Long patient_id,
+            @Param("email") String email,
+            @Param("nic") String nic,
+            @Param("password") String password
+    );
+
 }
