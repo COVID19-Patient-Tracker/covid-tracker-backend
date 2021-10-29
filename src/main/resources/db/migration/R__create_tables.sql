@@ -142,37 +142,44 @@ DELIMITER ;
 --
 -- Procedure for patient signup
 --
-
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `patient_signup`(
-    		IN `patientId` bigint(20),
-    		IN `email` VARCHAR(100),
-    		IN `in_nic` VARCHAR(12),
-    		IN `password` VARCHAR(300)
+                IN `patient_id` BIGINT(20),
+                IN `email` VARCHAR(100),
+                IN `nic` VARCHAR(12),
+                IN `password` VARCHAR(300)
 )
 BEGIN
         DECLARE u_id bigint(20) DEFAULT NULL;
         DECLARE f_name , l_name varchar(100) DEFAULT NULL;
 
-        IF EXISTS (SELECT patient.patient_id FROM patient WHERE patient.patient_id = patientId and patient.nic = in_nic) THEN
-        	START TRANSACTION;
-            		SELECT patient.first_name INTO f_name FROM patient WHERE patient.patient_id = patientId;
-                    SELECT patient.last_name INTO l_name FROM patient WHERE patient.patient_id = patientId;
+        IF EXISTS (SELECT patient.patient_id FROM patient WHERE patient.patient_id = patient_id and patient.nic = nic) THEN
+            IF NOT EXISTS (SELECT patient_user.user_id FROM patient_user WHERE patient_user.patient_id = patient_id) THEN
+        	    START TRANSACTION;
+                        SELECT patient.first_name INTO f_name FROM patient WHERE patient.patient_id = patient_id;
+                        SELECT patient.last_name INTO l_name FROM patient WHERE patient.patient_id = patient_id;
 
-                    INSERT INTO `user` (`password`, `email`, `role`,`nic`,`first_name`,`last_name`)
-                        VALUES (password, email, "PATIENT", in_nic, f_name, l_name);
+                        INSERT INTO `user` (`password`, `email`, `role`,`nic`,`first_name`,`last_name`)
+                            VALUES (password, email, "PATIENT", nic, f_name, l_name);
 
-                    SELECT `user_id` INTO u_id FROM user WHERE user.nic = in_nic AND user.email = email;
+                        SELECT `user_id` INTO u_id FROM user WHERE user.nic = nic AND user.email = email;
 
-                    INSERT INTO `patient_user` (`user_id`,`patient_id`) VALUES (u_id, patientId);
+                        INSERT INTO `patient_user` (`user_id`,`patient_id`) VALUES (u_id, patient_id);
 
-                    UPDATE patient SET patient.is_user = 1 WHERE patient.patient_id = patientId and patient.nic = in_nic;
-                    COMMIT;
+                        UPDATE patient SET patient.is_user = 1 WHERE patient.patient_id = patient_id and patient.nic = nic;
+                        SELECT * FROM `user` WHERE user.nic = nic AND user.email = email;
+                COMMIT;
+
+            ELSE
+                SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Already Registered';
+            END IF;
 
 		ELSE
 			SIGNAL SQLSTATE '45000'
 			SET MESSAGE_TEXT = 'invalid patientId or nic provided';
 		END IF;
+
     END$$
 DELIMITER ;
 
