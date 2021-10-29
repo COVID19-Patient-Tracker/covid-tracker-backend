@@ -140,24 +140,21 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `add_user` (IN `email` VARCHAR(100),
 DELIMITER ;
 
 -- --------------------------------------------------------
-
---
--- Table structure for table `covidpatient`
---
-
 CREATE TABLE `covidpatient` (
   `patient_id` bigint(20) NOT NULL,
   `hospital_id` int(11) NOT NULL,
-  `verified_date` date NOT NULL,
-  `patient_status` varchar(30) NOT NULL
+  `patient_status` enum('ACTIVE','DEATH','RECOVERED','') NOT NULL,
+  `verified_date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `covidpatient`
 --
 
-INSERT INTO `covidpatient` (`patient_id`, `hospital_id`, `verified_date`, `patient_status`) VALUES
-(8, 9, '2021-10-09', 'ACTIVE');
+INSERT INTO `covidpatient` (`patient_id`, `hospital_id`, `patient_status`, `verified_date`) VALUES
+(8, 9, 'ACTIVE', '2021-10-21');
+
+
 
 -- --------------------------------------------------------
 
@@ -376,6 +373,7 @@ CREATE TABLE `wardtransfertable` (
 -- Indexes for table `covidpatient`
 --
 ALTER TABLE `covidpatient`
+  ADD PRIMARY KEY (`patient_id`),
   ADD KEY `patient_id` (`patient_id`),
   ADD KEY `hospital_id` (`hospital_id`);
 
@@ -505,6 +503,7 @@ ALTER TABLE `wardtransfertable`
 --
 -- Constraints for dumped tables
 --
+
 
 --
 -- Constraints for table `covidpatient`
