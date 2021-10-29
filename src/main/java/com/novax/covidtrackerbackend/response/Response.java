@@ -49,7 +49,7 @@ public class Response {
     }
 
     public Response setException(Exception e) {
-        responseBody.put("Exception",e.getMessage());
+        responseBody.put("exception",e.getMessage());
         return this;
     }
 

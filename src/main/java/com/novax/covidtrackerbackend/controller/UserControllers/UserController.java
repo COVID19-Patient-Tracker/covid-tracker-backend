@@ -66,6 +66,7 @@ public class UserController {
      * @return - updated user details with response
      * @throws SQLException
      */
+
     @PostMapping("/update/password")
     @JsonView(User.WithoutPasswordView.class)
     public ResponseEntity<HashMap<String, Object>> updateMOHUserPassword(@Valid @RequestBody User newDetailsOfUser, HttpServletRequest request, Authentication auth) throws SQLException {
@@ -94,6 +95,7 @@ public class UserController {
      * @return - updated user details with response
      * @throws SQLException
      */
+
     @PostMapping("/update/details")
     @JsonView(User.WithoutPasswordView.class)
     public ResponseEntity<HashMap<String, Object>> updateMOHUserDetails(@Valid @RequestBody User newDetailsOfUser, HttpServletRequest request, Authentication auth) throws SQLException {
@@ -138,6 +140,43 @@ public class UserController {
                 .setMessage("Registered Successfully")
                 .setURI(request.getRequestURI())
                 .addField("userInfo",useWithOutPasswordView.getUserDetails());
+
+
+    /**
+     * GET DETAILS OF USER BY ROLE
+     * @param role - role of the users requested
+     * @param request - HttpServletRequest object to access uri
+     * @param auth - Authentication object in the application context to access authenticated user's user_id
+     * @return - updated user details with response
+     * @throws SQLException
+     */
+
+    @GetMapping("/get/users/{role}")
+    @JsonView(User.WithoutPasswordView.class)
+    public ResponseEntity<HashMap<String, Object>> updateMOHUserDetails(@PathVariable("role") String role, HttpServletRequest request, Authentication auth) throws SQLException {
+
+        List<User> allUsers = userService.getAllUsers();
+
+        // filtering by role
+        List<User> filteredUserByRole = new ArrayList<>();
+        for (User user:
+             allUsers) {
+            if(user.getRole().equals(role)){
+                // send this response if data update is success
+                // exclude unwanted details (pw)
+                MappingJacksonValue value = new MappingJacksonValue(user);
+                value.setSerializationView(User.WithoutPasswordView.class);
+                User useWithOutPasswordView = (User)  value.getValue();
+                filteredUserByRole.add(useWithOutPasswordView);
+            }
+        }
+
+        response.reset()
+                .setMessage("all users by role")
+                .setURI(request.getRequestURI())
+                .setResponseCode(HttpServletResponse.SC_OK)
+                .addField("users",filteredUserByRole);
+
         return response.getResponseEntity();
     }
 }

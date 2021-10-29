@@ -37,7 +37,6 @@ DROP TABLE IF EXISTS `ward`;
 DROP TABLE IF EXISTS `patient`;
 DROP TABLE IF EXISTS `hospital`;
 DROP TABLE IF EXISTS `user`;
-
 -- phpMyAdmin SQL Dump
 -- version 5.0.1
 -- https://www.phpmyadmin.net/
@@ -51,7 +50,6 @@ SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -60,7 +58,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `springboot`
 --
-
 DELIMITER $$
 --
 -- Procedures
@@ -138,7 +135,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `add_user` (IN `email` VARCHAR(100),
     END$$
 
 DELIMITER ;
-
 --
 -- Procedure for patient signup
 --
@@ -182,27 +178,18 @@ BEGIN
 
     END$$
 DELIMITER ;
-
 -- --------------------------------------------------------
-
---
--- Table structure for table `covidpatient`
---
-
 CREATE TABLE `covidpatient` (
   `patient_id` bigint(20) NOT NULL,
   `hospital_id` int(11) NOT NULL,
-  `verified_date` date NOT NULL,
-  `patient_status` varchar(30) NOT NULL
+  `patient_status` enum('ACTIVE','DEATH','RECOVERED','') NOT NULL,
+  `verified_date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 --
 -- Dumping data for table `covidpatient`
 --
-
 INSERT INTO `covidpatient` (`patient_id`, `hospital_id`, `verified_date`, `patient_status`) VALUES
 (1, 1, '2021-10-09', 'ACTIVE'), (2, 1, '2021-10-09', 'RECOVERED'), (3, 2, '2021-10-09', 'ACTIVE'),  (4, 2, '2021-10-09', 'ACTIVE');
-
 -- --------------------------------------------------------
 
 --
@@ -458,6 +445,7 @@ CREATE TABLE `wardtransfertable` (
 -- Indexes for table `covidpatient`
 --
 ALTER TABLE `covidpatient`
+  ADD PRIMARY KEY (`patient_id`),
   ADD KEY `patient_id` (`patient_id`),
   ADD KEY `hospital_id` (`hospital_id`);
 
@@ -587,6 +575,7 @@ ALTER TABLE `wardtransfertable`
 --
 -- Constraints for dumped tables
 --
+
 
 --
 -- Constraints for table `covidpatient`
