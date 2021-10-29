@@ -34,6 +34,19 @@ public class HospitalVisitHistoryService {
             return hospitalVisitHistoryRepository.findNewestRecordByPatientId(patientId);
     }
 
+    // transfer ward
+    public HospitalVisitHistory transferWard(HospitalVisitHistory hospitalVisitHistoryWithIdAndData){
+
+        // get original record
+        HospitalVisitHistory originalHospitalVisitHistory
+                = this.getNewestVisitHistoryByPatientId(hospitalVisitHistoryWithIdAndData.getPatient_id());
+        // change Data of original record
+        originalHospitalVisitHistory.setWard_id(hospitalVisitHistoryWithIdAndData.getWard_id());
+        // save updated original record
+        return hospitalVisitHistoryRepository.save(originalHospitalVisitHistory);
+
+    }
+
     // update visit history record data
     public HospitalVisitHistory updateData(HospitalVisitHistory hospitalVisitHistoryWithIdAndData){
 

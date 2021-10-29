@@ -27,6 +27,20 @@ import java.util.Set;
 public class User {
     public interface WithoutPasswordView {};
     public interface WithoutPasswordViewAndHospitalInfoForHospitalUsers {};
+    public interface OnlyEmailNicRoleAndIdView {};
+
+
+    @JsonView(OnlyEmailNicRoleAndIdView.class)
+    public HashMap<String,Object> getEmailNicRoleAndId() {
+
+        HashMap<String,Object> detailsArr = new HashMap<String,Object>();
+        detailsArr.put("email",this.email);
+        detailsArr.put("nic",this.nic);
+        detailsArr.put("role",this.role);
+        detailsArr.put("user_id",this.user_id);
+        return detailsArr;
+
+    }
 
     @JsonView(WithoutPasswordViewAndHospitalInfoForHospitalUsers.class)
     public HashMap<String,Object> getHospitalUserOrAdminDetails() {
@@ -42,6 +56,7 @@ public class User {
         return detailsArr;
 
     }
+
 
     @JsonView(WithoutPasswordView.class)
     public HashMap<String,Object> getUserDetails() {
