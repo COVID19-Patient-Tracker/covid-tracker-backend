@@ -275,9 +275,9 @@ CREATE TABLE `covidpatient` (
 -- Dumping data for table `covidpatient`
 --
 
-INSERT INTO `covidpatient` (`patient_id`, `hospital_id`, `patient_status`, `verified_date`) VALUES
-(8, 9, 'ACTIVE', '2021-10-21');
-
+-- INSERT INTO `covidpatient` (`patient_id`, `hospital_id`, `patient_status`, `verified_date`) VALUES
+-- (8, 9, 'ACTIVE', '2021-10-21');
+--
 
 
 
