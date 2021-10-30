@@ -1,6 +1,7 @@
 package com.novax.covidtrackerbackend.controller.UserControllers;
 
 
+import com.novax.covidtrackerbackend.model.HosStatistics;
 import com.novax.covidtrackerbackend.model.Statistics;
 import com.novax.covidtrackerbackend.response.Response;
 import com.novax.covidtrackerbackend.service.HospitalService;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,6 +35,18 @@ public class StatisticsController {
     public StatisticsController(StatisticsService statisticsService, Response response) {
         this.statisticsService = statisticsService;
         this.response = response;
+    }
+
+    // dashboard related data returned by this method
+    @GetMapping("/all/{id}")
+    public ResponseEntity<HashMap<String, Object>> getAllHosStatistics(@PathVariable("id") long id,HttpServletRequest request) {
+        List<HosStatistics> statistics = statisticsService.getAllHosStatisticsByDateAndIdASC(id);
+        // if no exception occurred send this response
+        response.reset().setResponseCode(HttpStatus.OK.value())
+                .setMessage("request success")
+                .setURI(request.getRequestURI())
+                .addField("statistics",statistics);
+        return response.getResponseEntity();
     }
 
     // dashboard related data returned by this method
