@@ -44,37 +44,6 @@ public class MOHUserController {
         this.response = response;
     }
 
-    /**
-     * DELETES HOSPITAL_ADMIN/HOSPITAL_USER
-     * @param u_id - User id to delete from the database.Refer user entity in the model.
-     * @param request - HttpServletRequest object to access uri
-     * @return - If user exist and successfully deleted, returns success message with deleted user_id.
-     */
-
-    @DeleteMapping("/delete/{u_id}")
-    @PreAuthorize("hasAuthority('hospital_admin:write')")
-    public ResponseEntity<HashMap<String, Object>> deleteUser(@PathVariable Long u_id,HttpServletRequest request) throws SQLException {
-        Optional<User> user = userService.getUserById(u_id);
-        if(user.isPresent()){
-
-            User u = user.get();
-            if(u.getRole().equals("HOSPITAL_ADMIN") || u.getRole().equals("HOSPITAL_USER")){
-
-                // if no exception occurred send this response
-                response.setResponseCode(HttpStatus.OK.value())
-                        .setMessage("request success. user deleted")
-                        .setURI(request.getRequestURI())
-                        .addField("Deleted",u);
-
-                userService.deleteUser(u_id);
-
-            }else{
-                throw new EmptyResultDataAccessException("You don't have permission to delete this type of users",0);
-            }
-        }
-
-        return response.getResponseEntity();
-    }
 
     /**
      * ADDS NEW HOSPITAL_ADMIN/HOSPITAL_USER
@@ -104,6 +73,44 @@ public class MOHUserController {
                 .addField("userInfo",useWithOutPasswordView.getUserDetails());
         return response.getResponseEntity();
     }
+
+    /**
+     * DELETES HOSPITAL_ADMIN/HOSPITAL_USER
+     * @param u_id - User id to delete from the database.Refer user entity in the model.
+     * @param request - HttpServletRequest object to access uri
+     * @return - If user exist and successfully deleted, returns success message with deleted user_id.
+     */
+
+    @DeleteMapping("/delete/{u_id}")
+    @PreAuthorize("hasAuthority('hospital_admin:write')")
+    @JsonView(User.OnlyEmailNicRoleAndIdView.class)
+    public ResponseEntity<HashMap<String, Object>> deleteUser(@PathVariable Long u_id,HttpServletRequest request) throws SQLException {
+        Optional<User> user = userService.getUserById(u_id);
+        if(user.isPresent()){
+
+            User u = user.get();
+            if(u.getRole().equals("HOSPITAL_ADMIN") || u.getRole().equals("HOSPITAL_USER")){
+                userService.deleteUser(u_id);
+
+                MappingJacksonValue value = new MappingJacksonValue(u);
+                value.setSerializationView(User.OnlyEmailNicRoleAndIdView.class);
+                User onlyEmailNicRoleAndIdView = (User)  value.getValue();
+
+
+                // if no exception occurred send this response
+                response.setResponseCode(HttpStatus.OK.value())
+                        .setMessage("request success. user deleted")
+                        .setURI(request.getRequestURI())
+                        .addField("Deleted",onlyEmailNicRoleAndIdView);
+
+            }else{
+                throw new EmptyResultDataAccessException("You don't have permission to delete this type of users",0);
+            }
+        }
+
+        return response.getResponseEntity();
+    }
+
 
     /**
      * ADDS HOSPITAL TO THE SYSTEM

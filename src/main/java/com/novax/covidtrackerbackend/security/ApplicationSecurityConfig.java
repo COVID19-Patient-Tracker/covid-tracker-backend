@@ -17,20 +17,26 @@ import com.novax.covidtrackerbackend.jwt.JwtAuthenticationAndPasswordFilter;
 import com.novax.covidtrackerbackend.jwt.JwtConfig;
 import com.novax.covidtrackerbackend.jwt.JwtTokenAuthentication;
 import com.novax.covidtrackerbackend.jwt.authexceptionhandlers.CustomAuthenticationFailureHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.crypto.SecretKey;
+import java.util.Arrays;
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class ApplicationSecurityConfig  extends WebSecurityConfigurerAdapter{
-
     private final PasswordEncoder passwordEncoder;
     private final com.novax.covidtrackerbackend.auth.ApplicationUserService userDetailsService;
     private final CustomAuthenticationFailureHandler simpleAuthenticationFailureHandler;
     private final SecretKey jwtSecretKey;
     private final JwtConfig jwtConfig;
-
     @Autowired
     public ApplicationSecurityConfig(PasswordEncoder pwencdr,
                                      ApplicationUserService userDetailsService, SecretKey jwtSecretKey,
@@ -44,6 +50,7 @@ public class ApplicationSecurityConfig  extends WebSecurityConfigurerAdapter{
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .cors().and()
                 .csrf().disable()
                 .sessionManagement()
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -56,7 +63,6 @@ public class ApplicationSecurityConfig  extends WebSecurityConfigurerAdapter{
 
                 
     }
-
     @Override
     @Bean
     protected UserDetailsService userDetailsService(){
@@ -64,14 +70,10 @@ public class ApplicationSecurityConfig  extends WebSecurityConfigurerAdapter{
         return super.userDetailsService();
 
     }
-
     @Override
     protected void configure(AuthenticationManagerBuilder auth){
-
         auth.authenticationProvider(daoAuthenticationProvider());
-
     }
-
     @Bean
 	protected DaoAuthenticationProvider daoAuthenticationProvider() {
 
@@ -82,4 +84,13 @@ public class ApplicationSecurityConfig  extends WebSecurityConfigurerAdapter{
 		return provider;
 
 	}
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**").allowedOrigins("*").allowedHeaders("*").exposedHeaders("*").allowedMethods("*");
+            }
+        };
+    }
 }
