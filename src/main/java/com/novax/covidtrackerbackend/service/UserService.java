@@ -13,6 +13,7 @@ import com.novax.covidtrackerbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,8 +31,8 @@ public class UserService {
     @Autowired
     private SendGridEmailService emailService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    //@Autowired
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
     @Autowired
     public UserService(UserRepository userRepository) {

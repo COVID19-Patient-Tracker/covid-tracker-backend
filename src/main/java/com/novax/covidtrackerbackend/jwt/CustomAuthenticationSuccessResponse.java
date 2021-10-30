@@ -21,7 +21,7 @@ public class CustomAuthenticationSuccessResponse {
         map.put("message", String.format("Authentication success : [%s]",userDetails.getUsername()));
         map.put("email", userDetails.getUsername());
         map.put("id", userDetails.getId());
-        map.put("role", userDetails.getRole());
+        map.put("authorities", userDetails.getAuthorities());
         map.put("status", String.valueOf(HttpServletResponse.SC_OK));
 
         response.setStatus(HttpServletResponse.SC_OK); // 200 OK

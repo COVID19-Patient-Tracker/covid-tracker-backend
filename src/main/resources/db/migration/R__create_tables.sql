@@ -157,11 +157,31 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `add_user` (IN `email` VARCHAR(100),
 
 DELIMITER ;
 
+DELIMITER $$
+CREATE or replace DEFINER=`root`@`localhost` PROCEDURE `add_patient` (IN `nic` varchar(50),
+                                                                         IN `hospital_id` int(11),
+                                                                         IN `address` varchar(400),
+                                                                         IN `first_name` varchar(100),
+                                                                         IN `last_name` varchar(100),
+                                                                         IN `gender` varchar(10),
+                                                                         IN `dob` varchar (10),
+                                                                         IN `age` int(10),
+                                                                         IN `contact_no` varchar(10),
+                                                                         IN `is_user` int(1),
+                                                                         IN `is_child` int(1))  BEGIN
 
-
-
-
-
+    IF NOT EXISTS (SELECT * FROM patient WHERE patient.nic = nic AND patient.first_name = first_name AND patient.last_name = last_name) THEN
+        START TRANSACTION;
+        INSERT INTO `patient` (`nic`, `hospital_id`, `address`, `first_name`,`last_name`,`gender`,`dob`,`age`,`contact_no`,`is_user`,`is_child`)
+            VALUES (nic,hospital_id,address,first_name,last_name,gender,dob,age,contact_no,is_user,is_child);
+        SELECT * FROM `patient` WHERE patient.nic = nic AND patient.first_name = first_name AND patient.last_name = last_name;
+        COMMIT;
+    ELSE
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'user already exists in db';
+    END IF;
+END$$
+DELIMITER ;
 -- --------------------------------------------------------
 --
 -- Event for getting cumultive statistice
@@ -255,9 +275,9 @@ CREATE TABLE `covidpatient` (
 -- Dumping data for table `covidpatient`
 --
 
-INSERT INTO `covidpatient` (`patient_id`, `hospital_id`, `patient_status`, `verified_date`) VALUES
-(8, 9, 'ACTIVE', '2021-10-21');
-
+-- INSERT INTO `covidpatient` (`patient_id`, `hospital_id`, `patient_status`, `verified_date`) VALUES
+-- (8, 9, 'ACTIVE', '2021-10-21');
+--
 
 
 
@@ -325,23 +345,26 @@ INSERT INTO `hibernate_sequence` (`next_val`) VALUES
 --
 
 CREATE TABLE `patient` (
-  `patient_id` bigint(20) NOT NULL,
-  `nic` varchar(12) NOT NULL,
-  `hospital_id` int(11) NOT NULL,
-  `address` varchar(400) NOT NULL,
-  `gender` char(1) NOT NULL,
-  `dob` date NOT NULL,
-  `age` smallint(6) NOT NULL,
-  `contact_no` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`contact_no`)),
-  `is_user` tinyint(1) NOT NULL DEFAULT 0
+    `patient_id` bigint(20) NOT NULL,
+   `nic` varchar(12) NOT NULL,
+   `hospital_id` int(11) NOT NULL,
+   `address` varchar(400) NOT NULL,
+   `first_name` varchar(100) NOT NULL,
+   `last_name` varchar(100),
+   `gender` varchar(10) NOT NULL,
+   `dob` varchar(10) NOT NULL,
+   `age` smallint(6) NOT NULL,
+   `contact_no` varchar(10) NOT NULL,
+   `is_user` tinyint(1) NOT NULL DEFAULT 0,
+   `is_child` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `patient`
 --
 
-INSERT INTO `patient` (`patient_id`, `nic`, `hospital_id`, `address`, `gender`, `dob`, `age`, `contact_no`, `is_user`) VALUES
-(8, '99999999', 3, 'aaaa', '0', '2021-10-13', 99, '99', 0);
+-- INSERT INTO `patient` (`patient_id`, `nic`, `hospital_id`, `address`, `gender`, `dob`, `age`, `contact_no`, `is_user`) VALUES
+-- (8, '99999999', 3, 'aaaa', '0', '2021-10-13', 99, '99', 0);
 
 -- --------------------------------------------------------
 
@@ -388,9 +411,9 @@ CREATE TABLE `hospitalvisithistory` (
 -- Dumping data for table `hospitalvisithistory`
 --
 
-INSERT INTO `hospitalvisithistory` (`visit_id`, `visit_date`, `hospital_id`, `ward_id`, `patient_id`, `data`, `visit_status`) VALUES
-(3, '2021-10-13', 3, 3, 8, 'aaaa', 'aaaa'),
-(117, '2020-10-10', 9, 3, 8, 'new data updated', 'new visit status');
+-- INSERT INTO `hospitalvisithistory` (`visit_id`, `visit_date`, `hospital_id`, `ward_id`, `patient_id`, `data`, `visit_status`) VALUES
+-- (3, '2021-10-13', 3, 3, 8, 'aaaa', 'aaaa'),
+-- (117, '2020-10-10', 9, 3, 8, 'new data updated', 'new visit status');
 
 -- --------------------------------------------------------
 

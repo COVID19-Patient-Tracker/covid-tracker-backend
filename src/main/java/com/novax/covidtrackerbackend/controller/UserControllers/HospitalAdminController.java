@@ -97,8 +97,8 @@ public class HospitalAdminController {
     @GetMapping("/user/{hospitalId}/email/{userEmail}")
     @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN')")
     public ResponseEntity<HashMap<String, Object>> getUserByEmailAndHospitalID(@PathVariable("userEmail") String userEmail,
-                                                                             @PathVariable("hospitalId") Integer hospitalId,
-                                                                             HttpServletRequest request) {
+                                                                               @PathVariable("hospitalId") Integer hospitalId,
+                                                                               HttpServletRequest request) {
         try {
             UserDAO user = userDAOService.loadUserByEmailNHospitalId(userEmail, hospitalId);
             Response response = new Response();
