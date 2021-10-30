@@ -163,12 +163,12 @@ CREATE or replace DEFINER=`root`@`localhost` PROCEDURE `add_patient` (IN `nic` v
                                                                          IN `address` varchar(400),
                                                                          IN `first_name` varchar(100),
                                                                          IN `last_name` varchar(100),
-                                                                         IN `gender` varchar(10),
+                                                                         IN `gender` VARCHAR(100),
                                                                          IN `dob` varchar (10),
                                                                          IN `age` int(10),
                                                                          IN `contact_no` varchar(10),
                                                                          IN `is_user` int(1),
-                                                                         IN `is_child` int(1))  BEGIN
+                                                                         IN `is_child` VARCHAR(100))  BEGIN
 
     IF NOT EXISTS (SELECT * FROM patient WHERE patient.nic = nic AND patient.first_name = first_name AND patient.last_name = last_name) THEN
         START TRANSACTION;
@@ -351,12 +351,12 @@ CREATE TABLE `patient` (
    `address` varchar(400) NOT NULL,
    `first_name` varchar(100) NOT NULL,
    `last_name` varchar(100),
-   `gender` varchar(10) NOT NULL,
+   `gender` varchar(100) NOT NULL,
    `dob` varchar(10) NOT NULL,
    `age` smallint(6) NOT NULL,
    `contact_no` varchar(10) NOT NULL,
-   `is_user` tinyint(1) NOT NULL DEFAULT 0,
-   `is_child` tinyint(1) NOT NULL DEFAULT 0
+   `is_user` tinyint(1) DEFAULT 0,
+   `is_child` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --

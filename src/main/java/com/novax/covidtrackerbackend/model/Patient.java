@@ -58,6 +58,6 @@ public class Patient {
     private int is_user;
 
     @Nullable
-    private int is_child;
+    private String is_child;
 
 }

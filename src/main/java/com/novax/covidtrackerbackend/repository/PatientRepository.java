@@ -27,7 +27,7 @@ public interface PatientRepository extends CrudRepository<Patient, Long> {
             @Param("age") Integer age,
             @Param("contact_no") String contact_no,
             @Param("is_user") Integer is_user,
-            @Param("is_child") Integer is_child
+            @Param("is_child") String is_child
 
 
     );

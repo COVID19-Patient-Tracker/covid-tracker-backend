@@ -33,14 +33,17 @@ public class HospitalUserController {
     private final HospitalService hospitalService;
     private final HospitalVisitHistoryService hospitalVisitHistoryService;
     private final UserService userService;
-    private final Response response;
 
+    private final Response response;
+    //@Autowired
+    private PatientServices patientServices;
     @Autowired
-    public HospitalUserController(HospitalService hospitalService, HospitalVisitHistoryService hospitalVisitHistoryService, UserService userService, Response response) {
+    public HospitalUserController(HospitalService hospitalService, HospitalVisitHistoryService hospitalVisitHistoryService, UserService userService, Response response,PatientServices patientServices) {
         this.hospitalService = hospitalService;
         this.hospitalVisitHistoryService = hospitalVisitHistoryService;
         this.userService = userService;
         this.response = response;
+        this.patientServices = patientServices;
     }
 
     @GetMapping("/getDetails/{userId}")
@@ -62,9 +65,6 @@ public class HospitalUserController {
         return response.getResponseEntity();
     }
 
-    @Autowired
-    private PatientServices patientServices;
-
     @PostMapping("/patient/add")
     @PreAuthorize("hasAnyRole('HOSPITAL_USER')")
     public ResponseEntity<HashMap<String, Object>> addPatient(@Valid @RequestBody Patient patient, HttpServletRequest request) throws IOException {
@@ -79,6 +79,19 @@ public class HospitalUserController {
 
 
     }
+    @GetMapping("/patients/all")
+    public ResponseEntity<HashMap<String, Object>> getAllPatients(HttpServletRequest request) throws SQLException {
+        List<Patient> patients = patientServices.getAllPatients();
+
+        // if no exception occurred send this response
+        response.reset().setResponseCode(HttpStatus.OK.value())
+                .setMessage("request success")
+                .setURI(request.getRequestURI())
+                .addField("patients",patients);
+
+        return response.getResponseEntity();
+    }
+
 
 
     /**
