@@ -12,10 +12,16 @@ SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
+
+
+
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
+
+
+
 
 --
 -- Database: `springboot`
@@ -38,6 +44,9 @@ DROP TABLE IF EXISTS `patient`;
 DROP TABLE IF EXISTS `hospital`;
 DROP TABLE IF EXISTS `user`;
 
+
+
+
 -- phpMyAdmin SQL Dump
 -- version 5.0.1
 -- https://www.phpmyadmin.net/
@@ -52,14 +61,23 @@ START TRANSACTION;
 SET time_zone = "+00:00";
 
 
+
+
+
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
+
+
+
 --
 -- Database: `springboot`
 --
+
+
+
 
 DELIMITER $$
 --
@@ -142,6 +160,8 @@ DELIMITER ;
 
 
 
+
+
 -- --------------------------------------------------------
 --
 -- Event for getting cumultive statistice
@@ -151,29 +171,72 @@ DELIMITER $$
 
 CREATE DEFINER=`root`@`localhost` EVENT `update_all_satistics` ON SCHEDULE EVERY 1 DAY STARTS '2021-10-29 20:15:02' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
 
+    SET @total_pcrs = (SELECT COUNT(*) FROM pcrtests);
+    SET @total_antigens = (SELECT COUNT(*) AS c FROM rapidantigentest);
+    SET @total_covid_patients = (SELECT COUNT(*) AS c FROM covidpatient);
+    SET @total_deaths = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'DEATH');
+    SET @total_actives = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'ACTIVE');
+    SET @total_antigens_positive = (SELECT COUNT(*) AS c FROM rapidantigentest WHERE test_result='POSITIVE');
+    SET @total_antigens_negative = (SELECT COUNT(*) AS c FROM rapidantigentest WHERE test_result='NEGATIVE');
+    SET @total_antigens_pending = (SELECT COUNT(*) AS c FROM rapidantigentest WHERE test_result='PENDING');
 
-SET @total_pcrs = (SELECT COUNT(*) FROM pcrtests);
-SET @total_antigens = (SELECT COUNT(*) AS c FROM rapidantigentest);
-SET @total_covid_patients = (SELECT COUNT(*) AS c FROM covidpatient);
-SET @total_deaths = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'DEATH');
-SET @total_actives = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'ACTIVE');
-SET @total_antigens_positive = (SELECT COUNT(*) AS c FROM rapidantigentest WHERE test_result='POSITIVE');
-SET @total_antigens_negative = (SELECT COUNT(*) AS c FROM rapidantigentest WHERE test_result='NEGATIVE');
-SET @total_antigens_pending = (SELECT COUNT(*) AS c FROM rapidantigentest WHERE test_result='PENDING');
-SET @total_pcrs_positive = (SELECT COUNT(*) AS c FROM pcrtests WHERE test_result='POSITIVE');
-SET @total_pcrs_negative = (SELECT COUNT(*) AS c FROM pcrtests WHERE test_result='NEGATIVE');
-SET @total_pcrs_pending = (SELECT COUNT(*) AS c FROM pcrtests WHERE test_result='PENDING');
-SET @total_recovered = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'RECOVERED');
-SET @total_positives = (SELECT COUNT(*) AS c FROM covidpatient);
-INSERT INTO statistics (`date`,  `total_pcrs`,`total_pcrs_positive`,`total_pcrs_negative`,`total_pcrs_pending`,
-   `total_antigens`,`total_antigens_positive`,
-   `total_antigens_negative`,`total_antigens_pending`,`total_covid_patients`, `total_deaths`, `total_actives`, `total_recovered`, `total_positives`)
- VALUES (CURDATE(), @total_pcrs, @total_pcrs_positive, @total_pcrs_negative, @total_antigens_pending,
-        @total_antigens, @total_antigens_positive, @total_antigens_negative,@total_antigens_pending,@total_covid_patients,@total_deaths,@total_actives,@total_recovered,@total_positives);
+    SET @total_pcrs_positive = (SELECT COUNT(*) AS c FROM pcrtests WHERE test_result='POSITIVE');
 
+    SET @total_pcrs_negative = (SELECT COUNT(*) AS c FROM pcrtests WHERE test_result='NEGATIVE');
+
+    SET @total_pcrs_pending = (SELECT COUNT(*) AS c FROM pcrtests WHERE test_result='PENDING');
+
+    SET @total_recovered = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'RECOVERED');
+
+    SET @total_positives = (SELECT COUNT(*) AS c FROM covidpatient);
+
+    CALL update_all_hos_statistics(0);
+    INSERT INTO statistics (`date`,  `total_pcrs`,`total_pcrs_positive`,`total_pcrs_negative`,`total_pcrs_pending`,
+       `total_antigens`,`total_antigens_positive`,
+       `total_antigens_negative`,`total_antigens_pending`,`total_covid_patients`, `total_deaths`, `total_actives`, `total_recovered`, `total_positives`)
+     VALUES (CURDATE(), @total_pcrs, @total_pcrs_positive, @total_pcrs_negative, @total_antigens_pending,
+
+            @total_antigens, @total_antigens_positive, @total_antigens_negative,@total_antigens_pending,@total_covid_patients,@total_deaths,@total_actives,@total_recovered,@total_positives);
 END $$
 
 DELIMITER ;
+
+-- update hos statistics table by this procedure
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_all_hos_statistics`(IN `p1` INT)
+BEGIN
+  label1: LOOP
+    SET @hospital_id = (SELECT hospital_id FROM hospital ORDER BY hospital_id LIMIT p1,1);
+    SET p1 = p1 + 1;
+	SET @total_covid_patients = (SELECT COUNT(*) FROM covidpatient WHERE covidpatient.hospital_id = @hospital_id);
+	SET @total_actives = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'ACTIVE' AND covidpatient.hospital_id = @hospital_id);
+	SET @total_deaths = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'DEATH' AND covidpatient.hospital_id = @hospital_id);
+	SET @total_cap = (SELECT capacity FROM hospital WHERE hospital.hospital_id = @hospital_id) - @total_covid_patients;
+	SET @total_antigens = (SELECT COUNT(*) FROM rapidantigentest WHERE rapidantigentest.hospital_id = @hospital_id);
+	SET @total_recovered = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'RECOVERED' AND covidpatient.hospital_id = @hospital_id);
+	SET @total_pcrs = (SELECT COUNT(*) FROM pcrtests WHERE pcrtests.hospital_id = @hospital_id);
+	INSERT INTO `hos_statistics` (`id`, `hospital_id`, `total_pcrs`,`total_covid_patients`, `total_deaths`, `total_actives`, `total_cap`,`total_recovered`,  		`date`,`total_antigens` ) VALUES (NULL, @hospital_id, @total_pcrs, @total_covid_patients, @total_deaths, @total_actives, @total_cap, @total_recovered, 		NOW(), @total_antigens);
+IF p1 < (SELECT COUNT(*) AS A FROM hospital) THEN
+      ITERATE label1;
+    END IF;
+    LEAVE label1;
+  END LOOP label1;
+  SET @x = p1;
+
+END$$
+
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -185,6 +248,9 @@ CREATE TABLE `covidpatient` (
   `verified_date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+
+
+
 --
 -- Dumping data for table `covidpatient`
 --
@@ -193,6 +259,48 @@ INSERT INTO `covidpatient` (`patient_id`, `hospital_id`, `patient_status`, `veri
 (8, 9, 'ACTIVE', '2021-10-21');
 
 
+
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `hos_statistics`
+--
+
+CREATE TABLE `hos_statistics` (
+  `id` bigint(20) NOT NULL,
+  `hospital_id` bigint(20) NOT NULL,
+  `total_covid_patients` bigint(20) NOT NULL,
+  `total_deaths` bigint(20) NOT NULL,
+  `total_actives` bigint(20) NOT NULL,
+  `total_cap` bigint(20) NOT NULL,
+  `total_antigens` int(11) NOT NULL,
+  `total_recovered` bigint(20) NOT NULL,
+  `date` date NOT NULL,
+  `total_pcrs` bigint(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `hos_statistics`
+--
+ALTER TABLE `hos_statistics`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `hos_statistics`
+--
+ALTER TABLE `hos_statistics`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=582;
+COMMIT;
 
 -- --------------------------------------------------------
 
