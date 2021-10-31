@@ -22,7 +22,6 @@ SET time_zone = "+00:00";
 
 
 
-
 --
 -- Database: `springboot`
 --
@@ -199,15 +198,10 @@ CREATE DEFINER=`root`@`localhost` EVENT `update_all_satistics` ON SCHEDULE EVERY
     SET @total_antigens_positive = (SELECT COUNT(*) AS c FROM rapidantigentest WHERE test_result='POSITIVE');
     SET @total_antigens_negative = (SELECT COUNT(*) AS c FROM rapidantigentest WHERE test_result='NEGATIVE');
     SET @total_antigens_pending = (SELECT COUNT(*) AS c FROM rapidantigentest WHERE test_result='PENDING');
-
     SET @total_pcrs_positive = (SELECT COUNT(*) AS c FROM pcrtests WHERE test_result='POSITIVE');
-
     SET @total_pcrs_negative = (SELECT COUNT(*) AS c FROM pcrtests WHERE test_result='NEGATIVE');
-
     SET @total_pcrs_pending = (SELECT COUNT(*) AS c FROM pcrtests WHERE test_result='PENDING');
-
     SET @total_recovered = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'RECOVERED');
-
     SET @total_positives = (SELECT COUNT(*) AS c FROM covidpatient);
 
     CALL update_all_hos_statistics(0);
@@ -248,18 +242,6 @@ END$$
 
 DELIMITER ;
 
-
-
-
-
-
-
-
-
-
-
-
-
 -- --------------------------------------------------------
 CREATE TABLE `covidpatient` (
   `patient_id` bigint(20) NOT NULL,
@@ -267,9 +249,6 @@ CREATE TABLE `covidpatient` (
   `patient_status` enum('ACTIVE','DEATH','RECOVERED','') NOT NULL,
   `verified_date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
-
 
 --
 -- Dumping data for table `covidpatient`
@@ -301,26 +280,7 @@ CREATE TABLE `hos_statistics` (
   `total_pcrs` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Indexes for dumped tables
---
 
---
--- Indexes for table `hos_statistics`
---
-ALTER TABLE `hos_statistics`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `hos_statistics`
---
-ALTER TABLE `hos_statistics`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=582;
-COMMIT;
 
 -- --------------------------------------------------------
 
@@ -671,6 +631,18 @@ ALTER TABLE `wardtransfertable`
 --
 
 --
+-- AUTO_INCREMENT for table `hos_statistics`
+--
+--
+-- Indexes for table `hos_statistics`
+--
+ALTER TABLE `hos_statistics`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `hos_statistics`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=582;
+COMMIT;
+--
 -- AUTO_INCREMENT for table `hospital`
 --
 ALTER TABLE `hospital`
@@ -759,6 +731,7 @@ ALTER TABLE `patient`
 ALTER TABLE `patient_user`
   ADD CONSTRAINT `patient_user_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`),
   ADD CONSTRAINT `patient_user_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patient` (`patient_id`);
+
 
 --
 -- Constraints for table `pcrtests`
