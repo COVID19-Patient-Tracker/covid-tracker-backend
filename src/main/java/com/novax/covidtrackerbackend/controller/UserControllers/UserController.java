@@ -126,7 +126,7 @@ public class UserController {
 
     @PostMapping("/signup")
     @JsonView(User.WithoutPasswordView.class)
-    public ResponseEntity<HashMap<String, Object>> registerPatient(@Valid @RequestBody PatientRegisterDTO data, HttpServletRequest request){
+    public ResponseEntity<HashMap<String, Object>> registerPatient(@Valid @RequestBody PatientRegisterDTO data, HttpServletRequest request) {
 
         data.setPassword(passwordEncoder.encode(data.getPassword()));
         Optional<User> reg_user = userService.patientRegister(data);
@@ -134,14 +134,14 @@ public class UserController {
         // exclude unwanted details (pw)
         MappingJacksonValue value = new MappingJacksonValue(reg_user.get());
         value.setSerializationView(User.WithoutPasswordView.class);
-        User useWithOutPasswordView = (User)  value.getValue();
+        User useWithOutPasswordView = (User) value.getValue();
 
         response.reset().setResponseCode(HttpStatus.OK.value())
                 .setMessage("Registered Successfully")
                 .setURI(request.getRequestURI())
-                .addField("userInfo",useWithOutPasswordView.getUserDetails());
-
-
+                .addField("userInfo", useWithOutPasswordView.getUserDetails());
+        return response.getResponseEntity();
+    };
     /**
      * GET DETAILS OF USER BY ROLE
      * @param role - role of the users requested
