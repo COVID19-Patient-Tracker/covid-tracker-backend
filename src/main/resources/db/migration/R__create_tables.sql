@@ -183,7 +183,7 @@ END$$
 DELIMITER ;
 -- --------------------------------------------------------
 --
--- Event for getting cumultive statistice
+-- Event for getting cumulative statistics
 --
 
 DELIMITER $$
