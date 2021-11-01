@@ -32,13 +32,11 @@ import java.util.Collections;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class ApplicationSecurityConfig  extends WebSecurityConfigurerAdapter{
-
     private final PasswordEncoder passwordEncoder;
     private final com.novax.covidtrackerbackend.auth.ApplicationUserService userDetailsService;
     private final CustomAuthenticationFailureHandler simpleAuthenticationFailureHandler;
     private final SecretKey jwtSecretKey;
     private final JwtConfig jwtConfig;
-
     @Autowired
     public ApplicationSecurityConfig(PasswordEncoder pwencdr,
                                      ApplicationUserService userDetailsService, SecretKey jwtSecretKey,
@@ -65,7 +63,6 @@ public class ApplicationSecurityConfig  extends WebSecurityConfigurerAdapter{
 
                 
     }
-
     @Override
     @Bean
     protected UserDetailsService userDetailsService(){
@@ -73,14 +70,10 @@ public class ApplicationSecurityConfig  extends WebSecurityConfigurerAdapter{
         return super.userDetailsService();
 
     }
-
     @Override
     protected void configure(AuthenticationManagerBuilder auth){
-
         auth.authenticationProvider(daoAuthenticationProvider());
-
     }
-
     @Bean
 	protected DaoAuthenticationProvider daoAuthenticationProvider() {
 
@@ -91,7 +84,6 @@ public class ApplicationSecurityConfig  extends WebSecurityConfigurerAdapter{
 		return provider;
 
 	}
-
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
@@ -101,5 +93,4 @@ public class ApplicationSecurityConfig  extends WebSecurityConfigurerAdapter{
             }
         };
     }
-
 }

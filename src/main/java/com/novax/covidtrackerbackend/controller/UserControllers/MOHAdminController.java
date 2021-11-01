@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Optional;
 
+
 /**
  * this controller provides resources for the MOH admin
  */
@@ -28,10 +29,13 @@ import java.util.Optional;
 @PreAuthorize("hasAnyRole('ROLE_MOH_ADMIN')")
 public class MOHAdminController {
 
+
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private MappingJacksonValue value;
     private final Response response;
+
+
 
     @Autowired
     public MOHAdminController(UserService userService, PasswordEncoder passwordEncoder,Response response) {
@@ -41,6 +45,7 @@ public class MOHAdminController {
     }
 
 
+
     /**
      * DELETES MOH_USER/HOSPITAL_ADMIN
      * @param u_id - NIC of the targeted user to delete.
@@ -48,7 +53,8 @@ public class MOHAdminController {
      */
 
     @DeleteMapping("/delete/{u_id}")
-    @PreAuthorize("hasAuthority('hospital_admin:write')")
+    @PreAuthorize("hasAnyAuthority('hospital_admin:write,moh_admin:write')")
+    @JsonView(User.OnlyEmailNicRoleAndIdView.class)
     public ResponseEntity<HashMap<String, Object>> deleteUser(@PathVariable Long u_id,HttpServletRequest request) throws SQLException {
 
         Optional<User> user = userService.getUserById(u_id);
@@ -56,13 +62,20 @@ public class MOHAdminController {
         if(user.isPresent()){
             User u = user.get();
             if(u.getRole().equals("MOH_ADMIN") || u.getRole().equals("MOH_USER")){
+                userService.deleteUser(u_id);
+
+                MappingJacksonValue value = new MappingJacksonValue(u);
+                value.setSerializationView(User.OnlyEmailNicRoleAndIdView.class);
+                User onlyEmailNicRoleAndIdView = (User)  value.getValue();
+
+
 
                 // if no exception occurred send this response
                 response.setResponseCode(HttpStatus.OK.value())
-                        .setMessage("request success")
+                        .setMessage("request success. user deleted")
                         .setURI(request.getRequestURI())
-                        .addField("Deleted",u);
-                userService.deleteUser(u_id);
+                        .addField("Deleted",onlyEmailNicRoleAndIdView);
+
 
             }else{
                 throw new EmptyResultDataAccessException("You don't have permission to delete this type of users",0);

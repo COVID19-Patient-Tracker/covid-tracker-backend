@@ -12,10 +12,12 @@ SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
+
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
+
 
 --
 -- Database: `springboot`
@@ -37,6 +39,7 @@ DROP TABLE IF EXISTS `ward`;
 DROP TABLE IF EXISTS `patient`;
 DROP TABLE IF EXISTS `hospital`;
 DROP TABLE IF EXISTS `user`;
+
 -- phpMyAdmin SQL Dump
 -- version 5.0.1
 -- https://www.phpmyadmin.net/
@@ -58,6 +61,7 @@ SET time_zone = "+00:00";
 --
 -- Database: `springboot`
 --
+
 DELIMITER $$
 --
 -- Procedures
@@ -176,8 +180,97 @@ BEGIN
 			SET MESSAGE_TEXT = 'invalid patientId or nic provided';
 		END IF;
 
+
     END$$
 DELIMITER ;
+
+
+DELIMITER $$
+CREATE or replace DEFINER=`root`@`localhost` PROCEDURE `add_patient` (IN `nic` varchar(50),
+                                                                         IN `hospital_id` int(11),
+                                                                         IN `address` varchar(400),
+                                                                         IN `first_name` varchar(100),
+                                                                         IN `last_name` varchar(100),
+                                                                         IN `gender` varchar(10),
+                                                                         IN `dob` varchar (10),
+                                                                         IN `age` int(10),
+                                                                         IN `contact_no` varchar(10),
+                                                                         IN `is_user` int(1),
+                                                                         IN `is_child` int(1))  BEGIN
+
+    IF NOT EXISTS (SELECT * FROM patient WHERE patient.nic = nic AND patient.first_name = first_name AND patient.last_name = last_name) THEN
+        START TRANSACTION;
+        INSERT INTO `patient` (`nic`, `hospital_id`, `address`, `first_name`,`last_name`,`gender`,`dob`,`age`,`contact_no`,`is_user`,`is_child`)
+            VALUES (nic,hospital_id,address,first_name,last_name,gender,dob,age,contact_no,is_user,is_child);
+        SELECT * FROM `patient` WHERE patient.nic = nic AND patient.first_name = first_name AND patient.last_name = last_name;
+        COMMIT;
+    ELSE
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'user already exists in db';
+    END IF;
+END$$
+DELIMITER ;
+-- --------------------------------------------------------
+--
+-- Event for getting cumulative statistics
+--
+
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` EVENT `update_all_satistics` ON SCHEDULE EVERY 1 DAY STARTS '2021-10-29 20:15:02' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
+
+    SET @total_pcrs = (SELECT COUNT(*) FROM pcrtests);
+    SET @total_antigens = (SELECT COUNT(*) AS c FROM rapidantigentest);
+    SET @total_covid_patients = (SELECT COUNT(*) AS c FROM covidpatient);
+    SET @total_deaths = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'DEATH');
+    SET @total_actives = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'ACTIVE');
+    SET @total_antigens_positive = (SELECT COUNT(*) AS c FROM rapidantigentest WHERE test_result='POSITIVE');
+    SET @total_antigens_negative = (SELECT COUNT(*) AS c FROM rapidantigentest WHERE test_result='NEGATIVE');
+    SET @total_antigens_pending = (SELECT COUNT(*) AS c FROM rapidantigentest WHERE test_result='PENDING');
+    SET @total_pcrs_positive = (SELECT COUNT(*) AS c FROM pcrtests WHERE test_result='POSITIVE');
+    SET @total_pcrs_negative = (SELECT COUNT(*) AS c FROM pcrtests WHERE test_result='NEGATIVE');
+    SET @total_pcrs_pending = (SELECT COUNT(*) AS c FROM pcrtests WHERE test_result='PENDING');
+    SET @total_recovered = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'RECOVERED');
+    SET @total_positives = (SELECT COUNT(*) AS c FROM covidpatient);
+
+    CALL update_all_hos_statistics(0);
+    INSERT INTO statistics (`date`,  `total_pcrs`,`total_pcrs_positive`,`total_pcrs_negative`,`total_pcrs_pending`,
+       `total_antigens`,`total_antigens_positive`,
+       `total_antigens_negative`,`total_antigens_pending`,`total_covid_patients`, `total_deaths`, `total_actives`, `total_recovered`, `total_positives`)
+     VALUES (CURDATE(), @total_pcrs, @total_pcrs_positive, @total_pcrs_negative, @total_antigens_pending,
+
+            @total_antigens, @total_antigens_positive, @total_antigens_negative,@total_antigens_pending,@total_covid_patients,@total_deaths,@total_actives,@total_recovered,@total_positives);
+END $$
+
+DELIMITER ;
+
+-- update hos statistics table by this procedure
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `update_all_hos_statistics`(IN `p1` INT)
+BEGIN
+  label1: LOOP
+    SET @hospital_id = (SELECT hospital_id FROM hospital ORDER BY hospital_id LIMIT p1,1);
+    SET p1 = p1 + 1;
+	SET @total_covid_patients = (SELECT COUNT(*) FROM covidpatient WHERE covidpatient.hospital_id = @hospital_id);
+	SET @total_actives = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'ACTIVE' AND covidpatient.hospital_id = @hospital_id);
+	SET @total_deaths = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'DEATH' AND covidpatient.hospital_id = @hospital_id);
+	SET @total_cap = (SELECT capacity FROM hospital WHERE hospital.hospital_id = @hospital_id) - @total_covid_patients;
+	SET @total_antigens = (SELECT COUNT(*) FROM rapidantigentest WHERE rapidantigentest.hospital_id = @hospital_id);
+	SET @total_recovered = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'RECOVERED' AND covidpatient.hospital_id = @hospital_id);
+	SET @total_pcrs = (SELECT COUNT(*) FROM pcrtests WHERE pcrtests.hospital_id = @hospital_id);
+	INSERT INTO `hos_statistics` (`id`, `hospital_id`, `total_pcrs`,`total_covid_patients`, `total_deaths`, `total_actives`, `total_cap`,`total_recovered`,  		`date`,`total_antigens` ) VALUES (NULL, @hospital_id, @total_pcrs, @total_covid_patients, @total_deaths, @total_actives, @total_cap, @total_recovered, 		NOW(), @total_antigens);
+IF p1 < (SELECT COUNT(*) AS A FROM hospital) THEN
+      ITERATE label1;
+    END IF;
+    LEAVE label1;
+  END LOOP label1;
+  SET @x = p1;
+
+END$$
+
+DELIMITER ;
+
 -- --------------------------------------------------------
 CREATE TABLE `covidpatient` (
   `patient_id` bigint(20) NOT NULL,
@@ -188,8 +281,33 @@ CREATE TABLE `covidpatient` (
 --
 -- Dumping data for table `covidpatient`
 --
+
 INSERT INTO `covidpatient` (`patient_id`, `hospital_id`, `verified_date`, `patient_status`) VALUES
 (1, 1, '2021-10-09', 'ACTIVE'), (2, 1, '2021-10-09', 'RECOVERED'), (3, 2, '2021-10-09', 'ACTIVE'),  (4, 2, '2021-10-09', 'ACTIVE');
+
+-- INSERT INTO `covidpatient` (`patient_id`, `hospital_id`, `patient_status`, `verified_date`) VALUES
+-- (8, 9, 'ACTIVE', '2021-10-21');
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `hos_statistics`
+--
+
+CREATE TABLE `hos_statistics` (
+  `id` bigint(20) NOT NULL,
+  `hospital_id` bigint(20) NOT NULL,
+  `total_covid_patients` bigint(20) NOT NULL,
+  `total_deaths` bigint(20) NOT NULL,
+  `total_actives` bigint(20) NOT NULL,
+  `total_cap` bigint(20) NOT NULL,
+  `total_antigens` int(11) NOT NULL,
+  `total_recovered` bigint(20) NOT NULL,
+  `date` date NOT NULL,
+  `total_pcrs` bigint(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- --------------------------------------------------------
 
 --
@@ -225,6 +343,7 @@ CREATE TABLE `patient` (
   `contact_no` varchar(10) NOT NULL,
   `is_user` tinyint(1) NOT NULL DEFAULT 0,
   `is_child` tinyint(1) NOT NULL DEFAULT 0
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -237,6 +356,8 @@ INSERT INTO `patient` (`patient_id`, `nic`, `hospital_id`, `first_name`, `last_n
 (3, '975688654v', 1, 'Nimali', 'Perera', 'No.10/ Galle', 'M', '2000-10-13', 20, '0775554311', 0, 0),
 (4, '975688654v', 1, 'Nuuri', 'Perera', 'No.10/ Galle', 'M', '2000-10-13', 20, '0779554311', 0, 0)
 ;
+-- INSERT INTO `patient` (`patient_id`, `nic`, `hospital_id`, `address`, `gender`, `dob`, `age`, `contact_no`, `is_user`) VALUES
+-- (8, '99999999', 3, 'aaaa', '0', '2021-10-13', 99, '99', 0);
 
 -- --------------------------------------------------------
 
@@ -288,6 +409,10 @@ INSERT INTO `hospitalvisithistory` (`visit_id`, `visit_date`, `hospital_id`, `wa
 (2, '2021-10-13', 1, 1, 2, 'Note', 'DISCHARGED'),
 (3, '2021-10-13', 2, 2, 3, 'Note', 'COMPLETED');
 
+-- INSERT INTO `hospitalvisithistory` (`visit_id`, `visit_date`, `hospital_id`, `ward_id`, `patient_id`, `data`, `visit_status`) VALUES
+-- (3, '2021-10-13', 3, 3, 8, 'aaaa', 'aaaa'),
+-- (117, '2020-10-10', 9, 3, 8, 'new data updated', 'new visit status');
+
 -- --------------------------------------------------------
 
 --
@@ -337,6 +462,41 @@ INSERT INTO `pcrtests` (`test_id`, `patient_id`, `hospital_id`, `test_data`, `te
 (5, '2', '2', '2021-10-12', 'PENDING'),
 (6, '3', '2', '2021-10-12', 'NEGATIVE')
 ;
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `statistics`
+--
+
+CREATE TABLE `statistics` (
+  `id` bigint(20) NOT NULL,
+  `total_pcrs` bigint(20) NOT NULL,
+  `total_antigens` bigint(20) NOT NULL,
+  `date` date NOT NULL,
+  `total_covid_patients` bigint(20) NOT NULL,
+  `total_deaths` bigint(20) NOT NULL,
+  `total_actives` bigint(20) NOT NULL,
+  `total_recovered` bigint(20) NOT NULL,
+  `total_positives` bigint(11) NOT NULL,
+  `total_pcrs_positive` bigint(20) NOT NULL,
+  `total_pcrs_negative` bigint(20) NOT NULL,
+  `total_pcrs_pending` int(11) NOT NULL,
+  `total_antigens_pending` int(11) NOT NULL,
+  `total_antigens_negative` bigint(20) NOT NULL,
+  `total_antigens_positive` bigint(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `statistics`
+--
+
+INSERT INTO `statistics` (`id`, `total_pcrs`, `total_antigens`, `date`, `total_covid_patients`, `total_deaths`, `total_actives`, `total_recovered`, `total_positives`, `total_pcrs_positive`, `total_pcrs_negative`, `total_pcrs_pending`, `total_antigens_pending`, `total_antigens_negative`, `total_antigens_positive`) VALUES
+(1, 1, 1, '2021-10-17', 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 1),
+(2, 1, 1, '2021-10-18', 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 1),
+(3, 1, 1, '2021-10-19', 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 1),
+(4, 1, 1, '2021-10-20', 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 1);
+
+
 
 -- --------------------------------------------------------
 
@@ -502,6 +662,14 @@ ALTER TABLE `rapidantigentest`
   ADD KEY `patient_id` (`patient_id`),
   ADD KEY `hospital_id` (`hospital_id`);
 
+
+  --
+  -- Indexes for table `statistics`
+  --
+  ALTER TABLE `statistics`
+    ADD PRIMARY KEY (`id`);
+
+
 --
 -- Indexes for table `user`
 --
@@ -530,6 +698,18 @@ ALTER TABLE `wardtransfertable`
 -- AUTO_INCREMENT for dumped tables
 --
 
+--
+-- AUTO_INCREMENT for table `hos_statistics`
+--
+--
+-- Indexes for table `hos_statistics`
+--
+ALTER TABLE `hos_statistics`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `hos_statistics`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=582;
+COMMIT;
 --
 -- AUTO_INCREMENT for table `hospital`
 --
@@ -572,6 +752,14 @@ ALTER TABLE `user`
 ALTER TABLE `wardtransfertable`
   MODIFY `transfer_id` int(11) NOT NULL AUTO_INCREMENT;
 
+
+  --
+  -- AUTO_INCREMENT for table `statistics`
+  --
+  ALTER TABLE `statistics`
+    MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  COMMIT;
+
 --
 -- Constraints for dumped tables
 --
@@ -611,6 +799,7 @@ ALTER TABLE `patient`
 ALTER TABLE `patient_user`
   ADD CONSTRAINT `patient_user_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`),
   ADD CONSTRAINT `patient_user_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patient` (`patient_id`);
+
 
 --
 -- Constraints for table `pcrtests`

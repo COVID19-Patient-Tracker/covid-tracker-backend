@@ -24,7 +24,7 @@ public interface UserRepository extends CrudRepository<User, Long> {
             @Param("first_name") String first_name,
             @Param("last_name") String last_name,
             @Param("hospital_id") Integer hospital_id
-                                );
+    );
 
     @Query(value = "SELECT EXISTS (SELECT * FROM User WHERE email = :email)", nativeQuery = true)
     public Integer isUserExist(@Param("email") String email);
