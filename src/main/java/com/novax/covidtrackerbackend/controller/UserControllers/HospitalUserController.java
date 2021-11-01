@@ -1,9 +1,15 @@
 package com.novax.covidtrackerbackend.controller.UserControllers;
 
+import com.novax.covidtrackerbackend.model.CovidPatient;
+import com.novax.covidtrackerbackend.model.Hospital;
+import com.novax.covidtrackerbackend.model.HospitalVisitHistory;
+import com.novax.covidtrackerbackend.model.Patient;
+import com.novax.covidtrackerbackend.model.User;
 import com.novax.covidtrackerbackend.model.*;
 import com.novax.covidtrackerbackend.response.Response;
 import com.novax.covidtrackerbackend.service.HospitalService;
 import com.novax.covidtrackerbackend.service.HospitalVisitHistoryService;
+import com.novax.covidtrackerbackend.service.PatientServices;
 import com.novax.covidtrackerbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +18,8 @@ import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +27,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "management/api/V1/hospital/user")
-@PreAuthorize("hasAnyRole('ROLE_MOH_USER,ROLE_HOSPITAL_ADMIN,ROLE_HOSPITAL_USER')")
+@PreAuthorize("hasAnyRole('ROLE_MOH_ADMIN,ROLE_HOSPITAL_ADMIN,ROLE_HOSPITAL_USER,ROLE_MOH_USER')")
 public class HospitalUserController {
 
     private final HospitalService hospitalService;
@@ -53,6 +61,25 @@ public class HospitalUserController {
 
         return response.getResponseEntity();
     }
+
+    @Autowired
+    private PatientServices patientServices;
+
+    @PostMapping("/patient/add")
+    @PreAuthorize("hasAnyRole('HOSPITAL_USER')")
+    public ResponseEntity<HashMap<String, Object>> addPatient(@Valid @RequestBody Patient patient, HttpServletRequest request) throws IOException {
+        Optional<Patient> new_patient = patientServices.addPatient(patient);
+        System.out.println(patient);
+        Response response = new Response();
+        response.setResponseCode(HttpStatus.OK.value())
+                .setMessage("request success")
+                .setURI(request.getRequestURI())
+                .addField("patientInfo", new_patient);
+        return response.getResponseEntity();
+
+
+    }
+
 
     /**
      * TRANSFER HOSPITAL

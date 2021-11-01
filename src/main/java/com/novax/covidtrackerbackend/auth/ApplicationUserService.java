@@ -39,7 +39,7 @@ public class ApplicationUserService implements UserDetailsService{
         ApplicationUser applicationUser = new ApplicationUser(
             role.getGrantedAuthority(),
             pwd,
-            uname,
+                uname,
                 id,
                 str_role,
                 true,

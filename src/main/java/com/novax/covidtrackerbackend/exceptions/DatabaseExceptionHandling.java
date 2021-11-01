@@ -23,16 +23,24 @@ public class DatabaseExceptionHandling {
     // Handle empty result data access exceptions
     @ExceptionHandler(EmptyResultDataAccessException.class)
     public ResponseEntity<HashMap<String,Object>> databaseError(EmptyResultDataAccessException ex,HttpServletRequest request) {
-
         int response_code = HttpServletResponse.SC_NOT_FOUND;
+        //String message = ex.getMessage();
 
         Response response = new Response()
                 .setMessage("requested data doesn't exist in the database")
                 .setResponseCode(response_code)
                 .setURI(request.getRequestURI())
                 .setException(ex);
+//        HashMap<String, String> map = new HashMap<>(4);
+//        map.put("msg", "requested data doesn't exist in the database");
+//        map.put("uri", request.getRequestURI());
+//        map.put("exception", String.format(ex.getMessage()));
+//        map.put("status", String.valueOf(response_code));
 
         return response.getResponseEntity();
+//        return ResponseEntity
+//                .status(response_code)
+//                .body(map);
     }
 
     /**
@@ -45,10 +53,9 @@ public class DatabaseExceptionHandling {
 
     @ExceptionHandler(SQLException.class)
     public ResponseEntity<HashMap<String,Object>> databaseError(SQLException ex,HttpServletRequest request) {
-
         int response_code;
-
         String message = ex.getMessage();
+
         if(message.equals("user already exists in db")){
             response_code = HttpServletResponse.SC_CONFLICT;
         }else if(message.equals("invalid role")){
@@ -65,6 +72,16 @@ public class DatabaseExceptionHandling {
                 .setURI(request.getRequestURI())
                 .setException(ex);
         return response.getResponseEntity();
+
+//        HashMap<String, String> map = new HashMap<>(4);
+//        map.put("uri", request.getRequestURI());
+//        map.put("msg", String.format(ex.getMessage()));
+//        map.put("exception", String.format(ex.getMessage()));
+//        map.put("status", String.valueOf(response_code));
+//
+//        return ResponseEntity
+//                .status(response_code)
+//                .body(map);
     }
 
 }

@@ -22,6 +22,7 @@ public class CustomAuthenticationSuccessResponse {
         map.put("email", userDetails.getUsername());
         map.put("id", userDetails.getId());
         map.put("role", userDetails.getRole());
+        //map.put("authorities", userDetails.getAuthorities());
         map.put("status", String.valueOf(HttpServletResponse.SC_OK));
 
         response.setStatus(HttpServletResponse.SC_OK); // 200 OK

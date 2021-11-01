@@ -8,9 +8,7 @@ import lombok.NoArgsConstructor;
 import org.checkerframework.common.aliasing.qual.Unique;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.util.List;
 import java.util.Set;
 
@@ -44,6 +42,11 @@ public class Hospital {
         this.capacity = capacity;
     }
 
+
+    @NotNull
+    @Min(value = 49,message = "There Should be a capacity value")
+    private int capacity;
+
     @ManyToMany
     @JoinTable(
             name = "hospital_user",
@@ -53,8 +56,6 @@ public class Hospital {
     @JsonIgnore
     private Set<User> hospitalUsers;
 
-    @NotNull
-    private int capacity;
 
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL,mappedBy="hospital")
