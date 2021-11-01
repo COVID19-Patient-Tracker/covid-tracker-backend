@@ -29,6 +29,6 @@ public class PatientRegisterDTO {
 
     @Getter
     @Setter
-    @Size(min = 8,max = 100,message = "size does not match")
+    @Size(min = 8,max = 16,message = "size does not match")
     private String password;
 }
