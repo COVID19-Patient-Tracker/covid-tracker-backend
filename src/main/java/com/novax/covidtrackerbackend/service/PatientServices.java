@@ -25,6 +25,14 @@ public class PatientServices {
         return (List<Patient>) patientRepository.findAll();
     }
 
+    public Optional<Patient> getPatientById(Long id) throws SQLException {
+        Optional<Patient> patient = patientRepository.findById(id);
+        if(patient.isEmpty()){
+            throw new SQLException("requested data doesn't exists in database");
+        }
+        return patient;
+    }
+
     public boolean isPatientExist(String nic, String first_name, String last_name) {
         return patientRepository.isPatientExist(nic,first_name,last_name);
     }
