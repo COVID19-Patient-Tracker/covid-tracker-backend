@@ -1,5 +1,6 @@
 package com.novax.covidtrackerbackend.repository;
 
+import com.novax.covidtrackerbackend.model.HosStatistics;
 import com.novax.covidtrackerbackend.model.Patient;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -7,10 +8,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface PatientRepository extends CrudRepository<Patient, Long> {
+    @Query(value = "SELECT * FROM patient WHERE hospital_id = :hospital_id", nativeQuery = true)
+    List<Patient> findPatientByhospital_id(@Param("hospital_id") Long hospital_id);
 
     @Query(value = "FROM Patient WHERE nic = :nic AND first_name= :first_name AND last_name= :last_name")
     public Optional<Patient> getUserByNic_Fn_Ln(@Param("nic") String nic, @Param("first_name") String first_name, @Param("last_name") String last_name);

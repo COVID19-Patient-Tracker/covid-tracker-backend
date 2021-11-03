@@ -85,6 +85,27 @@ public class HospitalAdminController {
         }
     }
 
+    @GetMapping("/user/{hospitalId}")
+    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN')")
+    public ResponseEntity<HashMap<String, Object>> getUserByHospitalID(@PathVariable("hospitalId") Integer hospitalId,
+                                                                             HttpServletRequest request) {
+        try {
+            UserDAO user = userDAOService.loadUserByHospitalId(hospitalId);
+            Response response = new Response();
+            response.setResponseCode(HttpStatus.OK.value())
+                    .addField("userInfo", user);
+            return response.getResponseEntity();
+
+        } catch (EntityNotFoundException e) {
+            Response response = new Response();
+            response.setResponseCode(HttpStatus.NOT_FOUND.value())
+                    .setException(e)
+                    .setMessage("Requested User Not Found")
+                    .setURI(request.getRequestURI());
+            return response.getResponseEntity();
+        }
+    }
+
     /**
      * GET
      * @param userEmail  - Email of the requested user

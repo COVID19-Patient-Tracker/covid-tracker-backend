@@ -1,5 +1,7 @@
 package com.novax.covidtrackerbackend.service;
 
+import com.novax.covidtrackerbackend.model.HosStatistics;
+import com.novax.covidtrackerbackend.model.HospitalVisitHistory;
 import com.novax.covidtrackerbackend.model.Patient;
 import com.novax.covidtrackerbackend.model.User;
 import com.novax.covidtrackerbackend.repository.PatientRepository;
@@ -35,6 +37,9 @@ public class PatientServices {
 
     public boolean isPatientExist(String nic, String first_name, String last_name) {
         return patientRepository.isPatientExist(nic,first_name,last_name);
+    }
+    public List<Patient> getAllPatientByHospitalID(long id){
+        return patientRepository.findPatientByhospital_id(id);
     }
 
     public Optional<Patient> getUserById(Long id) throws SQLException{

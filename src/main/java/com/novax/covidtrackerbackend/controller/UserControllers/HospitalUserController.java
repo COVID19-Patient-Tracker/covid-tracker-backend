@@ -97,17 +97,22 @@ public class HospitalUserController {
 
         Optional<Patient> patient = patientServices.getPatientById(userId);
 
-//        // exclude unwanted details (pw)
-//        MappingJacksonValue value = new MappingJacksonValue(patient.get());
-//        value.setSerializationView(User.WithoutPasswordViewAndHospitalInfoForHospitalUsers.class);
-//        User useWithOutPasswordView = (User)  value.getValue();
-
         // if no exception occurred send this response
         response.reset().setResponseCode(HttpStatus.OK.value())
                 .setMessage("request success")
                 .setURI(request.getRequestURI())
                 .addField("Info",patient);
 
+        return response.getResponseEntity();
+    }
+    @GetMapping("/getPatientByhosID/{id}")
+    public ResponseEntity<HashMap<String, Object>> getAllHosStatistics(@PathVariable("id") long id,HttpServletRequest request) {
+        List<Patient> patients = patientServices.getAllPatientByHospitalID(id);
+        // if no exception occurred send this response
+        response.reset().setResponseCode(HttpStatus.OK.value())
+                .setMessage("request success")
+                .setURI(request.getRequestURI())
+                .addField("patient",patients);
         return response.getResponseEntity();
     }
 
