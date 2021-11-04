@@ -27,7 +27,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "management/api/V1/hospital/user")
-@PreAuthorize("hasAnyRole('ROLE_MOH_USER,ROLE_HOSPITAL_ADMIN,ROLE_HOSPITAL_USER')")
+@PreAuthorize("hasAnyRole('ROLE_MOH_ADMIN,ROLE_HOSPITAL_ADMIN,ROLE_HOSPITAL_USER,ROLE_MOH_USER')")
 public class HospitalUserController {
 
     private final HospitalService hospitalService;

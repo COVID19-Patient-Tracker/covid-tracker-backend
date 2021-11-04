@@ -17,7 +17,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
@@ -65,7 +70,7 @@ public class HospitalAdminController {
     /**
      * GET
      * @param userNic  - NIC of the requested user
-     * @param hospitalId  - user accessed hospital id setted automatically
+     * @param hospitalId  - user accessed hospital id set automatically
      * @return - If user exists under the given condition user details will be returned
      * @throws EntityNotFoundException if the user is not available in the database
      */
@@ -116,7 +121,7 @@ public class HospitalAdminController {
     /**
      * GET
      * @param userEmail  - Email of the requested user
-     * @param hospitalId  - user accessed hospital id setted automatically
+     * @param hospitalId  - user accessed hospital id set automatically
      * @return - If user exists under the given condition user details will be returned
      * @throws EntityNotFoundException if the user is not available in the database
      */
@@ -207,6 +212,26 @@ public class HospitalAdminController {
             }
         }
 
+        return response.getResponseEntity();
+    }
+
+
+    /**
+     * GET A LIST OF PCR RESULTS
+     * @param userRole  - Role of the patient to get the data
+     * @param request - HttpServletRequest object to access uri
+     * @return - a list of pcr test records
+     */
+
+    @GetMapping("/user/{hospitalId}/role/{userRole}/all")
+    public ResponseEntity<HashMap<String, Object>> getAllUsersByRole(@PathVariable("userRole") String userRole,
+                                                                     @PathVariable("hospitalId") Integer hospitalId,
+                                                                     HttpServletRequest request){
+        List<UserDAO> users = userDAOService.loadUsersByRoleNHospitalId(userRole, hospitalId);
+        Response response = new Response();
+        response.reset().setResponseCode(HttpStatus.OK.value())
+                .setURI(request.getRequestURI())
+                .addField("UserData", users);
         return response.getResponseEntity();
     }
 }
