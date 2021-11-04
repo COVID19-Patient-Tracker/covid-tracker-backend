@@ -84,6 +84,7 @@ public class HospitalVisitHistoryService {
         }else{
             // TODO : change patient table hospital id
             // add record to the hospital visit history table
+            //get patient from
             this.save(hospitalVisitHistory);
             // update covid patient table
             covidPatient.setHospital(hospitalVisitHistory.getHospital());

@@ -1,9 +1,13 @@
 package com.novax.covidtrackerbackend.controller.UserControllers;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.novax.covidtrackerbackend.model.CovidPatient;
+import com.novax.covidtrackerbackend.model.Hospital;
+import com.novax.covidtrackerbackend.model.HospitalVisitHistory;
 import com.novax.covidtrackerbackend.model.User;
 import com.novax.covidtrackerbackend.model.dao.UserDAO;
 import com.novax.covidtrackerbackend.response.Response;
+import com.novax.covidtrackerbackend.service.HospitalService;
 import com.novax.covidtrackerbackend.service.UserDAOService;
 import com.novax.covidtrackerbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +25,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -34,6 +39,8 @@ public class HospitalAdminController {
     private UserDAOService userDAOService;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private HospitalService hospitalService;
 
     /**
      * ADDS NEW HOSPITAL USER OR ADMIN
@@ -134,6 +141,42 @@ public class HospitalAdminController {
                     .setURI(request.getRequestURI());
             return response.getResponseEntity();
         }
+    }
+
+    /**
+     * GET HOSPITAL DETAILS USING HOSPITAL ID
+     * @param request - request object
+     */
+
+    @GetMapping("/getHospitalDetails/{hospitalId}")
+    public ResponseEntity<HashMap<String, Object>> getHospitalDetails(@PathVariable("hospitalId") int hospitalId,HttpServletRequest request) throws SQLException {
+        Optional<Hospital> hospitals = hospitalService.getHospitalById(hospitalId);
+        Response response = new Response();
+        // if no exception occurred send this response
+        response.reset().setResponseCode(HttpStatus.OK.value())
+                .setMessage("request success")
+                .setURI(request.getRequestURI())
+                .addField("Hospital",hospitals);
+
+        return response.getResponseEntity();
+    }
+
+    /**
+     * UPDATES HOSPITAL DETAILS
+     */
+
+    @PostMapping("/hospital/updateDetials")
+    public ResponseEntity<HashMap<String, Object>> updateDetials(@RequestBody Hospital hospital, HttpServletRequest request) throws SQLException {
+        // update record with new data
+        Hospital hospitalDetails = hospitalService.updateHospitalDetails(hospital);
+        Response response = new Response();
+        // if no exception occurred send this response
+        response.reset().setResponseCode(HttpStatus.OK.value())
+                .setMessage("request success")
+                .setURI(request.getRequestURI())
+                .addField("updatedInfo",hospitalDetails);
+
+        return response.getResponseEntity();
     }
 
     @DeleteMapping("/delete/{u_id}")
