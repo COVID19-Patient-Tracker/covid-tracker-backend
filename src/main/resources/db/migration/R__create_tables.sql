@@ -348,7 +348,11 @@ CREATE TABLE `patient` (
 --
 -- Dumping data for table `patient`
 --
-
+INSERT INTO `patient` (`patient_id`, `hospital_id`, `nic`, `address`,`first_name`,`last_name`,`gender`,`dob`,`age`,`contact_no`,`is_user`,`is_child`) VALUES
+(1, 1, '99999999v', 'gampaha','jane','richards','female','2021-01-02','1','0767878989',0,'child'),
+(2, 1, '99999998v', 'gampaha','jane1','richards1','female','2021-01-02','1','0767878989',0,'child'),
+(3, 2, '99999997v', 'gampaha','jane2','richards2','female','2021-01-02','1','0767878989',0,'child'),
+(4, 2, '99999996v', 'gampaha','jane3','richards3','female','2021-01-02','1','0767878989',0,'child');
 -- INSERT INTO `patient` (`patient_id`, `nic`, `hospital_id`, `address`, `gender`, `dob`, `age`, `contact_no`, `is_user`) VALUES
 -- (8, '99999999', 3, 'aaaa', '0', '2021-10-13', 99, '99', 0);
 
