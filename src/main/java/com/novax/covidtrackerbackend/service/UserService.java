@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import com.novax.covidtrackerbackend.exceptions.InvalidOperationException;
 import com.novax.covidtrackerbackend.model.User;
+import com.novax.covidtrackerbackend.model.dto.PatientRegisterDTO;
 import com.novax.covidtrackerbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,8 +32,10 @@ public class UserService {
     @Autowired
     private SendGridEmailService emailService;
 
-    //@Autowired
-    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+//    //@Autowired
+//    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
     @Autowired
     public UserService(UserRepository userRepository) {
@@ -175,6 +178,23 @@ public class UserService {
         }
         // always return non-null object
         return updatedDetailsOfUser;
+    }
+
+    /**
+     * REGISTER NEW HOSPITAL VISITOR USER TO THE SYSTEM
+     * @param data - Basic details of the user
+     * @return If successful returns new registered user details
+     */
+
+    public Optional<User> patientRegister(PatientRegisterDTO data){
+        Optional<User> registered = userRepository.registerPatient(
+                data.getPatient_id(),
+                data.getEmail(),
+                data.getNic(),
+                data.getPassword()
+        );
+
+        return registered;
     }
 
     /**

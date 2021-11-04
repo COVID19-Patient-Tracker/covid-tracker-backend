@@ -33,12 +33,16 @@ public class ApplicationUserService implements UserDetailsService{
 
         String uname = user.getEmail();
         String pwd = user.getPassword();
+        String str_role = user.getRole();
         Long id = user.getUser_id();
 
         ApplicationUser applicationUser = new ApplicationUser(
             role.getGrantedAuthority(),
             pwd,
-            uname, id, true,
+                uname,
+                id,
+                str_role,
+                true,
             true,
             true,
             true
