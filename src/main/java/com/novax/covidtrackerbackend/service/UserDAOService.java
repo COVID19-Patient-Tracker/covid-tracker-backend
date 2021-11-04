@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -19,8 +20,8 @@ public class UserDAOService {
 
     /**
      * GETS USER BY NIC AND HOSPITAL ID
-     * @param userNic
-     * @param hospitalId
+     * @param userNic - NIc of the user
+     * @param hospitalId - user hospital id
      * @return UserDAO object
      */
     public UserDAO loadUserByNicHospitalId(String userNic, Integer hospitalId)  {
@@ -34,8 +35,8 @@ public class UserDAOService {
 
     /**
      * GETS USER BY HOSPITAL ID AND EMAIL
-     * @param userEmail
-     * @param hospitalId
+     * @param userEmail - Email of the user
+     * @param hospitalId - user hospital id
      * @return UserDAO object
      */
     public UserDAO loadUserByEmailNHospitalId(String userEmail, Integer hospitalId) {
@@ -45,6 +46,16 @@ public class UserDAOService {
         } else {
             throw new EntityNotFoundException("User not found");
         }
+    }
+
+    /**
+     * GETS ALL USERS BY HOSPITAL ID AND ROLE
+     * @param userRole - Role of the user
+     * @param hospitalId - user hospital id
+     * @return UserDAO object
+     */
+    public List<UserDAO> loadUsersByRoleNHospitalId(String userRole, Integer hospitalId) {
+        return userDAORepository.findByRoleAndHospitalusersHospital(userRole, hospitalId);
     }
 }
 
