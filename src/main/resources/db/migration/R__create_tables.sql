@@ -13,14 +13,10 @@ START TRANSACTION;
 SET time_zone = "+00:00";
 
 
-
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
-
-
 
 
 --
@@ -44,9 +40,6 @@ DROP TABLE IF EXISTS `patient`;
 DROP TABLE IF EXISTS `hospital`;
 DROP TABLE IF EXISTS `user`;
 
-
-
-
 -- phpMyAdmin SQL Dump
 -- version 5.0.1
 -- https://www.phpmyadmin.net/
@@ -60,24 +53,14 @@ SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-
-
-
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
-
-
-
 --
 -- Database: `springboot`
 --
-
-
-
 
 DELIMITER $$
 --
@@ -156,6 +139,51 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `add_user` (IN `email` VARCHAR(100),
     END$$
 
 DELIMITER ;
+--
+-- Procedure for patient signup
+--
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `patient_signup`(
+                IN `patient_id` BIGINT(20),
+                IN `email` VARCHAR(100),
+                IN `nic` VARCHAR(12),
+                IN `password` VARCHAR(300)
+)
+BEGIN
+        DECLARE u_id bigint(20) DEFAULT NULL;
+        DECLARE f_name , l_name varchar(100) DEFAULT NULL;
+
+        IF EXISTS (SELECT patient.patient_id FROM patient WHERE patient.patient_id = patient_id and patient.nic = nic) THEN
+            IF NOT EXISTS (SELECT patient_user.user_id FROM patient_user WHERE patient_user.patient_id = patient_id) THEN
+        	    START TRANSACTION;
+                        SELECT patient.first_name INTO f_name FROM patient WHERE patient.patient_id = patient_id;
+                        SELECT patient.last_name INTO l_name FROM patient WHERE patient.patient_id = patient_id;
+
+                        INSERT INTO `user` (`password`, `email`, `role`,`nic`,`first_name`,`last_name`)
+                            VALUES (password, email, "PATIENT", nic, f_name, l_name);
+
+                        SELECT `user_id` INTO u_id FROM user WHERE user.nic = nic AND user.email = email;
+
+                        INSERT INTO `patient_user` (`user_id`,`patient_id`) VALUES (u_id, patient_id);
+
+                        UPDATE patient SET patient.is_user = 1 WHERE patient.patient_id = patient_id and patient.nic = nic;
+                        SELECT * FROM `user` WHERE user.nic = nic AND user.email = email;
+                COMMIT;
+
+            ELSE
+                SIGNAL SQLSTATE '45000'
+                SET MESSAGE_TEXT = 'Already Registered';
+            END IF;
+
+		ELSE
+			SIGNAL SQLSTATE '45000'
+			SET MESSAGE_TEXT = 'invalid patientId or nic provided';
+		END IF;
+
+
+    END$$
+DELIMITER ;
+
 
 DELIMITER $$
 CREATE or replace DEFINER=`root`@`localhost` PROCEDURE `add_patient` (IN `nic` varchar(50),
@@ -184,7 +212,7 @@ END$$
 DELIMITER ;
 -- --------------------------------------------------------
 --
--- Event for getting cumultive statistice
+-- Event for getting cumulative statistics
 --
 
 DELIMITER $$
@@ -199,15 +227,10 @@ CREATE DEFINER=`root`@`localhost` EVENT `update_all_satistics` ON SCHEDULE EVERY
     SET @total_antigens_positive = (SELECT COUNT(*) AS c FROM rapidantigentest WHERE test_result='POSITIVE');
     SET @total_antigens_negative = (SELECT COUNT(*) AS c FROM rapidantigentest WHERE test_result='NEGATIVE');
     SET @total_antigens_pending = (SELECT COUNT(*) AS c FROM rapidantigentest WHERE test_result='PENDING');
-
     SET @total_pcrs_positive = (SELECT COUNT(*) AS c FROM pcrtests WHERE test_result='POSITIVE');
-
     SET @total_pcrs_negative = (SELECT COUNT(*) AS c FROM pcrtests WHERE test_result='NEGATIVE');
-
     SET @total_pcrs_pending = (SELECT COUNT(*) AS c FROM pcrtests WHERE test_result='PENDING');
-
     SET @total_recovered = (SELECT COUNT(*) AS c FROM covidpatient WHERE patient_status = 'RECOVERED');
-
     SET @total_positives = (SELECT COUNT(*) AS c FROM covidpatient);
 
     CALL update_all_hos_statistics(0);
@@ -248,18 +271,6 @@ END$$
 
 DELIMITER ;
 
-
-
-
-
-
-
-
-
-
-
-
-
 -- --------------------------------------------------------
 CREATE TABLE `covidpatient` (
   `patient_id` bigint(20) NOT NULL,
@@ -267,20 +278,16 @@ CREATE TABLE `covidpatient` (
   `patient_status` enum('ACTIVE','DEATH','RECOVERED','') NOT NULL,
   `verified_date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
-
-
 --
 -- Dumping data for table `covidpatient`
 --
 
+INSERT INTO `covidpatient` (`patient_id`, `hospital_id`, `verified_date`, `patient_status`) VALUES
+(1, 1, '2021-10-09', 'ACTIVE'), (2, 1, '2021-10-09', 'RECOVERED'), (3, 2, '2021-10-09', 'ACTIVE'),  (4, 2, '2021-10-09', 'ACTIVE');
+
 -- INSERT INTO `covidpatient` (`patient_id`, `hospital_id`, `patient_status`, `verified_date`) VALUES
 -- (8, 9, 'ACTIVE', '2021-10-21');
 --
-
-
-
 
 -- --------------------------------------------------------
 
@@ -300,27 +307,6 @@ CREATE TABLE `hos_statistics` (
   `date` date NOT NULL,
   `total_pcrs` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `hos_statistics`
---
-ALTER TABLE `hos_statistics`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `hos_statistics`
---
-ALTER TABLE `hos_statistics`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=582;
-COMMIT;
 
 -- --------------------------------------------------------
 
@@ -345,6 +331,7 @@ INSERT INTO `hibernate_sequence` (`next_val`) VALUES
 --
 
 CREATE TABLE `patient` (
+
     `patient_id` bigint(20) NOT NULL,
    `nic` varchar(12) NOT NULL,
    `hospital_id` int(11) NOT NULL,
@@ -363,6 +350,12 @@ CREATE TABLE `patient` (
 -- Dumping data for table `patient`
 --
 
+INSERT INTO `patient` (`patient_id`, `nic`, `hospital_id`, `first_name`, `last_name`, `address`, `gender`, `dob`, `age`, `contact_no`, `is_user`, `is_child`) VALUES
+(1, '975687654v', 1, 'Nimal', 'Perera', 'No.10/ Colombo', 'M', '2000-10-13', 15, '0775654321', 0, "child"),
+(2, '975688654v', 1, 'Namal', 'Perera', 'No.10/ Gampaha', 'M', '2000-10-13', 15, '0775654311', 0, "child"),
+(3, '975688654v', 1, 'Nimali', 'Perera', 'No.10/ Galle', 'M', '2000-10-13', 20, '0775554311', 0, "child"),
+(4, '975688654v', 1, 'Nuuri', 'Perera', 'No.10/ Galle', 'M', '2000-10-13', 20, '0779554311', 0, "child")
+;
 -- INSERT INTO `patient` (`patient_id`, `nic`, `hospital_id`, `address`, `gender`, `dob`, `age`, `contact_no`, `is_user`) VALUES
 -- (8, '99999999', 3, 'aaaa', '0', '2021-10-13', 99, '99', 0);
 
@@ -411,6 +404,11 @@ CREATE TABLE `hospitalvisithistory` (
 -- Dumping data for table `hospitalvisithistory`
 --
 
+INSERT INTO `hospitalvisithistory` (`visit_id`, `visit_date`, `hospital_id`, `ward_id`, `patient_id`, `data`, `visit_status`) VALUES
+(1, '2021-10-13', 1, 1, 1, 'Note', 'COMPLETED'),
+(2, '2021-10-13', 1, 1, 2, 'Note', 'DISCHARGED'),
+(3, '2021-10-13', 2, 2, 3, 'Note', 'COMPLETED');
+
 -- INSERT INTO `hospitalvisithistory` (`visit_id`, `visit_date`, `hospital_id`, `ward_id`, `patient_id`, `data`, `visit_status`) VALUES
 -- (3, '2021-10-13', 3, 3, 8, 'aaaa', 'aaaa'),
 -- (117, '2020-10-10', 9, 3, 8, 'new data updated', 'new visit status');
@@ -450,6 +448,20 @@ CREATE TABLE `pcrtests` (
   `test_data` date NOT NULL,
   `test_result` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+--
+-- Dumping data for table `pcrtests`
+--
+
+INSERT INTO `pcrtests` (`test_id`, `patient_id`, `hospital_id`, `test_data`, `test_result`) VALUES
+(1, '1', '1', '2021-10-12', 'POSITIVE'),
+(2, '2', '1', '2021-10-12', 'POSITIVE'),
+(3, '3', '1', '2021-10-12', 'NEGATIVE'),
+(4, '4', '1', '2021-10-12', 'POSITIVE'),
+(5, '2', '2', '2021-10-12', 'PENDING'),
+(6, '3', '2', '2021-10-12', 'NEGATIVE')
+;
 
 -- --------------------------------------------------------
 --
@@ -500,6 +512,20 @@ CREATE TABLE `rapidantigentest` (
   `test_result` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+
+--
+-- Dumping data for table `rapidantigentest`
+--
+
+INSERT INTO `rapidantigentest` (`antigen_test_id`, `patient_id`, `hospital_id`, `test_data`, `test_result`) VALUES
+(1, '1', '1', '2021-10-12', 'POSITIVE'),
+(2, '2', '1', '2021-10-12', 'POSITIVE'),
+(3, '3', '1', '2021-10-12', 'NEGATIVE'),
+(4, '4', '1', '2021-10-12', 'POSITIVE'),
+(5, '2', '2', '2021-10-12', 'PENDING'),
+(6, '3', '2', '2021-10-12', 'NEGATIVE')
+;
+
 -- --------------------------------------------------------
 
 --
@@ -521,11 +547,13 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`user_id`, `password`, `email`, `role`, `nic`, `first_name`, `last_name`) VALUES
-(10000, '$2a$10$uHTQrwQWUSAgWMekvYgqduJ2odI9gdGpdFu7zXR5816/drVQfRroC', 'a@gmail.com', 'ADMIN', '123456789v', 'first_name', 'last_name'),
-(10001, '$2a$10$uHTQrwQWUSAgWMekvYgqduJ2odI9gdGpdFu7zXR5816/drVQfRroC', 'abcdfg@gmail.com', 'ADMIN', '123456799v', 'first_name', 'last_name'),
-(10002, '$2a$10$uHTQrwQWUSAgWMekvYgqduJ2odI9gdGpdFu7zXR5816/drVQfRroC', 'mohusr@gmail.com', 'MOH_USER', '123456778v', 'first_name', 'last_name'),
-(10003, '$2a$10$uHTQrwQWUSAgWMekvYgqduJ2odI9gdGpdFu7zXR5816/drVQfRroC', 'mohadmn@gmail.com', 'MOH_ADMIN', '1234567878v', 'first_name', 'last_name'),
-(100441, '$2a$10$I1URLprHeAYnOwGEfk5CWeCb3xqSRE610tTpF5xGdtDuwCJPzGe6m', 'mohusr_new_new_new@gmail.com', 'MOH_USER', '988989899v', 'should_not_be_null', 'should_be_not_null');
+(10000, '$2a$10$uHTQrwQWUSAgWMekvYgqduJ2odI9gdGpdFu7zXR5816/drVQfRroC', 'a@gmail.com', 'ADMIN', '123456789v', 'Admin', 'User'),
+(10001, '$2a$10$uHTQrwQWUSAgWMekvYgqduJ2odI9gdGpdFu7zXR5816/drVQfRroC', 'abcdfg@gmail.com', 'ADMIN', '123456799v', 'Admin2', 'User'),
+(10002, '$2a$10$uHTQrwQWUSAgWMekvYgqduJ2odI9gdGpdFu7zXR5816/drVQfRroC', 'mohusr@gmail.com', 'MOH_USER', '123456778v', 'Moh', 'User'),
+(10003, '$2a$10$uHTQrwQWUSAgWMekvYgqduJ2odI9gdGpdFu7zXR5816/drVQfRroC', 'mohadmn@gmail.com', 'MOH_ADMIN', '1234567878v', 'Moh', 'Admin'),
+(10004, '$2a$10$I1URLprHeAYnOwGEfk5CWeCb3xqSRE610tTpF5xGdtDuwCJPzGe6m', 'hospitaluser@gmail.com', 'HOSPITAL_USER', '988989899v', 'Hospital', 'User'),
+(10005, '$2a$10$I1URLprHeAYnOwGEfk5CWeCb3xqSRE610tTpF5xGdtDuwCJPzGe6m', 'hospitaladmin@gmail.com', 'HOSPITAL_ADMIN', '988989899v', 'Hospital', 'Admin'),
+(10006, '$2a$10$I1URLprHeAYnOwGEfk5CWeCb3xqSRE610tTpF5xGdtDuwCJPzGe6m', 'patient@gmail.com', 'PATIENT', '988989899v', 'Patient', 'User');
 
 -- --------------------------------------------------------
 
@@ -671,6 +699,18 @@ ALTER TABLE `wardtransfertable`
 --
 
 --
+-- AUTO_INCREMENT for table `hos_statistics`
+--
+--
+-- Indexes for table `hos_statistics`
+--
+ALTER TABLE `hos_statistics`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `hos_statistics`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=582;
+COMMIT;
+--
 -- AUTO_INCREMENT for table `hospital`
 --
 ALTER TABLE `hospital`
@@ -759,6 +799,7 @@ ALTER TABLE `patient`
 ALTER TABLE `patient_user`
   ADD CONSTRAINT `patient_user_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`),
   ADD CONSTRAINT `patient_user_ibfk_2` FOREIGN KEY (`patient_id`) REFERENCES `patient` (`patient_id`);
+
 
 --
 -- Constraints for table `pcrtests`
