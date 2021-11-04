@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface UserDAORepository extends JpaRepository<UserDAO, Long>, JpaSpecificationExecutor<UserDAO> {
 
     Optional<UserDAO> findByNicAndHospitalusersHospital(String nic , Integer hospitalId);
+    Optional<UserDAO> findByHospitalusersHospital(Integer hospitalId);
     Optional<UserDAO> findByEmailAndHospitalusersHospital(String email , Integer hospitalId);
     List<UserDAO> findByRoleAndHospitalusersHospital(String role , Integer hospitalId);
 }

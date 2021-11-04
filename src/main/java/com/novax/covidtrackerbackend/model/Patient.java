@@ -27,7 +27,7 @@ public class Patient {
     @Pattern(regexp = "^[0-9]{9}v$",message = "format should be 99999999v {10 digits followed by \"v\"}")
     private String nic;
 
-    @Transient
+//    @Transient
     @NotNull(message = "hospital id  cannot be null")
     private int hospital_id;
 
@@ -58,6 +58,6 @@ public class Patient {
     private int is_user;
 
     @Nullable
-    private int is_child;
+    private String is_child;
 
 }

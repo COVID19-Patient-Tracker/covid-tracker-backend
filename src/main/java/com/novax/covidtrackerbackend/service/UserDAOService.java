@@ -33,6 +33,15 @@ public class UserDAOService {
         }
     }
 
+    public UserDAO loadUserByHospitalId(Integer hospitalId)  {
+        Optional<UserDAO> result = userDAORepository.findByHospitalusersHospital(hospitalId);
+        if (result.isPresent()) {
+            return result.get();
+        } else {
+            throw new EntityNotFoundException("User not found");
+        }
+    }
+
     /**
      * GETS USER BY HOSPITAL ID AND EMAIL
      * @param userEmail - Email of the user

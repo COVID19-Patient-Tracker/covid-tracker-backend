@@ -191,12 +191,12 @@ CREATE or replace DEFINER=`root`@`localhost` PROCEDURE `add_patient` (IN `nic` v
                                                                          IN `address` varchar(400),
                                                                          IN `first_name` varchar(100),
                                                                          IN `last_name` varchar(100),
-                                                                         IN `gender` varchar(10),
+                                                                         IN `gender` VARCHAR(100),
                                                                          IN `dob` varchar (10),
                                                                          IN `age` int(10),
                                                                          IN `contact_no` varchar(10),
                                                                          IN `is_user` int(1),
-                                                                         IN `is_child` int(1))  BEGIN
+                                                                         IN `is_child` VARCHAR(100))  BEGIN
 
     IF NOT EXISTS (SELECT * FROM patient WHERE patient.nic = nic AND patient.first_name = first_name AND patient.last_name = last_name) THEN
         START TRANSACTION;
@@ -331,19 +331,19 @@ INSERT INTO `hibernate_sequence` (`next_val`) VALUES
 --
 
 CREATE TABLE `patient` (
-  `patient_id` bigint(20) NOT NULL,
-  `nic` varchar(12) NOT NULL,
-  `hospital_id` int(11) NOT NULL,
-  `first_name` varchar(100) NOT NULL,
-  `last_name` varchar(100),
-  `address` varchar(400) NOT NULL,
-  `gender` char(1) NOT NULL,
-  `dob` date NOT NULL,
-  `age` smallint(6) NOT NULL,
-  `contact_no` varchar(10) NOT NULL,
-  `is_user` tinyint(1) NOT NULL DEFAULT 0,
-  `is_child` tinyint(1) NOT NULL DEFAULT 0
 
+    `patient_id` bigint(20) NOT NULL,
+   `nic` varchar(12) NOT NULL,
+   `hospital_id` int(11) NOT NULL,
+   `address` varchar(400) NOT NULL,
+   `first_name` varchar(100) NOT NULL,
+   `last_name` varchar(100),
+   `gender` varchar(100) NOT NULL,
+   `dob` varchar(10) NOT NULL,
+   `age` smallint(6) NOT NULL,
+   `contact_no` varchar(10) NOT NULL,
+   `is_user` tinyint(1) DEFAULT 0,
+   `is_child` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -351,10 +351,10 @@ CREATE TABLE `patient` (
 --
 
 INSERT INTO `patient` (`patient_id`, `nic`, `hospital_id`, `first_name`, `last_name`, `address`, `gender`, `dob`, `age`, `contact_no`, `is_user`, `is_child`) VALUES
-(1, '975687654v', 1, 'Nimal', 'Perera', 'No.10/ Colombo', 'M', '1990-10-13', 15, '0775654321', 0, 0),
-(2, '975688654v', 1, 'Namal', 'Bandara', 'No.120/ Gampaha', 'M', '2000-10-13', 15, '0775654311', 0, 0),
-(3, '975688654v', 1, 'Himali', 'Perera', 'Galle Road / Galle', 'F', '1987-01-13', 20, '0775554311', 0, 0),
-(4, '975688654v', 1, 'Nuvin', 'Bandara', 'No.80 / Galle', 'M', '2000-10-13', 20, '0779554311', 0, 0)
+(1, '975687654v', 1, 'Nimal', 'Perera', 'No.10/ Colombo', 'M', '2000-10-13', 15, '0775654321', 0, "child"),
+(2, '975688654v', 1, 'Namal', 'Perera', 'No.10/ Gampaha', 'M', '2000-10-13', 15, '0775654311', 0, "child"),
+(3, '975688654v', 1, 'Nimali', 'Perera', 'No.10/ Galle', 'M', '2000-10-13', 20, '0775554311', 0, "child"),
+(4, '975688654v', 1, 'Nuuri', 'Perera', 'No.10/ Galle', 'M', '2000-10-13', 20, '0779554311', 0, "child")
 ;
 -- INSERT INTO `patient` (`patient_id`, `nic`, `hospital_id`, `address`, `gender`, `dob`, `age`, `contact_no`, `is_user`) VALUES
 -- (8, '99999999', 3, 'aaaa', '0', '2021-10-13', 99, '99', 0);
@@ -423,13 +423,6 @@ CREATE TABLE `hospital_user` (
   `user_id` bigint(20) NOT NULL,
   `hospital_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `hospitalvisithistory`
---
-
-INSERT INTO `hospital_user` (`user_id`, `hospital_id`) VALUES ('10004', '1');
-INSERT INTO `hospital_user` (`user_id`, `hospital_id`) VALUES ('10005', '2');
 
 -- --------------------------------------------------------
 

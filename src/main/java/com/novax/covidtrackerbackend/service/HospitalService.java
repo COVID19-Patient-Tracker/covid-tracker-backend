@@ -2,6 +2,7 @@ package com.novax.covidtrackerbackend.service;
 
 import com.novax.covidtrackerbackend.model.CovidPatient;
 import com.novax.covidtrackerbackend.model.Hospital;
+import com.novax.covidtrackerbackend.model.HospitalVisitHistory;
 import com.novax.covidtrackerbackend.model.Ward;
 import com.novax.covidtrackerbackend.repository.CovidPatientRepository;
 import com.novax.covidtrackerbackend.repository.HospitalRepository;
@@ -47,6 +48,27 @@ public class HospitalService {
 
     public List<Ward> getWardsByHospitalId(int Id){
         return wardRepository.findByHospitalId(Id);
+    }
+
+    // get the newest visit history record
+    public Hospital getNewestHospitalDetialsBYHosId(int hospitalId) {
+        return hospitalRepository.findNewestRecordByHospitalId(hospitalId);
+    }
+
+    // update hospital details
+    public Hospital updateHospitalDetails(Hospital hospital){
+
+        // get original record
+        Hospital originalHospitalDetails
+                = this.getNewestHospitalDetialsBYHosId(hospital.getHospital_id());
+        // change details of original record
+        originalHospitalDetails.setName(hospital.getName());
+        originalHospitalDetails.setAddress(hospital.getAddress());
+        originalHospitalDetails.setTelephone(hospital.getTelephone());
+        originalHospitalDetails.setCapacity(hospital.getCapacity());
+        // save updated original record
+        return hospitalRepository.save(originalHospitalDetails);
+
     }
 
     public void deleteHospitalById(int Id){

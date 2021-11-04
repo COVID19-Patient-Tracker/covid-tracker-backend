@@ -1,10 +1,14 @@
 package com.novax.covidtrackerbackend.service;
 
+import com.novax.covidtrackerbackend.model.HosStatistics;
+import com.novax.covidtrackerbackend.model.HospitalVisitHistory;
 import com.novax.covidtrackerbackend.model.Patient;
+import com.novax.covidtrackerbackend.model.User;
 import com.novax.covidtrackerbackend.repository.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,15 +23,30 @@ public class PatientServices {
     }
 
     public List<Patient> getAllPatients(){
+
         return (List<Patient>) patientRepository.findAll();
+    }
+
+    public Optional<Patient> getPatientById(Long id) throws SQLException {
+        Optional<Patient> patient = patientRepository.findById(id);
+        if(patient.isEmpty()){
+            throw new SQLException("requested data doesn't exists in database");
+        }
+        return patient;
     }
 
     public boolean isPatientExist(String nic, String first_name, String last_name) {
         return patientRepository.isPatientExist(nic,first_name,last_name);
     }
+    public List<Patient> getAllPatientByHospitalID(long id){
+        return patientRepository.findPatientByhospital_id(id);
+    }
 
-    public Optional<Patient> getUserByNic_Fn_Ln(String nic, String first_name, String last_name){
-        Optional<Patient> patient = patientRepository.getUserByNic_Fn_Ln(nic,first_name,last_name);
+    public Optional<Patient> getUserById(Long id) throws SQLException{
+        Optional<Patient> patient = patientRepository.findById(id);
+        if(patient.isEmpty()){
+            throw new SQLException("requested data doesn't exists in database");
+        }
         return patient;
     }
 
