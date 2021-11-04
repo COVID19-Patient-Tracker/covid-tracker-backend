@@ -351,10 +351,10 @@ CREATE TABLE `patient` (
 --
 
 INSERT INTO `patient` (`patient_id`, `nic`, `hospital_id`, `first_name`, `last_name`, `address`, `gender`, `dob`, `age`, `contact_no`, `is_user`, `is_child`) VALUES
-(1, '975687654v', 1, 'Nimal', 'Perera', 'No.10/ Colombo', 'M', '2000-10-13', 15, '0775654321', 0, 0),
-(2, '975688654v', 1, 'Namal', 'Perera', 'No.10/ Gampaha', 'M', '2000-10-13', 15, '0775654311', 0, 0),
-(3, '975688654v', 1, 'Nimali', 'Perera', 'No.10/ Galle', 'M', '2000-10-13', 20, '0775554311', 0, 0),
-(4, '975688654v', 1, 'Nuuri', 'Perera', 'No.10/ Galle', 'M', '2000-10-13', 20, '0779554311', 0, 0)
+(1, '975687654v', 1, 'Nimal', 'Perera', 'No.10/ Colombo', 'M', '1990-10-13', 15, '0775654321', 0, 0),
+(2, '975688654v', 1, 'Namal', 'Bandara', 'No.120/ Gampaha', 'M', '2000-10-13', 15, '0775654311', 0, 0),
+(3, '975688654v', 1, 'Himali', 'Perera', 'Galle Road / Galle', 'F', '1987-01-13', 20, '0775554311', 0, 0),
+(4, '975688654v', 1, 'Nuvin', 'Bandara', 'No.80 / Galle', 'M', '2000-10-13', 20, '0779554311', 0, 0)
 ;
 -- INSERT INTO `patient` (`patient_id`, `nic`, `hospital_id`, `address`, `gender`, `dob`, `age`, `contact_no`, `is_user`) VALUES
 -- (8, '99999999', 3, 'aaaa', '0', '2021-10-13', 99, '99', 0);
@@ -423,6 +423,13 @@ CREATE TABLE `hospital_user` (
   `user_id` bigint(20) NOT NULL,
   `hospital_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `hospitalvisithistory`
+--
+
+INSERT INTO `hospital_user` (`user_id`, `hospital_id`) VALUES ('10004', '1');
+INSERT INTO `hospital_user` (`user_id`, `hospital_id`) VALUES ('10005', '2');
 
 -- --------------------------------------------------------
 
