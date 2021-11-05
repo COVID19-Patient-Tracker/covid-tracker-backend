@@ -28,7 +28,7 @@ public class RapidAntigenTestDAOService {
 
     public RapidAntigenTestDAO addAntigenTest(AddTestRequestDTO testData)  throws SQLException {
         RapidAntigenTestDAO antigenTest = new RapidAntigenTestDAO(
-                testData.getPatient_id(),
+                testData.getPatientId(),
                 testData.getHospital_id(),
                 testData.getTest_data(),
                 testData.getTest_result());

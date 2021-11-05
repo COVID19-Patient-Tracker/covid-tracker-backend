@@ -10,6 +10,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.util.Date;
 
 @Entity
 @AllArgsConstructor
@@ -30,6 +31,20 @@ public class Patient {
 //    @Transient
     @NotNull(message = "hospital id  cannot be null")
     private int hospital_id;
+
+    @Transient
+    private int ward_id;
+
+    @Nullable
+    @Transient
+    private Date visit_date;
+    @Nullable
+    @Transient
+    private String data;
+    @Nullable
+    @Transient
+    private String visit_status;
+
 
     @NotEmpty(message = "address cannot be null")
     private String address;

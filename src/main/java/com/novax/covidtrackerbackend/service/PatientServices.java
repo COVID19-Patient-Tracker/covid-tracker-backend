@@ -91,7 +91,11 @@ public class PatientServices {
                 patient.getAge(),
                 patient.getContact_no(),
                 patient.getIs_user(),
-                patient.getIs_child()
+                patient.getIs_child(),
+                patient.getWard_id(),
+                patient.getVisit_date(),
+                patient.getData(),
+                patient.getVisit_status()
         );
         return created_patient;
     }
