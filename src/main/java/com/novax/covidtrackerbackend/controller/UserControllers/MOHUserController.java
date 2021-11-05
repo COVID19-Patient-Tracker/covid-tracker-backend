@@ -82,7 +82,7 @@ public class MOHUserController {
      */
 
     @DeleteMapping("/delete/{u_id}")
-    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN')")
+    @PreAuthorize("hasAnyRole('MOH_USER')")
     @JsonView(User.OnlyEmailNicRoleAndIdView.class)
     public ResponseEntity<HashMap<String, Object>> deleteUser(@PathVariable Long u_id,HttpServletRequest request) throws SQLException {
         Optional<User> user = userService.getUserById(u_id);
