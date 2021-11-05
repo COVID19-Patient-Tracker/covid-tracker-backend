@@ -196,7 +196,7 @@ CREATE or replace DEFINER=`root`@`localhost` PROCEDURE `add_patient` (IN `nic` v
                                                                          IN `age` int(10),
                                                                          IN `contact_no` varchar(10),
                                                                          IN `is_user` int(1),
-                                                                         IN `is_child` int(1))  BEGIN
+                                                                         IN `is_child` varchar (100))  BEGIN
 
     IF NOT EXISTS (SELECT * FROM patient WHERE patient.nic = nic AND patient.first_name = first_name AND patient.last_name = last_name) THEN
         START TRANSACTION;

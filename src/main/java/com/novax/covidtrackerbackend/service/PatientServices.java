@@ -1,9 +1,6 @@
 package com.novax.covidtrackerbackend.service;
 
-import com.novax.covidtrackerbackend.model.HosStatistics;
-import com.novax.covidtrackerbackend.model.HospitalVisitHistory;
-import com.novax.covidtrackerbackend.model.Patient;
-import com.novax.covidtrackerbackend.model.User;
+import com.novax.covidtrackerbackend.model.*;
 import com.novax.covidtrackerbackend.repository.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +24,11 @@ public class PatientServices {
         return (List<Patient>) patientRepository.findAll();
     }
 
+    public Patient save(Patient patient){
+        Patient p = patientRepository.save(patient);
+        return p;
+    }
+
     public Optional<Patient> getPatientById(Long id) throws SQLException {
         Optional<Patient> patient = patientRepository.findById(id);
         if(patient.isEmpty()){
@@ -40,6 +42,33 @@ public class PatientServices {
     }
     public List<Patient> getAllPatientByHospitalID(long id){
         return patientRepository.findPatientByhospital_id(id);
+    }
+
+    // get the newest record
+    public Patient getNewestPatientDetailsBYId(long patientId) {
+        return patientRepository.findNewestRecordByPatientId(patientId);
+    }
+
+    // update patient details
+    public Patient updatePatientDetails(Patient patient){
+
+        // get original record
+        Patient originalPatientDetails = this.getNewestPatientDetailsBYId(patient.getPatient_id());
+        // change details of original record
+        originalPatientDetails.setNic(patient.getNic());
+        originalPatientDetails.setHospital_id(patient.getHospital_id());
+        originalPatientDetails.setAddress(patient.getAddress());
+        originalPatientDetails.setGender(patient.getGender());
+        originalPatientDetails.setDob(patient.getDob());
+        originalPatientDetails.setAge(patient.getAge());
+        originalPatientDetails.setContact_no(patient.getContact_no());
+        originalPatientDetails.setFirst_name(patient.getFirst_name());
+        originalPatientDetails.setLast_name(patient.getLast_name());
+        originalPatientDetails.setIs_user(patient.getIs_user());
+        originalPatientDetails.setIs_child(patient.getIs_child());
+        // save updated original record
+        return patientRepository.save(originalPatientDetails);
+
     }
 
     public Optional<Patient> getUserById(Long id) throws SQLException{
