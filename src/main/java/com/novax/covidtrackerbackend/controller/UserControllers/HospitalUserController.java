@@ -117,6 +117,24 @@ public class HospitalUserController {
     }
 
     /**
+     * UPDATE PATIENT DETAILS
+     */
+
+    @PostMapping("/hospital/updatePatientDetails")
+    public ResponseEntity<HashMap<String, Object>> updatePatientDetails(@RequestBody Patient patient, HttpServletRequest request) throws SQLException {
+        // update record with new data
+        Patient patientDetails = patientServices.updatePatientDetails(patient);
+        Response response = new Response();
+        // if no exception occurred send this response
+        response.reset().setResponseCode(HttpStatus.OK.value())
+                .setMessage("request success")
+                .setURI(request.getRequestURI())
+                .addField("updatedInfo",patientDetails);
+
+        return response.getResponseEntity();
+    }
+
+    /**
      * TRANSFER HOSPITAL
      * @param hospitalVisitHistory - new record of for transferred hospital.
      * @return - If database validation passes, returns updatedInfo as JSON object.

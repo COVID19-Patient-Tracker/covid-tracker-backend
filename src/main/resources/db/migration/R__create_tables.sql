@@ -191,18 +191,29 @@ CREATE or replace DEFINER=`root`@`localhost` PROCEDURE `add_patient` (IN `nic` v
                                                                          IN `address` varchar(400),
                                                                          IN `first_name` varchar(100),
                                                                          IN `last_name` varchar(100),
-                                                                         IN `gender` VARCHAR(100),
+                                                                         IN `gender` varchar(10),
                                                                          IN `dob` varchar (10),
                                                                          IN `age` int(10),
                                                                          IN `contact_no` varchar(10),
                                                                          IN `is_user` int(1),
-                                                                         IN `is_child` VARCHAR(100))  BEGIN
+                                                                         IN `is_child` varchar (100),
+                                                                         IN `ward_id` int(11),
+                                                                         IN `visit_date` date,
+                                                                         IN `data` varchar(300),
+                                                                         IN `visit_status` varchar (100))  BEGIN
+    DECLARE p_id bigint(20) DEFAULT NULL;
 
     IF NOT EXISTS (SELECT * FROM patient WHERE patient.nic = nic AND patient.first_name = first_name AND patient.last_name = last_name) THEN
         START TRANSACTION;
         INSERT INTO `patient` (`nic`, `hospital_id`, `address`, `first_name`,`last_name`,`gender`,`dob`,`age`,`contact_no`,`is_user`,`is_child`)
             VALUES (nic,hospital_id,address,first_name,last_name,gender,dob,age,contact_no,is_user,is_child);
         SELECT * FROM `patient` WHERE patient.nic = nic AND patient.first_name = first_name AND patient.last_name = last_name;
+
+        SELECT patient_id INTO p_id FROM `patient` WHERE patient.nic = nic AND patient.first_name = first_name AND patient.last_name = last_name;
+        INSERT INTO `hospitalvisithistory` (`visit_date`, `hospital_id`, `ward_id`, `patient_id`,`data`,`visit_status`)
+            VALUES (visit_date,hospital_id,ward_id,p_id,data,visit_status);
+        SELECT * FROM `patient` NATURAL JOIN `hospitalvisithistory` WHERE patient.nic = nic AND patient.first_name = first_name AND patient.last_name = last_name;
+
         COMMIT;
     ELSE
         SIGNAL SQLSTATE '45000'
@@ -356,6 +367,7 @@ INSERT INTO `patient` (`patient_id`, `nic`, `hospital_id`, `first_name`, `last_n
 (3, '975688654v', 1, 'Nimali', 'Perera', 'No.10/ Galle', 'M', '2000-10-13', 20, '0775554311', 0, "child"),
 (4, '975688654v', 1, 'Nuuri', 'Perera', 'No.10/ Galle', 'M', '2000-10-13', 20, '0779554311', 0, "child")
 ;
+
 -- INSERT INTO `patient` (`patient_id`, `nic`, `hospital_id`, `address`, `gender`, `dob`, `age`, `contact_no`, `is_user`) VALUES
 -- (8, '99999999', 3, 'aaaa', '0', '2021-10-13', 99, '99', 0);
 
@@ -397,7 +409,7 @@ CREATE TABLE `hospitalvisithistory` (
   `ward_id` int(11) NOT NULL,
   `patient_id` bigint(20) NOT NULL,
   `data` varchar(300) DEFAULT NULL,
-  `visit_status` enum('QUARANTINED','ADMITTED','DISCHARGED','') DEFAULT NULL
+  `visit_status` enum('QUARANTINED','ADMITTED','DISCHARGED','PENDING','') DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --

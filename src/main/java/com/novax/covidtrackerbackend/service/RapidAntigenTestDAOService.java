@@ -37,7 +37,7 @@ public class RapidAntigenTestDAOService {
 
     public RapidAntigenTestDAO addAntigenTest(AddTestRequestDTO testData)  throws SQLException {
         RapidAntigenTestDAO antigenTest = new RapidAntigenTestDAO(
-                testData.getPatient_id(),
+                testData.getPatientId(),
                 testData.getHospital_id(),
                 testData.getTest_data(),
                 testData.getTest_result());
@@ -48,7 +48,7 @@ public class RapidAntigenTestDAOService {
             Hospital hospital = hospitalRepository.findById(testData.getHospital_id()).get();
 
             CovidPatient covidPatient = new CovidPatient(
-                    testData.getPatient_id(),
+                    testData.getPatientId(),
                     hospital,
                     new Date(),
                     "ACTIVE"
