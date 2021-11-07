@@ -2,8 +2,10 @@ package com.novax.covidtrackerbackend.service;
 
 import com.novax.covidtrackerbackend.model.CovidPatient;
 import com.novax.covidtrackerbackend.model.HospitalVisitHistory;
+import com.novax.covidtrackerbackend.model.Patient;
 import com.novax.covidtrackerbackend.repository.CovidPatientRepository;
 import com.novax.covidtrackerbackend.repository.HospitalVisitHistoryRepository;
+import com.novax.covidtrackerbackend.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,8 @@ public class HospitalVisitHistoryService {
     private final HospitalVisitHistoryRepository hospitalVisitHistoryRepository;
     @Autowired
     private final CovidPatientRepository covidPatientRepository;
+    @Autowired
+    private final PatientRepository patientRepository;
 
     // saves a visit history record
     public void save(HospitalVisitHistory hospitalVisitHistory) {
@@ -84,7 +88,14 @@ public class HospitalVisitHistoryService {
         }else{
             // TODO : change patient table hospital id
             // add record to the hospital visit history table
+            // get original record
+            Patient originalPatientDetail
+                    = patientRepository.findNewestRecordByPatientId(hospitalVisitHistory.getPatient_id());
+            // change Data of original record
+            originalPatientDetail.setHospital_id(hospitalVisitHistory.getHospital().getHospital_id());
+
             //get patient from
+            patientRepository.save(originalPatientDetail);
             this.save(hospitalVisitHistory);
             // update covid patient table
             covidPatient.setHospital(hospitalVisitHistory.getHospital());
@@ -93,3 +104,4 @@ public class HospitalVisitHistoryService {
         }
     }
 }
+
