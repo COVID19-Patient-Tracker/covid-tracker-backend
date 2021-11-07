@@ -50,7 +50,7 @@ public class HospitalService {
         return wardRepository.findByHospitalId(Id);
     }
 
-    // get the newest visit history record
+    // get the newest record
     public Hospital getNewestHospitalDetialsBYHosId(int hospitalId) {
         return hospitalRepository.findNewestRecordByHospitalId(hospitalId);
     }

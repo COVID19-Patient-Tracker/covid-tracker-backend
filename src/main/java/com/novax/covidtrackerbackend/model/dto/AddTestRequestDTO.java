@@ -14,7 +14,7 @@ public class AddTestRequestDTO {
     @Getter
     @Setter
     @NotNull(message = "patient id cannot be null")
-    private Long patient_id;
+    private Long patientId;
 
     @Getter
     @Setter

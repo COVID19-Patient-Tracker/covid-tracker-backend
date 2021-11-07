@@ -34,7 +34,7 @@ public class PcrTestDAOService {
 
     public PcrTestDAO addPcrTest( AddTestRequestDTO testData)  throws SQLException {
         PcrTestDAO pcr = new PcrTestDAO(
-                testData.getPatient_id(),
+                testData.getPatientId(),
                 testData.getHospital_id(),
                 testData.getTest_data(),
                 testData.getTest_result());

@@ -166,6 +166,7 @@ public class HospitalAdminController {
         return response.getResponseEntity();
     }
 
+
     /**
      * GET HOSPITAL DETAILS USING HOSPITAL ID
      * @param request - request object
@@ -229,8 +230,11 @@ public class HospitalAdminController {
                 throw new EmptyResultDataAccessException("You don't have permission to delete this type of users",0);
             }
         }
+
+
         return response.getResponseEntity();
     }
+
 }
 
 
