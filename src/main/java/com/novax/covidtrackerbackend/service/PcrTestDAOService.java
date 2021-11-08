@@ -41,7 +41,7 @@ public class PcrTestDAOService {
 
 
         // when updating PCR results if it is positive create new covid patient in table
-        if(pcr.getTest_result().equals("POSITIVE")){
+        if(pcr.getTest_result().equals("POSITIVE") || pcr.getTest_result().equals("Positive")){
             Hospital hospital = hospitalRepository.findById(pcr.getHospital_id()).get();
             CovidPatient covidPatient = new CovidPatient(
                     pcr.getPatientId(),
@@ -72,7 +72,7 @@ public class PcrTestDAOService {
             testData.setTest_result(test_state);
 
             // when updating PCR results if it is positive create new covid patient in table
-            if(testData.getTest_result().equals("POSITIVE")){
+            if(testData.getTest_result().equals("POSITIVE") || testData.getTest_result().equals("Positive")){
 
                 Hospital hospital = hospitalRepository.findById(testData.getHospital_id()).get();
 
