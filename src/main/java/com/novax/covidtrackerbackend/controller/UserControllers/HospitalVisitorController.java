@@ -1,8 +1,12 @@
 package com.novax.covidtrackerbackend.controller.UserControllers;
 
+import com.novax.covidtrackerbackend.model.HospitalVisitHistory;
+import com.novax.covidtrackerbackend.model.Patient;
 import com.novax.covidtrackerbackend.model.dao.PcrTestDAO;
 import com.novax.covidtrackerbackend.model.dao.RapidAntigenTestDAO;
 import com.novax.covidtrackerbackend.response.Response;
+import com.novax.covidtrackerbackend.service.HospitalVisitHistoryService;
+import com.novax.covidtrackerbackend.service.PatientServices;
 import com.novax.covidtrackerbackend.service.PcrTestDAOService;
 import com.novax.covidtrackerbackend.service.RapidAntigenTestDAOService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("management/api/V1/visitor")
@@ -27,6 +32,10 @@ public class HospitalVisitorController {
     private RapidAntigenTestDAOService rapidAntigenTestDAOService;
     @Autowired
     private Response response;
+    @Autowired
+    private PatientServices patientServices;
+    @Autowired
+    private HospitalVisitHistoryService hospitalVisitHistoryService;
 
     /**
      * GET A LIST OF PCR RESULTS
@@ -56,6 +65,46 @@ public class HospitalVisitorController {
         response.reset().setResponseCode(HttpStatus.OK.value())
                 .setURI(request.getRequestURI())
                 .addField("TestData", antigen_tests);
+        return response.getResponseEntity();
+    }
+
+    /**
+     * GET THE DETAILS OF THE USER
+     * @param userId  - ID of the patient to get the data
+     * @param request - HttpServletRequest object to access uri
+     * @return - a list of antigen test records
+     */
+    @GetMapping("/get/{visitorId}")
+    public ResponseEntity<HashMap<String, Object>> getPatientDetails(@PathVariable("visitorId") long userId, HttpServletRequest request) throws Exception {
+
+        Optional<Patient> patient = patientServices.getPatientById(userId);
+
+        // if no exception occurred send this response
+        response.reset().setResponseCode(HttpStatus.OK.value())
+                .setMessage("request success")
+                .setURI(request.getRequestURI())
+                .addField("Info",patient);
+
+        return response.getResponseEntity();
+    }
+
+    /**
+     * GETS ALL VISIT HISTORIES OF A VISITOR
+     * @param patientId - id of the covid patient
+     * @param request - request object
+     * @return hospitalVisitHistories
+     */
+
+    @GetMapping("/getVisitHistory/{patientId}")
+    public ResponseEntity<HashMap<String, Object>> getHospitalVisitHistories(@PathVariable("patientId") long patientId, HttpServletRequest request){
+        List<HospitalVisitHistory> hospitalVisitHistories = hospitalVisitHistoryService.getAllVisitHistoriesByPatientId(patientId);
+
+        // if no exception occurred send this response
+        response.reset().setResponseCode(HttpStatus.OK.value())
+                .setMessage("request success")
+                .setURI(request.getRequestURI())
+                .addField("histories",hospitalVisitHistories);
+
         return response.getResponseEntity();
     }
 }
