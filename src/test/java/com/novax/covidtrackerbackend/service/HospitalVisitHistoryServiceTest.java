@@ -5,12 +5,14 @@ import com.novax.covidtrackerbackend.model.Hospital;
 import com.novax.covidtrackerbackend.model.HospitalVisitHistory;
 import com.novax.covidtrackerbackend.repository.CovidPatientRepository;
 import com.novax.covidtrackerbackend.repository.HospitalVisitHistoryRepository;
+import com.novax.covidtrackerbackend.repository.PatientRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.sql.SQLException;
 import java.util.Date;
@@ -25,11 +27,12 @@ class HospitalVisitHistoryServiceTest {
 
     @Mock private HospitalVisitHistoryRepository hospitalVisitHistoryRepository;
     @Mock private CovidPatientRepository covidPatientRepository;
+    @Mock private PatientRepository patientRepository;
     private HospitalVisitHistoryService underTest;
 
     @BeforeEach
     void setUp() {
-        underTest = new HospitalVisitHistoryService(hospitalVisitHistoryRepository,covidPatientRepository);
+        underTest = new HospitalVisitHistoryService(hospitalVisitHistoryRepository,covidPatientRepository,patientRepository);
     }
 
     // data for saving

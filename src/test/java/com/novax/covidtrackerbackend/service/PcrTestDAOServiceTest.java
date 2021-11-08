@@ -2,6 +2,8 @@ package com.novax.covidtrackerbackend.service;
 
 import com.novax.covidtrackerbackend.model.dao.PcrTestDAO;
 import com.novax.covidtrackerbackend.model.dto.AddTestRequestDTO;
+import com.novax.covidtrackerbackend.repository.CovidPatientRepository;
+import com.novax.covidtrackerbackend.repository.HospitalRepository;
 import com.novax.covidtrackerbackend.repository.PcrTestDAORepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.EntityNotFoundException;
 import java.sql.SQLException;
@@ -25,12 +28,15 @@ class PcrTestDAOServiceTest {
 
     @Mock
     PcrTestDAORepository pcrTestDAORepository;
-
+    @Mock
+    private CovidPatientRepository covidPatientRepository;
+    @Mock
+    private HospitalRepository hospitalRepository;
     PcrTestDAOService pcrTestDAOService;
 
     @BeforeEach
     void setUp() {
-        pcrTestDAOService = new PcrTestDAOService(pcrTestDAORepository);
+        pcrTestDAOService = new PcrTestDAOService(covidPatientRepository,hospitalRepository,pcrTestDAORepository);
     }
 
     //mock data

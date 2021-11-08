@@ -3,6 +3,8 @@ package com.novax.covidtrackerbackend.service;
 import com.novax.covidtrackerbackend.model.dao.PcrTestDAO;
 import com.novax.covidtrackerbackend.model.dao.RapidAntigenTestDAO;
 import com.novax.covidtrackerbackend.model.dto.AddTestRequestDTO;
+import com.novax.covidtrackerbackend.repository.CovidPatientRepository;
+import com.novax.covidtrackerbackend.repository.HospitalRepository;
 import com.novax.covidtrackerbackend.repository.RapidAntigenTestDAORepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,12 +28,16 @@ class RapidAntigenTestDAOServiceUnitTest {
 
     @Mock
     RapidAntigenTestDAORepository rapidAntigenTestDAORepository;
+    @Mock
+    private CovidPatientRepository covidPatientRepository;
+    @Mock
+    private HospitalRepository hospitalRepository;
 
     RapidAntigenTestDAOService rapidAntigenTestDAOService;
 
     @BeforeEach
     void setUp() {
-        rapidAntigenTestDAOService = new RapidAntigenTestDAOService(rapidAntigenTestDAORepository);
+        rapidAntigenTestDAOService = new RapidAntigenTestDAOService(covidPatientRepository,hospitalRepository,rapidAntigenTestDAORepository);
     }
 
     //mock data
